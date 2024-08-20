@@ -6,8 +6,9 @@ local spawner = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kipro
 local entity = spawner.Create({
 	Entity = {
 		Name = "Template Entity",
-		Asset = "https://github.com/RegularVynixu/Utilities/blob/main/Doors%20Entity%20Spawner/Models/Rush.rbxm?raw=true",
-		HeightOffset = 0
+		Asset = "", -- This can be a raw roblox rbxm github file or a "rbxassetid://" model from the marketplace.
+		HeightOffset = 0,
+		SmoothTransition = true,
 	},
 	Lights = {
 		Flicker = {
