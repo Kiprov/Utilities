@@ -5,3 +5,6 @@ Remember to use this README file to understand how to use the entity spawner.
 # Setup of the Entity Spawner.
 Firstly you want to copy the raw link of the "Source.lua" file.
 Then you want to make a new blank txt or lua file.
+Now paste this code into your file.
+```lua
+```
