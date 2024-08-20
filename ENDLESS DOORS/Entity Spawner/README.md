@@ -7,4 +7,8 @@ Firstly you want to copy the raw link of the "Source.lua" file.
 Then you want to make a new blank txt or lua file.
 Now paste this code into your file.
 ```lua
+local spawner = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kiprov/Utilities/main/ENDLESS%20DOORS/Entity%20Spawner/Source.lua"))()
+```
+After you `pasted` the code the next thing you want to do is get a template of your entity. Here is a template provided below!
+```lua
 ```
