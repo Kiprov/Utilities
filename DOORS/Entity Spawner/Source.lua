@@ -291,7 +291,7 @@ function PlayerIsProtected()
 end
 
 function DamagePlayer(entityTable)
-	--if localHum.Parent:FindFirstChild("Crucifix") then return end
+	if localHum.Parent:FindFirstChild("Crucifix") then return end
 	if localHum.Health > 0 and not PlayerIsProtected() then
 		local config = entityTable.Config
 		local newHealth = math.clamp(localHum.Health - config.Damage.Amount, 0, localHum.MaxHealth)
