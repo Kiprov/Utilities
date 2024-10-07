@@ -184,7 +184,7 @@ function module:CrucifyEntity(config,oldentity,ToolHandle)
 		Position = pentagram.Circle.Position - Vector3.new(0, 10, 0),
 	}):Play()
 
-	camShake:FireClient(Player,10,15,4,5)
+	camShake:ShakeOnce(10,15,4,5)
 
 	--tweensv:Create(spinrate_changed, TweenInfo.new(6, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
 	--	Value = 5,
@@ -310,7 +310,7 @@ function module:CrucifyEntity(config,oldentity,ToolHandle)
 			Range = 60,
 		}):Play()
 
-		camShake:FireClient(Player,3,10,0.7,0.5)
+		camShake:ShakeOnce(3,10,0.7,0.5)
 
 		gate.Crucifix.Glow.ExplodeParticle:Emit(50)
 
@@ -502,7 +502,7 @@ function module:FailCrucifyEntity(config,oldentity,ToolHandle)
 		Position = pentagram.Circle.Position - Vector3.new(0, 10, 0),
 	}):Play()
 
-	camShake:FireClient(Player,10,15,4,5)
+	camShake:ShakeOnce(10,15,4,5)
 
 	--tweensv:Create(spinrate_changed, TweenInfo.new(6, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
 	--	Value = 5,
@@ -671,7 +671,7 @@ function module:FailCrucifyEntity(config,oldentity,ToolHandle)
 
 		gate.Crucifix.Glow.ExplodeParticle:Emit(50)
 
-		camShake:FireClient(Player,3,10,0.7,0.5)
+		cacamShake:ShakeOnce(10,0.7,0.5)
 
 		tweensv:Create(gate.Crucifix.Glow, TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
 			Size = gate.Crucifix.Glow.Size * 4,
