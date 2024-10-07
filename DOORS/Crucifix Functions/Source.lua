@@ -133,7 +133,7 @@ function module:CrucifyEntity(config,oldentity,ToolHandle)
 	gate.Crucifix.Glow.SoundFail.TimePosition = 0
 
 	gate.Crucifix.Glow.Sound.SoundId = "rbxassetid://6555668806"
-	gate.Crucifix.Glow.SoundFail.SoundId = "rbxassetid://6555668806"
+	--gate.Crucifix.Glow.SoundFail.SoundId = "rbxassetid://6555668806"
 
 	--gate.Crucifix.Glow.Sound.SoundId = "rbxassetid://15746677967"
 	--gate.Crucifix.Glow.SoundFail.SoundId = "rbxassetid://15746691911"
@@ -456,7 +456,7 @@ function module:FailCrucifyEntity(config,oldentity,ToolHandle)
 	--gate.Crucifix.Glow.SoundFail.SoundId = "rbxassetid://15746691911"
 
 	gate.Crucifix.Glow.Sound.SoundId = "rbxassetid://6555668806"
-	gate.Crucifix.Glow.SoundFail.SoundId = "rbxassetid://6555668806"
+	--gate.Crucifix.Glow.SoundFail.SoundId = "rbxassetid://6555668806"
 
 	gate.Crucifix.Glow.SoundFail:Play()
 	gate.Crucifix.Glow.Sound:Stop()
@@ -850,7 +850,7 @@ function module:CrucifyEntityWithoutConfig(oldentity,ToolHandle)
 	--gate.Crucifix.Glow.SoundFail.SoundId = "rbxassetid://15746691911"
 	
 	gate.Crucifix.Glow.Sound.SoundId = "rbxassetid://6555668806"
-	gate.Crucifix.Glow.SoundFail.SoundId = "rbxassetid://6555668806"
+	--gate.Crucifix.Glow.SoundFail.SoundId = "rbxassetid://6555668806"
 
 	gate.Crucifix.Glow.Sound:Play()
 
