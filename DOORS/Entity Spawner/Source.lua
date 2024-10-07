@@ -913,6 +913,14 @@ spawner.Run = function(entityTable)
 											task.wait(config.Rebounding.Delay)
 											model:SetAttribute("Damage", true)
 											task.spawn(entityTable.RunCallback, entityTable, "OnRebounding", true) -- OnRebounding
+									                do
+			local rooms = workspace.CurrentRooms:GetChildren()
+			if config.Movement.Reversed then
+				spawnPoint = rooms[#rooms]:FindFirstChild("RoomExit")
+			else
+				spawnPoint = rooms[1]:FindFirstChild("RoomEntrance")
+			end
+									end
 											model:PivotTo(spawnPoint.CFrame + Vector3.new(0, config.Entity.HeightOffset, 0))
 											for _, n in pathfindNodes do
 												local cframe = n.CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
@@ -923,6 +931,14 @@ spawner.Run = function(entityTable)
 											task.wait(config.Rebounding.Delay)
 											model:SetAttribute("Damage", true)
 											task.spawn(entityTable.RunCallback, entityTable, "OnRebounding", true) -- OnRebounding
+									do
+			local rooms = workspace.CurrentRooms:GetChildren()
+			if config.Movement.Reversed then
+				spawnPoint = rooms[#rooms]:FindFirstChild("RoomExit")
+			else
+				spawnPoint = rooms[1]:FindFirstChild("RoomEntrance")
+			end
+									end
 											model:PivotTo(spawnPoint.CFrame + Vector3.new(0, config.Entity.HeightOffset, 0))
 											pathfindNodes = GetPathfindNodesAmbush(config)
 				
