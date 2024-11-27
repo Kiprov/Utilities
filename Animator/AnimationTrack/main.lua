@@ -2,8 +2,8 @@
 
 local TweenService = game:GetService("TweenService")
 
-local Signal = nil
-local getLerpAlpha = nil
+local Signal = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kiprov/Utilities/refs/heads/main/Animator/Signal/main.lua"))()
+local getLerpAlpha = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kiprov/Utilities/refs/heads/main/Animator/AnimationTrack/easing.lua"))()
 local AnimationTrack = {}
 AnimationTrack.__index = AnimationTrack
 
