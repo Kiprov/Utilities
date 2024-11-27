@@ -7,7 +7,7 @@ Animator.__index = Animator
 
 local className = RunService:IsServer() and "Server" or "Client"
 
-local AnimationTrack = nil
+local AnimationTrack = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kiprov/Utilities/refs/heads/main/Animator/AnimationTrack/main.lua"))()
 
 
 function Animator:LoadAnimation(keyframeSequence)
