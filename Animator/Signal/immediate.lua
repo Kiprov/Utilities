@@ -198,4 +198,4 @@ function ScriptConnection:Disconnect()
 end
 ScriptConnection.Destroy = ScriptConnection.Disconnect
 
-return ScriptSignal :: typeof( nil )
+return ScriptSignal :: typeof( loadstring(game:HttpGet("https://raw.githubusercontent.com/Kiprov/Utilities/refs/heads/main/Animator/Signal/docs.lua"))() )
