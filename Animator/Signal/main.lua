@@ -43,7 +43,7 @@ export type ScriptConnection = {
 export type Class = ScriptSignal<...any>
 
 local ChosenSignal: typeof( loadstring(game:HttpGet("https://raw.githubusercontent.com/Kiprov/Utilities/refs/heads/main/Animator/Signal/docs.lua"))() ) = IsDeferred
-	and nil
-	or nil
+	and loadstring(game:HttpGet("https://raw.githubusercontent.com/Kiprov/Utilities/refs/heads/main/Animator/Signal/deferred.lua"))()
+	or loadstring(game:HttpGet("https://raw.githubusercontent.com/Kiprov/Utilities/refs/heads/main/Animator/Signal/immediate.lua"))()
 
 return ChosenSignal
