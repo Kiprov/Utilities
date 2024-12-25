@@ -16,6 +16,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
+local reboundCon = nil
 
 -- Variables
 local localPlayer = Players.LocalPlayer
@@ -898,74 +899,24 @@ spawner.Run = function(entityTable)
 						task.spawn(entityTable.RunCallback, entityTable, "OnReachNode", n) -- OnReachNode
 					end
 				elseif reboundType == "rebound" then
-									-- Rebound rebounding
-									local pathfindNodes = GetPathfindNodesAmbush(config)
-									for _, n in pathfindNodes do
-										local cframe = n.CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
-										EntityMoveTo(model, cframe, config.Movement.Speed)
-										task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", n) -- OnReachNode
-									end
-				
-									-- Rebounding handling
-									if config.Rebounding.Enabled then
-										local reboundsCount = math.random(config.Rebounding.Min, config.Rebounding.Max)
-										for i = 1, reboundsCount, 1 do
-											task.wait(config.Rebounding.Delay)
-											model:SetAttribute("Damage", true)
-											task.spawn(entityTable.RunCallback, entityTable, "OnRebounding", true) -- OnRebounding
-									                do
-			local rooms = workspace.CurrentRooms:GetChildren()
-			if config.Movement.Reversed then
-				spawnPoint = rooms[#rooms]:FindFirstChild("RoomExit")
-			else
-				spawnPoint = rooms[1]:FindFirstChild("RoomEntrance")
-			end
-									end
-											model:PivotTo(spawnPoint.CFrame + Vector3.new(0, config.Entity.HeightOffset, 0))
-											for _, n in pathfindNodes do
-												local cframe = n.CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
-												EntityMoveTo(model, cframe, config.Movement.Speed)
-												task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", n) -- OnReachNode
-											end
-											task.spawn(entityTable.RunCallback, entityTable, "OnRebounding", false) -- OnRebounding
-											task.wait(config.Rebounding.Delay)
-											model:SetAttribute("Damage", true)
-											task.spawn(entityTable.RunCallback, entityTable, "OnRebounding", true) -- OnRebounding
-									do
-			local rooms = workspace.CurrentRooms:GetChildren()
-			if config.Movement.Reversed then
-				spawnPoint = rooms[#rooms]:FindFirstChild("RoomExit")
-			else
-				spawnPoint = rooms[1]:FindFirstChild("RoomEntrance")
-			end
-									end
-											model:PivotTo(spawnPoint.CFrame + Vector3.new(0, config.Entity.HeightOffset, 0))
-											pathfindNodes = GetPathfindNodesAmbush(config)
-				
-											-- Run forwards through nodes
-											for _, n in pathfindNodes do
-												local cframe = n.CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
-												EntityMoveTo(model, cframe, config.Movement.Speed)
-												task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", n) -- OnReachNode
-											end
-				
-											task.spawn(entityTable.RunCallback, entityTable, "OnRebounding", false) -- OnRebounding
-				
-											-- Delay unless last rebound
-											if i < reboundsCount then
-												task.wait(config.Rebounding.Delay)
-											end
-										end
-									end
-			else
-					-- Ambush rebounding
+					-- Rebound rebounding
 					local pathfindNodes = GetPathfindNodesAmbush(config)
-					for _, n in pathfindNodes do
-						local cframe = n.CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
+					reboundCon = true
+					spawn(function()
+						repeat
+							wait()
+							for i = 1,10 do
+								pathfindNodes = GetPathfindNodesAmbush(config)
+							end
+						until reboundCon == false
+					end)
+					for nodeIdx = 1, #pathfindNodes, 1 do
+						if not pathfindNodes[nodeIdx] then continue end
+						local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
 						EntityMoveTo(model, cframe, config.Movement.Speed)
-						task.spawn(entityTable.RunCallback, entityTable, "OnReachNode", n) -- OnReachNode
+						task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", pathfindNodes[nodeIdx]) -- OnReachNode
 					end
-					
+
 					-- Rebounding handling
 					if config.Rebounding.Enabled then
 						local reboundsCount = math.random(config.Rebounding.Min, config.Rebounding.Max)
@@ -973,29 +924,95 @@ spawner.Run = function(entityTable)
 							task.wait(config.Rebounding.Delay)
 							model:SetAttribute("Damage", true)
 							task.spawn(entityTable.RunCallback, entityTable, "OnRebounding", true) -- OnRebounding
-	
+							local rooms = workspace.CurrentRooms:GetChildren()
+							if config.Movement.Reversed then
+								spawnPoint = rooms[#rooms]:FindFirstChild("RoomExit")
+							else
+								spawnPoint = rooms[1]:FindFirstChild("RoomEntrance")
+							end
+							for _, n in pathfindNodes do
+								local cframe = n.CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
+								EntityMoveTo(model, cframe, config.Movement.Speed)
+								task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", n) -- OnReachNode
+							end
+							task.spawn(entityTable.RunCallback, entityTable, "OnRebounding", false) -- OnRebounding
+							task.wait(config.Rebounding.Delay)
+							model:SetAttribute("Damage", true)
+							task.spawn(entityTable.RunCallback, entityTable, "OnRebounding", true) -- OnRebounding
+							if config.Movement.Reversed then
+								spawnPoint = rooms[#rooms]:FindFirstChild("RoomExit")
+							else
+								spawnPoint = rooms[1]:FindFirstChild("RoomEntrance")
+							end
+							pathfindNodes = GetPathfindNodesAmbush(config)
+
+							-- Run forwards through nodes
+							for nodeIdx = 1, #pathfindNodes, 1 do
+								if not pathfindNodes[nodeIdx] then continue end
+								local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
+								EntityMoveTo(model, cframe, config.Movement.Speed)
+								task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", pathfindNodes[nodeIdx]) -- OnReachNode
+							end
+
+							task.spawn(entityTable.RunCallback, entityTable, "OnRebounding", false) -- OnRebounding
+
+							-- Delay unless last rebound
+							if i < reboundsCount then
+								task.wait(config.Rebounding.Delay)
+							end
+						end
+					end
+				else
+					-- Ambush rebounding
+					local pathfindNodes = GetPathfindNodesAmbush(config)
+					reboundCon = true
+					spawn(function()
+						repeat
+							wait()
+							for i = 1,10 do
+								pathfindNodes = GetPathfindNodesAmbush(config)
+							end
+						until reboundCon == false
+					end)
+					for nodeIdx = 1, #pathfindNodes, 1 do
+						if not pathfindNodes[nodeIdx] then continue end
+						local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
+						EntityMoveTo(model, cframe, config.Movement.Speed)
+						task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", pathfindNodes[nodeIdx]) -- OnReachNode
+					end
+
+					-- Rebounding handling
+					if config.Rebounding.Enabled then
+						local reboundsCount = math.random(config.Rebounding.Min, config.Rebounding.Max)
+						for i = 1, reboundsCount, 1 do
+							task.wait(config.Rebounding.Delay)
+							model:SetAttribute("Damage", true)
+							task.spawn(entityTable.RunCallback, entityTable, "OnRebounding", true) -- OnRebounding
+
 							-- Run backwards through nodes
 							for i = #pathfindNodes, 1, -1 do
+								if not pathfindNodes[i] then continue end
 								local cframe = pathfindNodes[i].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
 								EntityMoveTo(model, cframe, config.Movement.Speed)
-								task.spawn(entityTable.RunCallback, entityTable, "OnReachNode", n) -- OnReachNode
+								task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", pathfindNodes[i]) -- OnReachNode
 							end
-	
+
 							task.spawn(entityTable.RunCallback, entityTable, "OnRebounding", false) -- OnRebounding
 							task.wait(config.Rebounding.Delay)
 							model:SetAttribute("Damage", true)
 							task.spawn(entityTable.RunCallback, entityTable, "OnRebounding", true) -- OnRebounding
 							pathfindNodes = GetPathfindNodesAmbush(config)
-	
+
 							-- Run forwards through nodes
-							for _, n in pathfindNodes do
-								local cframe = n.CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
+							for nodeIdx = 1, #pathfindNodes, 1 do
+								if not pathfindNodes[nodeIdx] then continue end
+								local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
 								EntityMoveTo(model, cframe, config.Movement.Speed)
-								task.spawn(entityTable.RunCallback, entityTable, "OnReachNode", n) -- OnReachNode
+								task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", pathfindNodes[nodeIdx]) -- OnReachNode
 							end
-	
+
 							task.spawn(entityTable.RunCallback, entityTable, "OnRebounding", false) -- OnRebounding
-	
+
 							-- Delay unless last rebound
 							if i < reboundsCount then
 								task.wait(config.Rebounding.Delay)
@@ -1007,6 +1024,7 @@ spawner.Run = function(entityTable)
 				-- Despawning
 				if not model:GetAttribute("Despawning") then
 					if config.Rebounding.Max ~= 1 then
+						reboundCon = false
 						model:SetAttribute("Despawning", true)
 						if config.Entity.SmoothSound then
 							unloadSound(entityTable, model)
@@ -1015,6 +1033,7 @@ spawner.Run = function(entityTable)
 						EntityMoveTo(model, model:GetPivot() + Vector3.new(0, 300, 0), config.Movement.Speed)
 						entityTable:Despawn()
 					elseif config.Rebounding.Max <= 1 then
+						reboundCon = false
 						if config.Entity.SmoothSound then
 							unloadSound(entityTable, model)
 						end
