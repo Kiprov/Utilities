@@ -8,7 +8,9 @@ local entity = spawner.Create({
 		Name = "Template Entity",
 		Asset = "", -- This can be a raw roblox rbxm github file or a "rbxassetid://" model from the marketplace.
 		HeightOffset = 0,
+	        SpawnOffset = 0,
 		SmoothTransition = true,
+		CanSpawnWithoutClosets = true,
 	},
 	Lights = {
 		Flicker = {
