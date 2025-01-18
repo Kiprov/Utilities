@@ -19,6 +19,7 @@ local entity = spawner.Create({
 		Name = "Template Entity",
 		Asset = "", --This can be a raw roblox rbxm file on github or a "rbxassetid://" model from the marketplace.
 		HeightOffset = 0,
+SpawnOffset = 0,
     SmoothSound = true,
     CanSpawnWithoutClosets = true
 	},
