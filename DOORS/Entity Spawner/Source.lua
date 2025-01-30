@@ -282,9 +282,9 @@ function CrucifixEntity(entityTable, tool)
 	local resist = config.Crucifixion.Resist
 	local toolHandle = tool.Handle
 	if not resist then
-		vynixuModules.CrucifixFunctions:CrucifyEntity(config,model,toolHandle)
+		vynixuModules.CrucifixFunctions:CrucifyEntity(entityTable,model,toolHandle)
 	else
-		vynixuModules.CrucifixFunctions:FailCrucifyEntity(config,model,toolHandle)
+		vynixuModules.CrucifixFunctions:FailCrucifyEntity(entityTable,model,toolHandle)
 	end
 end
 
