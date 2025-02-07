@@ -193,7 +193,6 @@ end
 
 function GetNodesFromRoom(room, reversed)
 	local nodes = {}
-	addNodes(room)
 	local roomEntrance = room:FindFirstChild("RoomEntrance")
 	if roomEntrance then
 		local n = roomEntrance:Clone()
@@ -205,6 +204,27 @@ function GetNodesFromRoom(room, reversed)
 	local nodesFolder = room:FindFirstChild("PathfindNodes")
 	if nodesFolder then
 		for _, n in nodesFolder:GetChildren() do
+			nodes[#nodes + 1] = n
+		end
+		else
+		path:ComputeAsync(room.RoomEntrance.Position,room.RoomExit.Position)
+		nodesFolder = path:GetWaypoints()
+		local fold = Instance.new("Folder")
+		for i,v in next, nodesFolder do
+local node = IT("Part")
+node.Name = i
+node.Anchored = true
+node.Size = V3(1,1,1)
+node.CanCollide = false
+node.Material = "ForceField"
+node.Shape = "Ball"
+node.Color = C3(0,1,1)
+node.Transparency = 0
+node.Position = v.Position
+node.Parent = fold
+end
+nodesFolder = fold
+for _, n in nodesFolder:GetChildren() do
 			nodes[#nodes + 1] = n
 		end
 	end
