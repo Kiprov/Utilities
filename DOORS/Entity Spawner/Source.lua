@@ -155,8 +155,45 @@ function GetCurrentRoom(latest)
     return workspace.CurrentRooms:FindFirstChild(localPlayer:GetAttribute("CurrentRoom"))
 end
 
+local IT = Instance.new
+local V3 = Vector3.new
+local CF = CFrame.new
+local C3 = Color3.new
+local ANGLES = CFrame.Angles
+local ps = game:GetService("PathfindingService")
+local path = ps:CreatePath()
+local function addNodes(room)
+local room = room or workspace.CurrentRooms[game.ReplicatedStorage.GameData.LatestRoom.Value]
+path:ComputeAsync(room.RoomEntrance.Position,room.RoomExit.Position)
+local waypoints = path:GetWaypoints()
+local pathfindNodes = Instance.new("Folder",room)
+pathfindNodes.Name = "PathfindNodes"
+for i,v in next, waypoints do
+local node = IT("Part")
+node.Name = i
+node.Anchored = true
+node.Size = V3(1,1,1)
+node.CanCollide = false
+node.Material = "ForceField"
+node.Shape = "Ball"
+node.Color = C3(0,1,1)
+node.Transparency = 0
+node.Position = v.Position
+node.Parent = pathfindNodes
+end
+if #pathfindNodes:GetChildren() <= 0 then
+warn("nodes didnt register, retrying..")
+spawn(function()
+addNodes(room)
+end)
+else
+print("added back nodes to room "..room.Name)
+end
+end
+
 function GetNodesFromRoom(room, reversed)
 	local nodes = {}
+	addNodes(room)
 	local roomEntrance = room:FindFirstChild("RoomEntrance")
 	if roomEntrance then
 		local n = roomEntrance:Clone()
@@ -417,7 +454,7 @@ function FixRoomLights(room)
 					}):Play()
 					task.wait(r2)
 				end
-				v:SetAttribute("Shattered", nil)
+				v:SetAttribute("Shattered", false)
 			end)
 		end
     end
