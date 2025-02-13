@@ -161,37 +161,8 @@ local CF = CFrame.new
 local C3 = Color3.new
 local ANGLES = CFrame.Angles
 local ps = game:GetService("PathfindingService")
-local path = ps:CreatePath()
-local function addNodes(room)
-local room = room or workspace.CurrentRooms[game.ReplicatedStorage.GameData.LatestRoom.Value]
-path:ComputeAsync(room.RoomEntrance.Position,room.RoomExit.Position)
-local waypoints = path:GetWaypoints()
-local pathfindNodes = Instance.new("Folder",room)
-pathfindNodes.Name = "PathfindNodes"
-for i,v in next, waypoints do
-local node = IT("Part")
-node.Name = i
-node.Anchored = true
-node.Size = V3(1,1,1)
-node.CanCollide = false
-node.Material = "ForceField"
-node.Shape = "Ball"
-node.Color = C3(0,1,1)
-node.Transparency = 0
-node.Position = v.Position
-node.Parent = pathfindNodes
-end
-if #pathfindNodes:GetChildren() <= 0 then
-warn("nodes didnt register, retrying..")
-spawn(function()
-addNodes(room)
-end)
-else
-print("added back nodes to room "..room.Name)
-end
-end
 
-function GetNodesFromRoom(room, reversed)
+function GetNodesFromRoom(room, reversed, entityTable)
 	local nodes = {}
 	local roomEntrance = room:FindFirstChild("RoomEntrance")
 	if roomEntrance then
@@ -207,7 +178,8 @@ function GetNodesFromRoom(room, reversed)
 			nodes[#nodes + 1] = n
 		end
 		else
-		path:ComputeAsync(room.RoomEntrance.Position,room.RoomExit.Position)
+		local path = ps:CreatePath()
+		path:ComputeAsync(entityTable.Model:GetPivot().Position,room.RoomExit.Position)
 		nodesFolder = path:GetWaypoints()
 		local fold = Instance.new("Folder")
 		for i,v in next, nodesFolder do
@@ -249,13 +221,14 @@ for _, n in nodesFolder:GetChildren() do
 	return nodes
 end
 
-function GetPathfindNodesAmbush(config)
+function GetPathfindNodesAmbush(entityTable)
 	local pathfindNodes = {}
     local rooms = workspace.CurrentRooms:GetChildren()
+    local config = entityTable.Config
     if config.Movement.Reversed == false then
         for i = 1, #rooms, 1 do
             local room = rooms[i]
-            local roomNodes = GetNodesFromRoom(room, false)
+            local roomNodes = GetNodesFromRoom(room, false, entityTable)
             for _, node in roomNodes do
                 pathfindNodes[#pathfindNodes + 1] = node
             end
@@ -263,7 +236,7 @@ function GetPathfindNodesAmbush(config)
     else
         for i = #rooms, 1, -1 do
             local room = rooms[i]
-            local roomNodes = GetNodesFromRoom(room, true)
+            local roomNodes = GetNodesFromRoom(room, true, entityTable)
             for _, node in roomNodes do
                 pathfindNodes[#pathfindNodes + 1] = node
             end
@@ -272,14 +245,15 @@ function GetPathfindNodesAmbush(config)
 	return pathfindNodes
 end
 
-function GetPathfindNodesBlitz(config)
+function GetPathfindNodesBlitz(entityTable)
 	local nodesToCurrent, nodesToEnd = {}, {}
 	local currentRoomIndex = localPlayer:GetAttribute("CurrentRoom")
     local rooms = workspace.CurrentRooms:GetChildren()
+    local config = entityTable.Config
 
     if config.Movement.Reversed == false then
         for _, room in rooms do
-            local roomNodes = GetNodesFromRoom(room, false)
+            local roomNodes = GetNodesFromRoom(room, false, entityTable)
             local roomIndex = tonumber(room.Name)
     
             for _, node in roomNodes do
@@ -293,7 +267,7 @@ function GetPathfindNodesBlitz(config)
     else
         for i = #rooms, 1, -1 do
             local room = rooms[i]
-            local roomNodes = GetNodesFromRoom(room, true)
+            local roomNodes = GetNodesFromRoom(room, true, entityTable)
             local roomIndex = tonumber(room.Name)
     
             for _, node in roomNodes do
@@ -906,7 +880,7 @@ spawner.Run = function(entityTable)
 				local reboundType = config.Rebounding.Type:lower()
 				if reboundType == "blitz" then
 					-- Blitz rebounding
-					local nodesToCurrent, nodesToEnd = GetPathfindNodesBlitz(config)
+					local nodesToCurrent, nodesToEnd = GetPathfindNodesBlitz(entityTable)
 	
 					for _, n in nodesToCurrent do
 						local cframe = n.CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
@@ -961,7 +935,7 @@ spawner.Run = function(entityTable)
 						end
 					end
 					
-					local _, updatedToEnd = GetPathfindNodesBlitz(config)
+					local _, updatedToEnd = GetPathfindNodesBlitz(entityTable)
 					for _, n in updatedToEnd do
 						local cframe = n.CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
 						EntityMoveTo(model, cframe, config.Movement.Speed)
@@ -969,13 +943,13 @@ spawner.Run = function(entityTable)
 					end
 				elseif reboundType == "rebound" then
 					-- Rebound rebounding
-					local pathfindNodes = GetPathfindNodesAmbush(config)
+					local pathfindNodes = GetPathfindNodesAmbush(entityTable)
 					reboundCon = true
 					spawn(function()
 						repeat
 							wait()
 							for i = 1,10 do
-								pathfindNodes = GetPathfindNodesAmbush(config)
+								pathfindNodes = GetPathfindNodesAmbush(entityTable)
 							end
 						until reboundCon == false
 					end)
@@ -1042,7 +1016,7 @@ spawner.Run = function(entityTable)
 		local offsetNum = config.Movement.Reversed and -configNum or configNum
 		local offset = CFrame.new(0,0,offsetNum)
 											model:PivotTo(spawnPoint.CFrame * offset + Vector3.new(0, config.Entity.HeightOffset, 0))
-							pathfindNodes = GetPathfindNodesAmbush(config)
+							pathfindNodes = GetPathfindNodesAmbush(entityTable)
 
 							-- Run forwards through nodes
 							for nodeIdx = 1, #pathfindNodes, 1 do
@@ -1062,13 +1036,13 @@ spawner.Run = function(entityTable)
 					end
 				else
 					-- Ambush rebounding
-					local pathfindNodes = GetPathfindNodesAmbush(config)
+					local pathfindNodes = GetPathfindNodesAmbush(entityTable)
 					reboundCon = true
 					spawn(function()
 						repeat
 							wait()
 							for i = 1,10 do
-								pathfindNodes = GetPathfindNodesAmbush(config)
+								pathfindNodes = GetPathfindNodesAmbush(entityTable)
 							end
 						until reboundCon == false
 					end)
@@ -1099,7 +1073,7 @@ spawner.Run = function(entityTable)
 							task.wait(config.Rebounding.Delay)
 							model:SetAttribute("Damage", true)
 							task.spawn(entityTable.RunCallback, entityTable, "OnRebounding", true) -- OnRebounding
-							pathfindNodes = GetPathfindNodesAmbush(config)
+							pathfindNodes = GetPathfindNodesAmbush(entityTable)
 
 							-- Run forwards through nodes
 							for nodeIdx = 1, #pathfindNodes, 1 do
