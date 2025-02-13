@@ -179,7 +179,7 @@ function GetNodesFromRoom(room, reversed, entityTable)
 		end
 		else
 		local path = ps:CreatePath()
-		path:ComputeAsync(entityTable.Model:GetPivot().Position,room.RoomExit.Position)
+		path:ComputeAsync(room.RoomEntrance:GetPivot().Position,room.RoomExit.Position)
 		nodesFolder = path:GetWaypoints()
 		local fold = Instance.new("Folder")
 		for i,v in next, nodesFolder do
