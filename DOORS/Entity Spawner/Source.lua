@@ -249,7 +249,7 @@ function GetPathfindNodesA120(entityTable)
 	local pathfindNodes = {}
 	local config = entityTable.Config
 	local node = IT("Part")
-	node.Name = i
+	node.Name = "0"
 	node.Anchored = true
 	node.Size = V3(1,1,1)
 	node.CanCollide = false
@@ -260,7 +260,7 @@ function GetPathfindNodesA120(entityTable)
 	node:PivotTo(localChar:GetPivot())
 	pathfindNodes[#pathfindNodes + 1] = node
 	local node = IT("Part")
-	node.Name = i
+	node.Name = #pathfindNodes + 1
 	node.Anchored = true
 	node.Size = V3(1,1,1)
 	node.CanCollide = false
