@@ -245,6 +245,42 @@ function GetPathfindNodesAmbush(entityTable)
 	return pathfindNodes
 end
 
+function GetPathfindNodesA120(entityTable)
+	local pathfindNodes = {}
+	local config = entityTable.Config
+	local node = IT("Part")
+	node.Name = i
+	node.Anchored = true
+	node.Size = V3(1,1,1)
+	node.CanCollide = false
+	node.Material = "ForceField"
+	node.Shape = "Ball"
+	node.Color = C3(0,1,1)
+	node.Transparency = 0
+	node:PivotTo(localChar:GetPivot())
+	pathfindNodes[#pathfindNodes + 1] = node
+	local node = IT("Part")
+	node.Name = i
+	node.Anchored = true
+	node.Size = V3(1,1,1)
+	node.CanCollide = false
+	node.Material = "ForceField"
+	node.Shape = "Ball"
+	node.Color = C3(0,1,1)
+	node.Transparency = 0
+	local pivot = localChar:GetPivot()
+	local lookV = pivot.LookVector
+	local zval = nil
+	if lookV.Z < 0 then
+	    zval = config.Movement.Reversed and 100 or -100
+	else
+	    zval = config.Movement.Reversed and -100 or 100
+	end
+	node:PivotTo(pivot*CFrame.new(0,0,zval))
+	pathfindNodes[#pathfindNodes + 1] = node
+	return pathfindNodes
+end
+
 function GetPathfindNodesBlitz(entityTable)
 	local nodesToCurrent, nodesToEnd = {}, {}
 	local currentRoomIndex = localPlayer:GetAttribute("CurrentRoom")
@@ -1017,6 +1053,63 @@ spawner.Run = function(entityTable)
 		local offset = CFrame.new(0,0,offsetNum)
 											model:PivotTo(spawnPoint.CFrame * offset + Vector3.new(0, config.Entity.HeightOffset, 0))
 							pathfindNodes = GetPathfindNodesAmbush(entityTable)
+
+							-- Run forwards through nodes
+							for nodeIdx = 1, #pathfindNodes, 1 do
+								if not pathfindNodes[nodeIdx] then continue end
+								local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
+								EntityMoveTo(model, cframe, config.Movement.Speed)
+								task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", pathfindNodes[nodeIdx]) -- OnReachNode
+							end
+
+							task.spawn(entityTable.RunCallback, entityTable, "OnRebounding", false) -- OnRebounding
+
+							-- Delay unless last rebound
+							if i < reboundsCount then
+								task.wait(config.Rebounding.Delay)
+							end
+						end
+					end
+					elseif reboundType == "a-120" then
+					-- A-120 rebounding
+					local pathfindNodes = GetPathfindNodesA120(entityTable)
+					reboundCon = true
+					spawn(function()
+						repeat
+							wait()
+							for i = 1,10 do
+								pathfindNodes = GetPathfindNodesA120(entityTable)
+							end
+						until reboundCon == false
+					end)
+					for nodeIdx = 1, #pathfindNodes, 1 do
+						if not pathfindNodes[nodeIdx] then continue end
+						local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
+						EntityMoveTo(model, cframe, config.Movement.Speed)
+						task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", pathfindNodes[nodeIdx]) -- OnReachNode
+					end
+
+					-- Rebounding handling
+					if config.Rebounding.Enabled then
+						local reboundsCount = math.random(config.Rebounding.Min, config.Rebounding.Max)
+						for i = 1, reboundsCount, 1 do
+							task.wait(config.Rebounding.Delay)
+							model:SetAttribute("Damage", true)
+							task.spawn(entityTable.RunCallback, entityTable, "OnRebounding", true) -- OnRebounding
+
+							-- Run backwards through nodes
+							for i = #pathfindNodes, 1, -1 do
+								if not pathfindNodes[i] then continue end
+								local cframe = pathfindNodes[i].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
+								EntityMoveTo(model, cframe, config.Movement.Speed)
+								task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", pathfindNodes[i]) -- OnReachNode
+							end
+
+							task.spawn(entityTable.RunCallback, entityTable, "OnRebounding", false) -- OnRebounding
+							task.wait(config.Rebounding.Delay)
+							model:SetAttribute("Damage", true)
+							task.spawn(entityTable.RunCallback, entityTable, "OnRebounding", true) -- OnRebounding
+							pathfindNodes = GetPathfindNodesA120(entityTable)
 
 							-- Run forwards through nodes
 							for nodeIdx = 1, #pathfindNodes, 1 do
