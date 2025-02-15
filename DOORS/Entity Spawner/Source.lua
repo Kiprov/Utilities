@@ -780,9 +780,9 @@ spawner.Run = function(entityTable)
 		do
 			local rooms = workspace.CurrentRooms:GetChildren()
 			if config.Movement.Reversed then
-				spawnPoint = rooms[#rooms]:FindFirstChild("RoomExit")
+				spawnPoint = isOld == false and rooms[#rooms]:FindFirstChild("RoomExit") or rooms[#rooms]:FindFirstChild("RoomEnd")
 			else
-				spawnPoint = rooms[1]:FindFirstChild("RoomEntrance")
+				spawnPoint = isOld == false and rooms[1]:FindFirstChild("RoomEntrance") or rooms[1]:FindFirstChild("RoomStart")
 			end
 		end
 	
@@ -807,7 +807,11 @@ spawner.Run = function(entityTable)
 			if config.Lights.Flicker.Enabled then
 				local currentRoom = GetCurrentRoom(false)
 				if currentRoom then
+					if isOld == false then
 					moduleScripts.Module_Events.flicker(currentRoom, config.Lights.Flicker.Duration)
+					else
+					moduleScripts.Module_Events.flickerLights(currentRoom, config.Lights.Flicker.Duration)
+					end
 				end
 			end
 			-- Earthquake
@@ -853,7 +857,11 @@ spawner.Run = function(entityTable)
 										local latestRoom = GetCurrentRoom(true)
 										if room ~= latestRoom then
 											if config.Lights.Shatter then -- Shatter lights
+												if isOld == false then
 												moduleScripts.Module_Events.shatter(room)
+												else
+												moduleScripts.Module_Events.breakLights(room)
+												end
 		
 											elseif config.Lights.Repair then -- Repair lights
 												FixRoomLights(room)
@@ -1009,11 +1017,11 @@ spawner.Run = function(entityTable)
 							do
 			local rooms = workspace.CurrentRooms:GetChildren()
 			if config.Movement.Reversed then
-				spawnPoint = rooms[#rooms]:FindFirstChild("RoomExit")
+				spawnPoint = isOld == false and rooms[#rooms]:FindFirstChild("RoomExit") or rooms[#rooms]:FindFirstChild("RoomEnd")
 			else
-				spawnPoint = rooms[1]:FindFirstChild("RoomEntrance")
+				spawnPoint = isOld == false and rooms[1]:FindFirstChild("RoomEntrance") or rooms[1]:FindFirstChild("RoomStart")
 			end
-									end
+		end
 									-- Offset
 		local configNum = config.Entity.SpawnOffset
 		if typeof(configNum) ~= "number" then
@@ -1038,11 +1046,11 @@ spawner.Run = function(entityTable)
 							do
 			local rooms = workspace.CurrentRooms:GetChildren()
 			if config.Movement.Reversed then
-				spawnPoint = rooms[#rooms]:FindFirstChild("RoomExit")
+				spawnPoint = isOld == false and rooms[#rooms]:FindFirstChild("RoomExit") or rooms[#rooms]:FindFirstChild("RoomEnd")
 			else
-				spawnPoint = rooms[1]:FindFirstChild("RoomEntrance")
+				spawnPoint = isOld == false and rooms[1]:FindFirstChild("RoomEntrance") or rooms[1]:FindFirstChild("RoomStart")
 			end
-									end
+		end
 									-- Offset
 		local configNum = config.Entity.SpawnOffset
 		if typeof(configNum) ~= "number" then
