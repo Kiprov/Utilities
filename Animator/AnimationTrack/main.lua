@@ -261,12 +261,12 @@ function AnimationTrack.new(parent, keyframeSequence)
 
 	self.IsPlaying = false
 	self.Length = 0
-	self.Looped = keyframeSequence.Loop
+	self.Looped = false
 	self.Speed = 1
 	self.TimePosition = 0
-	self.Priority = keyframeSequence.Priority
+	self.Priority = "Idle"
 	
-	self.Name = keyframeSequence.Name
+	self.Name = "Anim"
 
 	self.DidLoop = Signal.new("DidLoop")
 	self.Ended = Signal.new("Ended")
