@@ -13,7 +13,7 @@ if VynixuEntitySpawnerV2 then return VynixuEntitySpawnerV2 end
 
 --Very Important Check
 local isOld = if game.PlaceId == 110258689672367 then true else false
-warn("Hotel- Status: ",isOld)
+warn("[SPAWNER]: Hotel- Status: ",isOld)
 -- Services
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -167,22 +167,24 @@ local ps = game:GetService("PathfindingService")
 
 function GetNodesFromRoom(room, reversed, entityTable)
 	local nodes = {}
-	local roomEntrance = room:FindFirstChild("RoomEntrance")
+	local roomEntrance = isOld == false and room:FindFirstChild("RoomEntrance") or room:FindFirstChild("RoomStart")
 	if roomEntrance then
 		local n = roomEntrance:Clone()
 		n.Name = "0"
 		n.CFrame -= Vector3.new(0, 3, 0)
 		nodes[1] = n
 	end
+	
+	local roomExit = isOld == false and room:FindFirstChild("RoomExit") or room:FindFirstChild("RoomEnd")
 
-	local nodesFolder = room:FindFirstChild("PathfindNodes")
+	local nodesFolder = isOld == false and room:FindFirstChild("PathfindNodes") or room:FindFirstChild("Nodes")
 	if nodesFolder then
 		for _, n in nodesFolder:GetChildren() do
 			nodes[#nodes + 1] = n
 		end
 		else
 		local path = ps:CreatePath()
-		path:ComputeAsync(room.RoomEntrance:GetPivot().Position,room.RoomExit.Position)
+		path:ComputeAsync(roomEntrance:GetPivot().Position,roomExit:GetPivot().Position)
 		nodesFolder = path:GetWaypoints()
 		local fold = Instance.new("Folder")
 		for i,v in next, nodesFolder do
@@ -203,8 +205,6 @@ for _, n in nodesFolder:GetChildren() do
 			nodes[#nodes + 1] = n
 		end
 	end
-
-	local roomExit = room:FindFirstChild("RoomExit")
 	if roomExit then
 		local index = #nodes + 1
 		local n = roomExit:Clone()
