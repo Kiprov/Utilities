@@ -11,6 +11,9 @@
 
 if VynixuEntitySpawnerV2 then return VynixuEntitySpawnerV2 end
 
+--Very Important Check
+local isOld = if game.PlaceId == 110258689672367 then true else false
+warn("Hotel- Status: ",isOld)
 -- Services
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -26,8 +29,8 @@ local localCamera = workspace.CurrentCamera
 local playerGui = localPlayer:WaitForChild("PlayerGui")
 local gameStats = ReplicatedStorage:WaitForChild("GameStats")
 local gameData = ReplicatedStorage:WaitForChild("GameData")
-local floorReplicated = ReplicatedStorage:WaitForChild("FloorReplicated")
-local remotesFolder = ReplicatedStorage:WaitForChild("RemotesFolder")
+local floorReplicated = isOld == false and ReplicatedStorage:WaitForChild("FloorReplicated") or nil
+local remotesFolder = isOld == false and ReplicatedStorage:WaitForChild("RemotesFolder") or ReplicatedStorage:WaitForChild("Bricks")
 
 local lastRespawn;
 local BaseEntitySpeed = 65
@@ -41,7 +44,7 @@ local vynixuModules = {
 local moduleScripts = {
 	Module_Events = require(ReplicatedStorage.ClientModules.Module_Events),
 	Main_Game = require(playerGui.MainUI.Initiator.Main_Game),
-	Earthquake = require(remotesFolder.RequestAsset:InvokeServer("Earthquake"))
+	Earthquake = isOld == false and require(remotesFolder.RequestAsset:InvokeServer("Earthquake")) or function() end,
 }
 local defaultEntityAttributes = {
     Running = false,
