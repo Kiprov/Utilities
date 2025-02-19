@@ -778,14 +778,20 @@ spawner.Run = function(entityTable)
 	
 		-- Spawning
 		local spawnPoint;
-		do
-			local rooms = workspace.CurrentRooms:GetChildren()
-			if config.Movement.Reversed then
-				spawnPoint = isOld == false and rooms[#rooms]:FindFirstChild("RoomExit") or rooms[#rooms]:FindFirstChild("RoomEnd")
-			else
-				spawnPoint = isOld == false and rooms[1]:FindFirstChild("RoomEntrance") or rooms[1]:FindFirstChild("RoomStart")
+		local function setupSpawn()
+		local rooms = workspace.CurrentRooms:GetChildren()
+		if config.Movement.Reversed then
+			spawnPoint = isOld == false and rooms[#rooms]:FindFirstChild("RoomExit") or rooms[#rooms]:FindFirstChild("RoomEnd")
+		else
+			spawnPoint = isOld == false and rooms[1]:FindFirstChild("RoomEntrance") or rooms[1]:FindFirstChild("RoomStart")
+			if not spawnPoint then
+			warn("spawn point not found, trying 2nd pre-deletion room")
+			spawnPoint = isOld == false and rooms[2]:FindFirstChild("RoomEntrance") or rooms[2]:FindFirstChild("RoomStart")
 			end
 		end
+		end
+		
+		setupSpawn()
 	
 		if spawnPoint then
 		-- Offset
@@ -1015,14 +1021,7 @@ spawner.Run = function(entityTable)
 							task.wait(config.Rebounding.Delay)
 							model:SetAttribute("Damage", true)
 							task.spawn(entityTable.RunCallback, entityTable, "OnRebounding", true) -- OnRebounding
-							do
-			local rooms = workspace.CurrentRooms:GetChildren()
-			if config.Movement.Reversed then
-				spawnPoint = isOld == false and rooms[#rooms]:FindFirstChild("RoomExit") or rooms[#rooms]:FindFirstChild("RoomEnd")
-			else
-				spawnPoint = isOld == false and rooms[1]:FindFirstChild("RoomEntrance") or rooms[1]:FindFirstChild("RoomStart")
-			end
-		end
+							setupSpawn()
 									-- Offset
 		local configNum = config.Entity.SpawnOffset
 		if typeof(configNum) ~= "number" then
@@ -1044,14 +1043,7 @@ spawner.Run = function(entityTable)
 							task.wait(config.Rebounding.Delay)
 							model:SetAttribute("Damage", true)
 							task.spawn(entityTable.RunCallback, entityTable, "OnRebounding", true) -- OnRebounding
-							do
-			local rooms = workspace.CurrentRooms:GetChildren()
-			if config.Movement.Reversed then
-				spawnPoint = isOld == false and rooms[#rooms]:FindFirstChild("RoomExit") or rooms[#rooms]:FindFirstChild("RoomEnd")
-			else
-				spawnPoint = isOld == false and rooms[1]:FindFirstChild("RoomEntrance") or rooms[1]:FindFirstChild("RoomStart")
-			end
-		end
+							setupSpawn()
 									-- Offset
 		local configNum = config.Entity.SpawnOffset
 		if typeof(configNum) ~= "number" then
