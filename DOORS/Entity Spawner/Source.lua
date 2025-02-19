@@ -183,7 +183,7 @@ function GetNodesFromRoom(room, reversed, entityTable)
 			nodes[#nodes + 1] = n
 		end
 		else
-		if not roomEntrance or not roomExit then return end
+		if not roomEntrance or not roomExit then return nodes end
 		local path = ps:CreatePath()
 		path:ComputeAsync(roomEntrance:GetPivot().Position,roomExit:GetPivot().Position)
 		nodesFolder = path:GetWaypoints()
