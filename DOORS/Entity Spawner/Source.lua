@@ -12,7 +12,10 @@
 if VynixuEntitySpawnerV2 then return VynixuEntitySpawnerV2 end
 
 --Very Important Check
-local isOld = if game.PlaceId == 110258689672367 then true else false
+local isOld = false
+if game.PlaceId == 110258689672367 then
+    isOld = true
+end
 warn("[SPAWNER]: Hotel- Status: ",isOld)
 -- Services
 local Players = game:GetService("Players")
@@ -925,7 +928,7 @@ spawner.Run = function(entityTable)
 							end
 						end
 					end
-					task.wait()
+					wait()
 				end
 			end)
 			
