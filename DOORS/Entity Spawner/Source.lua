@@ -366,9 +366,13 @@ function PlayerIsProtected()
 	return (tick() - lastRespawn) <= localPlayer:GetAttribute("SpawnProtection")
 end
 
+local dmgDB = false
+
 function DamagePlayer(entityTable)
 	if localHum.Parent:FindFirstChild("Crucifix") then return end
 	if localHum.Health > 0 and not PlayerIsProtected() then
+	    if dmgDB then return end
+	    dmgDB = true
 		local config = entityTable.Config
 		local newHealth = math.clamp(localHum.Health - config.Damage.Amount, 0, localHum.MaxHealth)
 
@@ -412,6 +416,9 @@ function DamagePlayer(entityTable)
 		-- Update health
 		localHum.Health = newHealth
 		task.spawn(entityTable.RunCallback, entityTable, "OnDamagePlayer", newHealth) -- OnDamagePlayer
+		delay(.1,function()
+		dmgDB = false
+		end)
 	end
 end
 
@@ -928,7 +935,7 @@ spawner.Run = function(entityTable)
 							end
 						end
 					end
-					wait()
+					task.wait()
 				end
 			end)
 			
