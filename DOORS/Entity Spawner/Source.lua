@@ -11,6 +11,20 @@
 
 if VynixuEntitySpawnerV2 then return VynixuEntitySpawnerV2 end
 
+-- Preventing Nodes Destruction
+local namecall = nil
+namecall = hookmetamethod(game,"__namecall", newcclosure(function(self,...)
+local method = getnamecallmethod()
+if method == "Destroy" then
+if self.Name == "PathfindNodes" then
+print("too bad, you cant destroy nodes.")
+return
+end
+end
+return namecall(self,...)
+end))
+warn("Initiated anti-nodes destruction.")
+
 --Very Important Check
 local isOld = false
 if game.PlaceId == 110258689672367 then
