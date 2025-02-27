@@ -697,7 +697,7 @@ spawner.Run = function(entityTable)
 		local function setupSpawn()
 		local rooms = workspace.Game.Rooms:GetChildren()
 		if config.Movement.Reversed then
-			spawnPoint = isOld == false and rooms["Room"..#rooms]:FindFirstChild("Door"):FindFirstChild("RootPart") or rooms[#rooms]:FindFirstChild("RoomEnd")
+			spawnPoint = isOld == false and rooms[#rooms]:FindFirstChild("Door"):FindFirstChild("RootPart") or rooms[#rooms]:FindFirstChild("RoomEnd")
 		else
 			spawnPoint = isOld == false and rooms[1]:FindFirstChild("RootPart") or rooms[1]:FindFirstChild("RoomStart")
 			if not spawnPoint then
