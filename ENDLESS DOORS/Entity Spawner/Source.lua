@@ -840,7 +840,7 @@ spawner.Run = function(entityTable)
 					local nodesToCurrent, nodesToEnd = GetPathfindNodesBlitz(entityTable)
 	
 					for _, n in nodesToCurrent do
-						local cframe = n.CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
+						local cframe = n.CFrame + Vector3.new(0, 0 + config.Entity.HeightOffset, 0)
 						EntityMoveTo(model, cframe, config.Movement.Speed)
 						task.spawn(entityTable.RunCallback, entityTable, "OnReachNode", n) -- OnReachNode
 					end
@@ -875,7 +875,7 @@ spawner.Run = function(entityTable)
 							
 							local nodeIndex = tonumber(randomNode.Name)
 							for i = #roomNodes, nodeIndex, -1 do
-								local cframe = roomNodes[math.clamp(i, 1, #roomNodes)].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
+								local cframe = roomNodes[math.clamp(i, 1, #roomNodes)].CFrame + Vector3.new(0, 0 + config.Entity.HeightOffset, 0)
 								EntityMoveTo(model, cframe, config.Movement.Speed)
 								task.spawn(entityTable.RunCallback, entityTable, "OnReachNode", n) -- OnReachNode
 							end
@@ -885,7 +885,7 @@ spawner.Run = function(entityTable)
 							task.spawn(entityTable.RunCallback, entityTable, "OnRebounding", false) -- OnRebounding
 		
 							for i = nodeIndex, #roomNodes, 1 do
-								local cframe = roomNodes[math.clamp(i, 1, #roomNodes)].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
+								local cframe = roomNodes[math.clamp(i, 1, #roomNodes)].CFrame + Vector3.new(0, 0 + config.Entity.HeightOffset, 0)
 								EntityMoveTo(model, cframe, config.Movement.Speed)
 								task.spawn(entityTable.RunCallback, entityTable, "OnReachNode", n) -- OnReachNode
 							end
@@ -894,7 +894,7 @@ spawner.Run = function(entityTable)
 					
 					local _, updatedToEnd = GetPathfindNodesBlitz(entityTable)
 					for _, n in updatedToEnd do
-						local cframe = n.CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
+						local cframe = n.CFrame + Vector3.new(0, 0 + config.Entity.HeightOffset, 0)
 						EntityMoveTo(model, cframe, config.Movement.Speed)
 						task.spawn(entityTable.RunCallback, entityTable, "OnReachNode", n) -- OnReachNode
 					end
@@ -912,7 +912,7 @@ spawner.Run = function(entityTable)
 					end)
 					for nodeIdx = 1, #pathfindNodes, 1 do
 						if not pathfindNodes[nodeIdx] then continue end
-						local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
+						local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 0 + config.Entity.HeightOffset, 0)
 						EntityMoveTo(model, cframe, config.Movement.Speed)
 						task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", pathfindNodes[nodeIdx]) -- OnReachNode
 					end
@@ -938,7 +938,7 @@ spawner.Run = function(entityTable)
 		local offset = CFrame.new(0,0,offsetNum)
 											model:PivotTo(spawnPoint.CFrame * offset + Vector3.new(0, config.Entity.HeightOffset, 0))
 							for _, n in pathfindNodes do
-								local cframe = n.CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
+								local cframe = n.CFrame + Vector3.new(0, 0 + config.Entity.HeightOffset, 0)
 								EntityMoveTo(model, cframe, config.Movement.Speed)
 								task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", n) -- OnReachNode
 							end
@@ -964,7 +964,7 @@ spawner.Run = function(entityTable)
 							-- Run forwards through nodes
 							for nodeIdx = 1, #pathfindNodes, 1 do
 								if not pathfindNodes[nodeIdx] then continue end
-								local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
+								local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 0 + config.Entity.HeightOffset, 0)
 								EntityMoveTo(model, cframe, config.Movement.Speed)
 								task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", pathfindNodes[nodeIdx]) -- OnReachNode
 							end
@@ -991,7 +991,7 @@ spawner.Run = function(entityTable)
 					end)
 					for nodeIdx = 1, #pathfindNodes, 1 do
 						if not pathfindNodes[nodeIdx] then continue end
-						local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
+						local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 0 + config.Entity.HeightOffset, 0)
 						EntityMoveTo(model, cframe, config.Movement.Speed)
 						task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", pathfindNodes[nodeIdx]) -- OnReachNode
 					end
@@ -1007,7 +1007,7 @@ spawner.Run = function(entityTable)
 							-- Run backwards through nodes
 							for i = #pathfindNodes, 1, -1 do
 								if not pathfindNodes[i] then continue end
-								local cframe = pathfindNodes[i].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
+								local cframe = pathfindNodes[i].CFrame + Vector3.new(0, 0 + config.Entity.HeightOffset, 0)
 								EntityMoveTo(model, cframe, config.Movement.Speed)
 								task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", pathfindNodes[i]) -- OnReachNode
 							end
@@ -1021,7 +1021,7 @@ spawner.Run = function(entityTable)
 							-- Run forwards through nodes
 							for nodeIdx = 1, #pathfindNodes, 1 do
 								if not pathfindNodes[nodeIdx] then continue end
-								local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
+								local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 0 + config.Entity.HeightOffset, 0)
 								EntityMoveTo(model, cframe, config.Movement.Speed)
 								task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", pathfindNodes[nodeIdx]) -- OnReachNode
 							end
@@ -1048,7 +1048,7 @@ spawner.Run = function(entityTable)
 					end)
 					for nodeIdx = 1, #pathfindNodes, 1 do
 						if not pathfindNodes[nodeIdx] then continue end
-						local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
+						local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 0 + config.Entity.HeightOffset, 0)
 						EntityMoveTo(model, cframe, config.Movement.Speed)
 						task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", pathfindNodes[nodeIdx]) -- OnReachNode
 					end
@@ -1064,7 +1064,7 @@ spawner.Run = function(entityTable)
 							-- Run backwards through nodes
 							for i = #pathfindNodes, 1, -1 do
 								if not pathfindNodes[i] then continue end
-								local cframe = pathfindNodes[i].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
+								local cframe = pathfindNodes[i].CFrame + Vector3.new(0, 0 + config.Entity.HeightOffset, 0)
 								EntityMoveTo(model, cframe, config.Movement.Speed)
 								task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", pathfindNodes[i]) -- OnReachNode
 							end
@@ -1078,7 +1078,7 @@ spawner.Run = function(entityTable)
 							-- Run forwards through nodes
 							for nodeIdx = 1, #pathfindNodes, 1 do
 								if not pathfindNodes[nodeIdx] then continue end
-								local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
+								local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 0 + config.Entity.HeightOffset, 0)
 								EntityMoveTo(model, cframe, config.Movement.Speed)
 								task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", pathfindNodes[nodeIdx]) -- OnReachNode
 							end
@@ -1095,7 +1095,6 @@ spawner.Run = function(entityTable)
 				
 				-- Despawning
 				if not model:GetAttribute("Despawning") then
-				moduleScripts.camShaker:Stop()
 					if config.Rebounding.Max ~= 1 then
 						reboundCon = false
 						model:SetAttribute("Despawning", true)
