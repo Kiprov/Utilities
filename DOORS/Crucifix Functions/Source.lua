@@ -30,8 +30,9 @@ function module:CrucifyEntity(config,oldentity,ToolHandle)
     config:Despawn()
 
 
-	game.ReplicatedStorage.GameData.ChaseInSession.Value = false
-
+	if game.ReplicatedStorage:FindFirstChild("GameData") then
+		game.ReplicatedStorage.GameData.ChaseInSession.Value = false
+	end
 	local primary = entity.PrimaryPart or entity:FindFirstChildOfClass("Part")
 	task.spawn(function()
 		if entity:GetAttribute("Repent") == "Normal" then
@@ -346,8 +347,9 @@ function module:FailCrucifyEntity(config,oldentity,ToolHandle)
 	local entity = oldentity
     entity:SetAttribute("Paused",true)
     entity:SetAttribute("BeingBanished",true)
-	game.ReplicatedStorage.GameData.ChaseInSession.Value = false
-
+	if game.ReplicatedStorage:FindFirstChild("GameData") then
+		game.ReplicatedStorage.GameData.ChaseInSession.Value = false
+	end
 
 	local primary = entity.PrimaryPart or entity:FindFirstChildOfClass("Part")
 	task.spawn(function()
@@ -729,7 +731,9 @@ function module:FailCrucifyEntity(config,oldentity,ToolHandle)
 	task.wait(10)
 	entity:SetAttribute("Paused",false)
 	entity:SetAttribute("BeingBanished",false)
-	game.ReplicatedStorage.GameData.ChaseInSession.Value = true
+	if game.ReplicatedStorage:FindFirstChild("GameData") then
+		game.ReplicatedStorage.GameData.ChaseInSession.Value = true
+	end
 end
 
 function module:CrucifyEntityWithoutConfig(oldentity,ToolHandle)
