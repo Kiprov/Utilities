@@ -6,7 +6,10 @@ local Hum = Character.Humanoid
 local MainModels = game:GetObjects("rbxassetid://17394237675")[1]
 local Portal = MainModels.Repentance
 local tweensv = game:GetService("TweenService")
-local LatestRoom = game:GetService("ReplicatedStorage").GameData.LatestRoom
+local LatestRoom = nil
+if game.ReplicatedStorage:FindFirstChild("GameData") then
+	LatestRoom = game:GetService("ReplicatedStorage").GameData.LatestRoom
+end
 local CameraShaker = require(game.ReplicatedStorage.CameraShaker)
 local Camera = workspace.CurrentCamera
 local camShake = CameraShaker.new(Enum.RenderPriority.Camera.Value, function(shakeCf)
