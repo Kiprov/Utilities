@@ -738,6 +738,7 @@ spawner.Run = function(entityTable)
 			-- Movement detection handling
 			task.wait(config.Movement.Delay)
 			task.spawn(entityTable.RunCallback, entityTable, "OnStartMoving") -- OnStartMoving
+			moduleScripts.camShaker:Start()
 			task.spawn(function()
 				while model.Parent do
 					if not model:GetAttribute("Paused") then
@@ -1094,6 +1095,7 @@ spawner.Run = function(entityTable)
 				
 				-- Despawning
 				if not model:GetAttribute("Despawning") then
+				moduleScripts.camShaker:Stop()
 					if config.Rebounding.Max ~= 1 then
 						reboundCon = false
 						model:SetAttribute("Despawning", true)
