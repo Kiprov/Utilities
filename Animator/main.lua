@@ -22,11 +22,9 @@ function AnimatorModule:LoadAnimation(Rig, KeyframeSequence)
 	local Joints = {}
 	for i,v in pairs(Rig:GetDescendants())do
 		if v:IsA("Motor6D") then
-			if not v:IsDescendantOf(script.Parent) then
-				v.Name = v.Part1.Name
+			v.Name = v.Part1.Name
 				AnimDefaults[v.Name] = v.C0
 				Joints[v.Name] = v
-			end
 		end
 	end
 	local Sequence = KeyframeSequence
