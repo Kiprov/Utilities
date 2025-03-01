@@ -71,6 +71,7 @@ function AnimatorModule:LoadAnimation(Rig, KeyframeSequence)
 	Class.Completed = Completion.Event
 	Class.KeyframeReached = Reached.Event
 	Class["Play"] = function(self, FadeIn, Speed)
+		if Class.IsPlaying == true then return end
 		if Speed and Speed < 0 then
 			Speed += (Speed*2)
 		end
