@@ -16,7 +16,7 @@ local namecall = nil
 namecall = hookmetamethod(game,"__namecall", newcclosure(function(self,...)
 local method = getnamecallmethod()
 if method == "Destroy" then
-if self.Name == "PathfindNodes" then
+if self.Name == "Nodes" then
 print("too bad, you cant destroy nodes.")
 return
 end
@@ -24,13 +24,8 @@ end
 return namecall(self,...)
 end))
 warn("Initiated anti-nodes destruction.")
-
 --Very Important Check
 local isOld = false
-if game.PlaceId == 110258689672367 then
-    isOld = true
-end
-warn("[SPAWNER]: Hotel- Status: ",isOld)
 -- Services
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -44,10 +39,7 @@ local localChar = localPlayer.Character or localPlayer.CharacterAdded:Wait()
 local localHum = localChar:WaitForChild("Humanoid")
 local localCamera = workspace.CurrentCamera
 local playerGui = localPlayer:WaitForChild("PlayerGui")
-local gameStats = ReplicatedStorage:WaitForChild("GameStats")
-local gameData = ReplicatedStorage:WaitForChild("GameData")
-local floorReplicated = isOld == false and ReplicatedStorage:WaitForChild("FloorReplicated") or nil
-local remotesFolder = isOld == false and ReplicatedStorage:WaitForChild("RemotesFolder") or ReplicatedStorage:WaitForChild("Bricks")
+local gameData = workspace.Game:WaitForChild("Values")
 
 local lastRespawn;
 local BaseEntitySpeed = 65
@@ -58,10 +50,12 @@ local vynixuModules = {
 	Functions = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Functions.lua"))(),
 	CrucifixFunctions = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kiprov/Utilities/refs/heads/main/DOORS/Crucifix%20Functions/Source.lua"))()
 }
+local CameraShaker = require(ReplicatedStorage:WaitForChild("CameraShaker"))
+local Camera = workspace.CurrentCamera
 local moduleScripts = {
-	Module_Events = require(ReplicatedStorage.ClientModules.Module_Events),
-	Main_Game = require(playerGui.MainUI.Initiator.Main_Game),
-	Earthquake = isOld == false and require(remotesFolder.RequestAsset:InvokeServer("Earthquake")) or function() end,
+	camShaker = CameraShaker.new(Enum.RenderPriority.Camera.Value, function(shakeCF)
+	Camera.CFrame = Camera.CFrame * shakeCF
+	end)
 }
 local defaultEntityAttributes = {
     Running = false,
@@ -170,9 +164,9 @@ end
 
 function GetCurrentRoom(latest)
     if latest then
-        return workspace.CurrentRooms:GetChildren()[#workspace.CurrentRooms:GetChildren()]
+        return workspace.Game.Rooms:GetChildren()[#workspace.Game.Rooms:GetChildren()]
     end
-    return workspace.CurrentRooms:FindFirstChild(localPlayer:GetAttribute("CurrentRoom"))
+    return workspace.Game.Rooms:FindFirstChild("Room"..localChar.RoomInsideNumber.Value)
 end
 
 local IT = Instance.new
@@ -184,7 +178,7 @@ local ps = game:GetService("PathfindingService")
 
 function GetNodesFromRoom(room, reversed, entityTable)
 	local nodes = {}
-	local roomEntrance = isOld == false and room:FindFirstChild("RoomEntrance") or room:FindFirstChild("RoomStart")
+	local roomEntrance = isOld == false and room:FindFirstChild("RootPart") or room:FindFirstChild("RoomStart")
 	if roomEntrance then
 		local n = roomEntrance:Clone()
 		n.Name = "0"
@@ -192,9 +186,9 @@ function GetNodesFromRoom(room, reversed, entityTable)
 		nodes[1] = n
 	end
 	
-	local roomExit = isOld == false and room:FindFirstChild("RoomExit") or room:FindFirstChild("RoomEnd")
+	local roomExit = isOld == false and room:FindFirstChild("Door"):FindFirstChild("RootPart") or room:FindFirstChild("RoomEnd")
 
-	local nodesFolder = isOld == false and room:FindFirstChild("PathfindNodes") or room:FindFirstChild("Nodes")
+	local nodesFolder = isOld == false and room:FindFirstChild("Nodes") or room:FindFirstChild("Nodes")
 	if nodesFolder then
 		for _, n in nodesFolder:GetChildren() do
 			nodes[#nodes + 1] = n
@@ -244,7 +238,7 @@ end
 
 function GetPathfindNodesAmbush(entityTable)
 	local pathfindNodes = {}
-    local rooms = workspace.CurrentRooms:GetChildren()
+    local rooms = workspace.Game.Rooms:GetChildren()
     local config = entityTable.Config
     if config.Movement.Reversed == false then
         for i = 1, #rooms, 1 do
@@ -304,8 +298,8 @@ end
 
 function GetPathfindNodesBlitz(entityTable)
 	local nodesToCurrent, nodesToEnd = {}, {}
-	local currentRoomIndex = localPlayer:GetAttribute("CurrentRoom")
-    local rooms = workspace.CurrentRooms:GetChildren()
+	local currentRoomIndex = localChar.RoomInsideNumber.Value
+    local rooms = workspace.Game.Rooms:GetChildren()
     local config = entityTable.Config
 
     if config.Movement.Reversed == false then
@@ -385,44 +379,6 @@ function DamagePlayer(entityTable)
 	if localHum.Health > 0 and not PlayerIsProtected() then
 		local config = entityTable.Config
 		local newHealth = math.clamp(localHum.Health - config.Damage.Amount, 0, localHum.MaxHealth)
-
-		if newHealth == 0 then
-			-- Death hints
-			if #config.Death.Hints > 0 then
-				-- Get death type
-				local colour;
-				for name, values in deathTypes do
-					if table.find(values, config.Death.Type:lower()) then
-						colour = name
-					end
-				end
-				if not colour then
-					for _, c in playerGui.MainUI.Initiator.Main_Game.Health.Music:GetChildren() do
-						if c.Name:lower() == config.Death.Type:lower() then
-							colour = c.Name
-						end
-					end
-				end
-				if not colour then
-					colour = "Blue"
-				end
-				
-				-- Set death hints and type (thanks oogy)
-				if firesignal then
-					firesignal(remotesFolder.DeathHint.OnClientEvent, config.Death.Hints, colour)
-				else
-					warn("firesignal not supported, ignore death hints.")
-				end
-			end
-
-			-- Set death cause
-			local deathCause = config.Entity.Name
-			if config.Death.Cause ~= "" then
-				deathCause = config.Death.Cause
-			end
-			gameStats["Player_".. localPlayer.Name].Total.DeathCause.Value = deathCause
-		end
-
 		-- Update health
 		localHum.Health = newHealth
 		task.spawn(entityTable.RunCallback, entityTable, "OnDamagePlayer", newHealth) -- OnDamagePlayer
@@ -431,7 +387,7 @@ end
 
 function GetRoomAtPoint(vector3)
 	local whitelist = {}
-	for _, room in workspace.CurrentRooms:GetChildren() do
+	for _, room in workspace.Game.Rooms:GetChildren() do
 		local p = room:FindFirstChild(room.Name)
 		if p then
 			whitelist[#whitelist + 1] = p
@@ -446,69 +402,13 @@ function GetRoomAtPoint(vector3)
 
 		local result = workspace:Raycast(vector3, Vector3.new(0, -100, 0), params)
 		if result then
-			for _, room in workspace.CurrentRooms:GetChildren() do
+			for _, room in workspace.Game.Rooms:GetChildren() do
 				if result.Instance.Parent == room then
 					return room
 				end
 			end
 		end
 	end
-end
-
-function FixRoomLights(room)
-	if not room:FindFirstChild("RoomEntrance") then
-		return
-	end
-
-    -- Clear shards
-    for _, c in localCamera:GetChildren() do
-        if c.Name == "Piece" then
-            c:Destroy()
-        end
-    end
-    
-    -- Set room ambient
-    require(ReplicatedStorage.ClientModules.Module_Events).toggle(room, true, ambientStorage[room])
-
-    -- Fix lights
-    local stuff = {}
-    for _, d in room:GetDescendants() do
-        if d:IsA("Model") and (d.Name == "LightStand" or d.Name == "Chandelier") then
-            table.insert(stuff, d)
-        end
-    end
-
-    local random = Random.new(tick())
-    for _, v in stuff do
-        if v:GetAttribute("Shattered") then
-			local r1 = random:NextInteger(-10, 10) / 50
-			local r2 = random:NextInteger(5, 20) / 100
-	
-			task.delay((room.RoomEntrance.Position - v.PrimaryPart.Position).Magnitude / 150 + r1, function()
-				local neon = v:FindFirstChild("Neon", true)
-				for _, d in pairs(v:GetDescendants()) do
-					if d:IsA("Light") then
-						TweenService:Create(d, TweenInfo.new(r2, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
-							Brightness = d:GetAttribute("OGBrightness")
-						}):Play()
-					elseif d:IsA("Sound") then
-						TweenService:Create(d, TweenInfo.new(r2, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
-							Volume = d:GetAttribute("OGVolume")
-						}):Play()
-					end
-				end
-				if neon then
-					neon.Transparency = 0.9
-					neon.Material = Enum.Material.Neon
-					TweenService:Create(neon, TweenInfo.new(r2, Enum.EasingStyle.Quart, Enum.EasingDirection.InOut), {
-						Transparency = 0.2
-					}):Play()
-					task.wait(r2)
-				end
-				v:SetAttribute("Shattered", false)
-			end)
-		end
-    end
 end
 
 function EntityMoveTo(model, cframe, speed)
@@ -631,7 +531,6 @@ function loadSound(entityTable,entityModel)
 				local sndorigvolume = snd.Volume
 				snd.Volume = 0
 				snd:Play()
-				snd.SoundGroup = game:GetService("SoundService").Main
 				wait(0.1)
 				local tween = game.TweenService:Create(snd,TweenInfo.new(entityTable.Movement.Delay,Enum.EasingStyle.Linear,Enum.EasingDirection.Out),{Volume = sndorigvolume})
 				tween:Play()
@@ -653,8 +552,8 @@ function unloadSound(entityTable, entityModel)
 	end
 end
 local function GetClosetsInRoom(room)
-	if room:FindFirstChild("Assets") then
-		if room.Assets:FindFirstChild("Wardrobe") or room.Assets:FindFirstChild("Toolshed") then
+	if room:FindFirstChild("Models") then
+		if room.Models:FindFirstChild("Wardrobe") then
 			return true
 		else
 			return false
@@ -779,7 +678,7 @@ end
 spawner.Run = function(entityTable)
 	task.spawn(function()
 		if not entityTable.Config.Entity.CanSpawnWithoutClosets then
-			if GetClosetsInRoom(workspace.CurrentRooms[gameData.LatestRoom.Value]) == false then
+			if GetClosetsInRoom(workspace.Game.Rooms["Room"..gameData.RoomsNumber.Value]) == false then
 				return
 			end
 		end
@@ -796,14 +695,14 @@ spawner.Run = function(entityTable)
 		-- Spawning
 		local spawnPoint;
 		local function setupSpawn()
-		local rooms = workspace.CurrentRooms:GetChildren()
+		local rooms = workspace.Game.Rooms:GetChildren()
 		if config.Movement.Reversed then
-			spawnPoint = isOld == false and rooms[#rooms]:FindFirstChild("RoomExit") or rooms[#rooms]:FindFirstChild("RoomEnd")
+			spawnPoint = isOld == false and rooms[#rooms]:FindFirstChild("Door"):FindFirstChild("RootPart") or rooms[#rooms]:FindFirstChild("RoomEnd")
 		else
-			spawnPoint = isOld == false and rooms[1]:FindFirstChild("RoomEntrance") or rooms[1]:FindFirstChild("RoomStart")
+			spawnPoint = isOld == false and rooms[1]:FindFirstChild("RootPart") or rooms[1]:FindFirstChild("RoomStart")
 			if not spawnPoint then
 			warn("spawn point not found, trying 2nd pre-deletion room")
-			spawnPoint = isOld == false and rooms[2]:FindFirstChild("RoomEntrance") or rooms[2]:FindFirstChild("RoomStart")
+			spawnPoint = isOld == false and rooms[2]:FindFirstChild("RootPart") or rooms[2]:FindFirstChild("RoomStart")
 			end
 		end
 		end
@@ -830,22 +729,16 @@ spawner.Run = function(entityTable)
 			-- Flickering lights
 			if config.Lights.Flicker.Enabled then
 				local currentRoom = GetCurrentRoom(false)
-				if currentRoom then
-					if isOld == false then
-					moduleScripts.Module_Events.flicker(currentRoom, config.Lights.Flicker.Duration)
-					else
-					moduleScripts.Module_Events.flickerLights(currentRoom, config.Lights.Flicker.Duration)
-					end
-				end
 			end
 			-- Earthquake
 			if config.Earthquake.Enabled then
-				moduleScripts.Earthquake(moduleScripts.Main_Game, currentRoom)
+				
 			end
 	
 			-- Movement detection handling
 			task.wait(config.Movement.Delay)
 			task.spawn(entityTable.RunCallback, entityTable, "OnStartMoving") -- OnStartMoving
+			moduleScripts.camShaker:Start()
 			task.spawn(function()
 				while model.Parent do
 					if not model:GetAttribute("Paused") then
@@ -881,14 +774,7 @@ spawner.Run = function(entityTable)
 										local latestRoom = GetCurrentRoom(true)
 										if room ~= latestRoom then
 											if config.Lights.Shatter then -- Shatter lights
-												if isOld == false then
-												moduleScripts.Module_Events.shatter(room)
-												else
-												moduleScripts.Module_Events.breakLights(room)
-												end
-		
 											elseif config.Lights.Repair then -- Repair lights
-												FixRoomLights(room)
 											end
 										end
 									end
@@ -937,7 +823,7 @@ spawner.Run = function(entityTable)
 	
 									cloned[1] = c.Values[1] / c.Range * (c.Range - mag) -- Magnitude
 									cloned[2] = c.Values[2] / c.Range * (c.Range - mag) -- Roughness
-									moduleScripts.Main_Game.camShaker:ShakeOnce(table.unpack(cloned))
+									moduleScripts.camShaker:ShakeOnce(table.unpack(cloned))
 								end
 							end
 						end
@@ -954,7 +840,7 @@ spawner.Run = function(entityTable)
 					local nodesToCurrent, nodesToEnd = GetPathfindNodesBlitz(entityTable)
 	
 					for _, n in nodesToCurrent do
-						local cframe = n.CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
+						local cframe = n.CFrame + Vector3.new(0, 0 + config.Entity.HeightOffset, 0)
 						EntityMoveTo(model, cframe, config.Movement.Speed)
 						task.spawn(entityTable.RunCallback, entityTable, "OnReachNode", n) -- OnReachNode
 					end
@@ -989,7 +875,7 @@ spawner.Run = function(entityTable)
 							
 							local nodeIndex = tonumber(randomNode.Name)
 							for i = #roomNodes, nodeIndex, -1 do
-								local cframe = roomNodes[math.clamp(i, 1, #roomNodes)].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
+								local cframe = roomNodes[math.clamp(i, 1, #roomNodes)].CFrame + Vector3.new(0, 0 + config.Entity.HeightOffset, 0)
 								EntityMoveTo(model, cframe, config.Movement.Speed)
 								task.spawn(entityTable.RunCallback, entityTable, "OnReachNode", n) -- OnReachNode
 							end
@@ -999,7 +885,7 @@ spawner.Run = function(entityTable)
 							task.spawn(entityTable.RunCallback, entityTable, "OnRebounding", false) -- OnRebounding
 		
 							for i = nodeIndex, #roomNodes, 1 do
-								local cframe = roomNodes[math.clamp(i, 1, #roomNodes)].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
+								local cframe = roomNodes[math.clamp(i, 1, #roomNodes)].CFrame + Vector3.new(0, 0 + config.Entity.HeightOffset, 0)
 								EntityMoveTo(model, cframe, config.Movement.Speed)
 								task.spawn(entityTable.RunCallback, entityTable, "OnReachNode", n) -- OnReachNode
 							end
@@ -1008,7 +894,7 @@ spawner.Run = function(entityTable)
 					
 					local _, updatedToEnd = GetPathfindNodesBlitz(entityTable)
 					for _, n in updatedToEnd do
-						local cframe = n.CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
+						local cframe = n.CFrame + Vector3.new(0, 0 + config.Entity.HeightOffset, 0)
 						EntityMoveTo(model, cframe, config.Movement.Speed)
 						task.spawn(entityTable.RunCallback, entityTable, "OnReachNode", n) -- OnReachNode
 					end
@@ -1026,7 +912,7 @@ spawner.Run = function(entityTable)
 					end)
 					for nodeIdx = 1, #pathfindNodes, 1 do
 						if not pathfindNodes[nodeIdx] then continue end
-						local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
+						local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 0 + config.Entity.HeightOffset, 0)
 						EntityMoveTo(model, cframe, config.Movement.Speed)
 						task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", pathfindNodes[nodeIdx]) -- OnReachNode
 					end
@@ -1052,7 +938,7 @@ spawner.Run = function(entityTable)
 		local offset = CFrame.new(0,0,offsetNum)
 											model:PivotTo(spawnPoint.CFrame * offset + Vector3.new(0, config.Entity.HeightOffset, 0))
 							for _, n in pathfindNodes do
-								local cframe = n.CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
+								local cframe = n.CFrame + Vector3.new(0, 0 + config.Entity.HeightOffset, 0)
 								EntityMoveTo(model, cframe, config.Movement.Speed)
 								task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", n) -- OnReachNode
 							end
@@ -1078,7 +964,7 @@ spawner.Run = function(entityTable)
 							-- Run forwards through nodes
 							for nodeIdx = 1, #pathfindNodes, 1 do
 								if not pathfindNodes[nodeIdx] then continue end
-								local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
+								local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 0 + config.Entity.HeightOffset, 0)
 								EntityMoveTo(model, cframe, config.Movement.Speed)
 								task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", pathfindNodes[nodeIdx]) -- OnReachNode
 							end
@@ -1105,7 +991,7 @@ spawner.Run = function(entityTable)
 					end)
 					for nodeIdx = 1, #pathfindNodes, 1 do
 						if not pathfindNodes[nodeIdx] then continue end
-						local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
+						local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 0 + config.Entity.HeightOffset, 0)
 						EntityMoveTo(model, cframe, config.Movement.Speed)
 						task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", pathfindNodes[nodeIdx]) -- OnReachNode
 					end
@@ -1121,7 +1007,7 @@ spawner.Run = function(entityTable)
 							-- Run backwards through nodes
 							for i = #pathfindNodes, 1, -1 do
 								if not pathfindNodes[i] then continue end
-								local cframe = pathfindNodes[i].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
+								local cframe = pathfindNodes[i].CFrame + Vector3.new(0, 0 + config.Entity.HeightOffset, 0)
 								EntityMoveTo(model, cframe, config.Movement.Speed)
 								task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", pathfindNodes[i]) -- OnReachNode
 							end
@@ -1135,7 +1021,7 @@ spawner.Run = function(entityTable)
 							-- Run forwards through nodes
 							for nodeIdx = 1, #pathfindNodes, 1 do
 								if not pathfindNodes[nodeIdx] then continue end
-								local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
+								local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 0 + config.Entity.HeightOffset, 0)
 								EntityMoveTo(model, cframe, config.Movement.Speed)
 								task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", pathfindNodes[nodeIdx]) -- OnReachNode
 							end
@@ -1162,7 +1048,7 @@ spawner.Run = function(entityTable)
 					end)
 					for nodeIdx = 1, #pathfindNodes, 1 do
 						if not pathfindNodes[nodeIdx] then continue end
-						local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
+						local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 0 + config.Entity.HeightOffset, 0)
 						EntityMoveTo(model, cframe, config.Movement.Speed)
 						task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", pathfindNodes[nodeIdx]) -- OnReachNode
 					end
@@ -1178,7 +1064,7 @@ spawner.Run = function(entityTable)
 							-- Run backwards through nodes
 							for i = #pathfindNodes, 1, -1 do
 								if not pathfindNodes[i] then continue end
-								local cframe = pathfindNodes[i].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
+								local cframe = pathfindNodes[i].CFrame + Vector3.new(0, 0 + config.Entity.HeightOffset, 0)
 								EntityMoveTo(model, cframe, config.Movement.Speed)
 								task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", pathfindNodes[i]) -- OnReachNode
 							end
@@ -1192,7 +1078,7 @@ spawner.Run = function(entityTable)
 							-- Run forwards through nodes
 							for nodeIdx = 1, #pathfindNodes, 1 do
 								if not pathfindNodes[nodeIdx] then continue end
-								local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
+								local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 0 + config.Entity.HeightOffset, 0)
 								EntityMoveTo(model, cframe, config.Movement.Speed)
 								task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", pathfindNodes[nodeIdx]) -- OnReachNode
 							end
@@ -1247,15 +1133,15 @@ if not vynixu_SpawnerLoaded then
 	local function getAmbient(room)
 		return room:GetAttribute("AmbientOriginal") or room:GetAttribute("Ambient") or Color3.fromRGB(67, 51, 56)
 	end
-	for _, c in workspace.CurrentRooms:GetChildren() do
+	for _, c in workspace.Game.Rooms:GetChildren() do
 		ambientStorage[c] = getAmbient(c)
 	end
-	workspace.CurrentRooms.ChildAdded:Connect(function(c)
+	workspace.Game.Rooms.ChildAdded:Connect(function(c)
 		ambientStorage[c] = getAmbient(c)
 	end)
 	
 	workspace.DescendantRemoving:Connect(function(d)
-		if d.Name == "PathfindNodes" then
+		if d.Name == "Nodes" then
 			d:Clone().Parent = d.Parent
 		end
 	end)
