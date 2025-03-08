@@ -380,10 +380,7 @@ function PlayerIsProtected()
 end
 
 function DamagePlayer(entityTable)
-	local c = entityTable.Config.Crucifixion
-	if c.Enabled == true and localHum.Parent:FindFirstChild("Crucifix") then
-	    return
-	end
+	if localHum.Parent:FindFirstChild("Crucifix") then return end
 	if localHum.Health > 0 and not PlayerIsProtected() then
 		local config = entityTable.Config
 		local newHealth = math.clamp(localHum.Health - config.Damage.Amount, 0, localHum.MaxHealth)
@@ -431,7 +428,8 @@ function DamagePlayer(entityTable)
 	end
 end
 
-function GetRoomAtPoint(vector3)
+function GetRoomAtPoint(vector3,ignoreTable)
+if isOld == false then
 	local whitelist = {}
 	for _, room in workspace.CurrentRooms:GetChildren() do
 		local p = room:FindFirstChild(room.Name)
@@ -454,6 +452,20 @@ function GetRoomAtPoint(vector3)
 				end
 			end
 		end
+	end
+	else
+	local floors = {"Floor","Carpet","CarpetLight"}
+	local roomAtPoint = nil
+	local floorRay = workspace:FindPartOnRayWithIgnoreList(Ray.new(vector3, Vector3.new(0, -10, 0)), ignoreTable)
+	if floorRay ~= nil and table.find(floors,floorRay.Name) then
+	for _, room in next, workspace.CurrentRooms:GetChildren() do
+	if floorRay:IsDescendantOf(room) then
+	roomAtPoint = room
+	break
+	end
+	end
+	return roomAtPoint
+	end
 	end
 end
 
@@ -865,7 +877,7 @@ spawner.Run = function(entityTable)
 						
 						-- Room detection
 						do
-							local room = GetRoomAtPoint(pivot.Position)
+							local room = GetRoomAtPoint(pivot.Position,{model})
 							if room then
 								local index = tonumber(room.Name)
 								if index ~= model:GetAttribute("LastEnteredRoom") then
@@ -888,7 +900,9 @@ spawner.Run = function(entityTable)
 												else
 												moduleScripts.Module_Events.breakLights(room)
 												end
+												delay(math.random(1,5),function()
 												room:SetAttribute("IsDark",true)
+												end)
 		
 											elseif config.Lights.Repair then -- Repair lights
 												FixRoomLights(room)
