@@ -12,6 +12,9 @@
 if VynixuEntitySpawnerV2 then return VynixuEntitySpawnerV2 end
 
 -- Preventing Nodes Destruction
+pcall(function()
+workspace.CurrentRooms["0"].PathfindNodes:Destroy()
+end)
 local namecall = nil
 namecall = hookmetamethod(game,"__namecall", newcclosure(function(self,...)
 local method = getnamecallmethod()
@@ -199,7 +202,8 @@ function GetNodesFromRoom(room, reversed, entityTable)
 			nodes[#nodes + 1] = n
 		end
 		else
-		if not roomEntrance or not roomExit then return nodes end
+		-- Code is now unused due to crazy stuff.
+		--[[if not roomEntrance or not roomExit then return nodes end
 		local path = ps:CreatePath()
 		path:ComputeAsync(roomEntrance:GetPivot().Position,roomExit:GetPivot().Position)
 		nodesFolder = path:GetWaypoints()
@@ -220,7 +224,7 @@ end
 nodesFolder = fold
 for _, n in nodesFolder:GetChildren() do
 			nodes[#nodes + 1] = n
-		end
+		end]]--
 	end
 	if roomExit then
 		local index = #nodes + 1
