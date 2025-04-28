@@ -4106,6 +4106,10 @@ ping.Position = UDim2.new(0,0,0.05,0)
 		local grabbed = nil
 		local grabweld = nil
 		local aidsificating = nil
+		if ruhroh then
+			firsttime7 = false
+			demonnotify("   PRESS ALT TO ACTIVATE DEMON FORM.", true)
+		end
 		player.CharacterAdded:connect(function()
 			if usable then
 				usable = false
@@ -4118,7 +4122,11 @@ ping.Position = UDim2.new(0,0,0.05,0)
  usable = false 
  CAS:UnbindAction("M1Down")
 died = true
+if ruhroh == false then
 notify(deaths[math.random(1,#deaths)])
+else
+demonnotify("   "..deaths[math.random(1,#deaths)])	
+end
 end)
 		spawn(function()
 while wait() do
