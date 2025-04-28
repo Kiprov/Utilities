@@ -4107,7 +4107,7 @@ ping.Position = UDim2.new(0,0,0.05,0)
 		local grabweld = nil
 		local aidsificating = nil
 		if ruhroh then
-			firsttime7 = false
+			firsttime7 = true
 			demonnotify("   PRESS ALT TO ACTIVATE DEMON FORM.", true)
 		end
 		player.CharacterAdded:connect(function()
