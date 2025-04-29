@@ -26,16 +26,180 @@ local args = {
 game:GetService("ReplicatedStorage"):WaitForChild("HDAdminClient"):WaitForChild("Signals"):WaitForChild("RequestCommand"):InvokeServer(unpack(args))
 
 end
+local LocalPlayer = game.Players.LocalPlayer
+local Stepped = game:GetService("RunService").Stepped
+local Camera = workspace.CurrentCamera
+local Rstep = game:GetService("RunService").RenderStepped
+local Hbeat = game:GetService("RunService").Heartbeat
+local Rstorage = game:GetService("ReplicatedStorage")
+local CreateClientRay = function(RayS, CustomColor)
+	for i = 1, #RayS do
+		local NewRay = Instance.new("Part", workspace.CurrentCamera)
+		NewRay.Name = "ClientRay"
+		NewRay.Material = Enum.Material.Neon
+		NewRay.Anchored = true
+		NewRay.CanCollide = false
+		NewRay.Transparency = 0.5
+		NewRay.formFactor = Enum.FormFactor.Custom
+		NewRay.Size = Vector3.new(0.2, 0.2, RayS[i].Distance)
+		NewRay.CFrame = RayS[i].Cframe
+		local Mesh = Instance.new("BlockMesh", NewRay)
+		Mesh.Scale = Vector3.new(0.5, 0.5, 1)
+		if CustomColor then
+			NewRay.BrickColor = BrickColor.new(CustomColor)
+		else
+			NewRay.BrickColor = BrickColor.Yellow()
+		end
+		game:GetService("Debris"):AddItem(NewRay, 0.05)
+	end
+end
+local Gun = function(args) 
+	workspace.Remote.ItemHandler:InvokeServer({Position = LocalPlayer.Character.Head.Position, Parent = workspace.Prison_ITEMS.giver:FindFirstChild(args) or workspace.Prison_ITEMS.single:FindFirstChild(args)})
+end
+local LAction = function(args, args2)
+	if args == "sit" then
+		LocalPlayer.Character:FindFirstChild("Humanoid").Sit = true
+	elseif args == "unsit" then
+		if args2 then
+			local human = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+			for i = 1, 8 do Hbeat:Wait();human.Sit=false;Rstep:Wait();human.Sit=false;Stepped:Wait();human.Sit=false end
+		end;LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Running)
+	elseif args == "speed" then
+		LocalPlayer.Character:FindFirstChild("Humanoid").WalkSpeed = args2
+	elseif args == "jumppw" then
+		LocalPlayer.Character:FindFirstChild("Humanoid").JumpPower = args2
+	elseif args == "die" then
+		LocalPlayer.Character:FindFirstChild("Humanoid").Health = 0
+	elseif args == "died" then
+		LocalPlayer.Character:FindFirstChildWhichIsA("Humanoid"):ChangeState(Enum.HumanoidStateType.Dead)
+	elseif args == "jump" then
+		LocalPlayer.Character:FindFirstChild("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
+	elseif args == "state" then
+		LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(args2)
+	elseif args == "equip" then
+		LocalPlayer.Character:FindFirstChild("Humanoid"):EquipTool(args2)
+	elseif args == "unequip" then
+		LocalPlayer.Character:FindFirstChild("Humanoid"):UnequipTools()
+	end
+end
+local RTPing = function(value)
+	if value then
+		task.wait(value)
+	end
+	local RT1 = tick()
+	pcall(function()
+		workspace.Remote.ItemHandler:InvokeServer(workspace.Prison_ITEMS.buttons["Car Spawner"]["Car Spawner"])
+	end)
+	local RT2 = tick()
+	local RoundTrip = (RT2-RT1) * 1000
+	return RoundTrip
+end
+local waitfor = function(source, args, interval)
+	local int = interval or 5
+	local timeout = tick() + int
+	repeat Stepped:Wait() until source:FindFirstChild(args) or tick() - timeout >=0
+	timeout = nil
+	if source:FindFirstChild(args) then
+		return source:FindFirstChild(args)
+	else
+		return nil
+	end
+end
+local LoadCamPos = function()
+	Rstep:Wait()
+	Camera.CFrame = Camera.CFrame
+end
+local TeamEve = function(args)
+	workspace.Remote.TeamEvent:FireServer(args)
+end
+local TeamTo = function(args)
+	local tempos = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame; SavedPositions.AutoRe = tempos; SaveCamPos()
+	if args == "criminal" then
+		if LocalPlayer.TeamColor.Name == "Medium stone grey" then
+			TeamEve("Bright orange")
+		end
+		workspace["Criminals Spawn"].SpawnLocation.CanCollide = false
+		repeat
+			pcall(function()
+				workspace["Criminals Spawn"].SpawnLocation.CFrame = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame
+			end)
+			Stepped:Wait()
+		until LocalPlayer.TeamColor == BrickColor.new("Really red")
+		workspace['Criminals Spawn'].SpawnLocation.CFrame = SavedPositions.Crimpad
+		return
+	elseif args == "inmate" then
+		TeamEve("Bright orange")
+	elseif args == "guard" then
+		TeamEve("Bright blue")
+		if #Teams.Guards:GetPlayers() > 7 then
+			return
+		end
+	end
+	LocalPlayer.CharacterAdded:Wait(); waitfor(LocalPlayer.Character, "HumanoidRootPart", 5).CFrame = tempos; LoadCamPos()
+end
+local ShootKill = function(plr, amount, guntouse, hitpart)
+	if plr.Character and plr.Character:FindFirstChildOfClass("Humanoid") and plr.Character.Humanoid.Health ~= 0 then
+		if plr.TeamColor == LocalPlayer.TeamColor then
+			if plr.TeamColor == BrickColor.new("Bright orange") then
+				TeamTo("criminal")
+			else
+				TeamTo("inmate")
+				RTPing(0.1)
+			end
+		end
+		local DeGun = guntouse or "AK-47"
+		local HasGun = LocalPlayer.Character:FindFirstChild(DeGun) or LocalPlayer.Backpack:FindFirstChild(DeGun)
+		if not HasGun then
+			Gun(DeGun)
+			HasGun = waitfor(LocalPlayer.Backpack, DeGun, 1)
+		end
+		local ToHit = hitpart or plr.Character:FindFirstChildWhichIsA("BasePart")
+		local Times = amount or 15
+		LAction("equip", HasGun)
+		for i = 1, Times do
+			if not HasGun then
+				break
+			end
+			local Start, End = HasGun:FindFirstChild("Muzzle").Position, plr.Character:FindFirstChild("HumanoidRootPart").Position
+			local EA = {
+				[1] = {
+					Hit = ToHit;
+					Cframe = CFrame.new(End, Start) * CFrame.new(0, 0, -(Start-End).Magnitude / 2);
+					Distance = (Start-End).Magnitude;
+					RayObject = Ray.new(Vector3.new(), Vector3.new());
+				};
+			};
+			if DeGun == "Remington 870" then
+				for i = 1, 4 do
+					local tmp = End
+					End = End + Vector3.new(math.random(-1, 1), math.random(-1, 2), math.random(-1, 1))
+					EA[#EA+1] = {
+						Hit = ToHit;
+						Cframe = CFrame.new(End, Start) * CFrame.new(0, 0, -(Start-End).Magnitude / 2);
+						Distance = (Start-End).Magnitude;
+						RayObject = Ray.new(Vector3.new(), Vector3.new());
+					};
+					End = tmp
+					tmp = nil
+				end
+			end
+			CreateClientRay(EA)
+			Rstorage.ShootEvent:FireServer(EA, HasGun)
+			Rstorage.ReloadEvent:FireServer(HasGun)
+			task.wait(.1)
+			if plr.Character and plr.Character:FindFirstChildOfClass("Humanoid").Health == 0 then
+			    LAction("unequip")
+				break
+			end
+		end
+	end
+end
 local function Damage(char)
 if not game:GetService("Players"):GetPlayerFromCharacter(char) then char:FindFirstChildWhichIsA("Humanoid").Health -= 4.9 return end
 if isHDAdmin and sufficientrank then
 RequestCommand(prefix.Text.."explode "..char.Name)
 elseif not isHDAdmin and not sufficientrank and isPrisonLife then
-local args = {
-    [1] = game:GetService("Players"):WaitForChild(char.Name)
-}
-
-game:GetService("ReplicatedStorage"):WaitForChild("meleeEvent"):FireServer(unpack(args))
+ShootKill(game:GetService("Players"):WaitForChild(char.Name),1,"M9")
 end
 end
 local function Kill(char)
@@ -48,13 +212,7 @@ if isHDAdmin and sufficientrank then
 char:AddTag("hit")
 RequestCommand(prefix.Text.."explode "..char.Name)
 elseif not isHDAdmin and not sufficientrank and isPrisonLife then
-local args = {
-    [1] = game:GetService("Players"):WaitForChild(char.Name)
-}
-
-for i = 1,100 do
-game:GetService("ReplicatedStorage"):WaitForChild("meleeEvent"):FireServer(unpack(args))
-end
+ShootKill(game:GetService("Players"):WaitForChild(char.Name),15,"Remington 870")
 end
 end
 local function SendAnswerHint(answer)
