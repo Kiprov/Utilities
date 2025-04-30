@@ -8,12 +8,12 @@ local CAS = game:GetService("ContextActionService")
 local rankName,prefix = nil,nil
 local RunService = game:GetService("RunService")
 local globalBool = Instance.new("BoolValue")
-local storage = {
+local Tables = {
 	["Parts"] = {},
 	["Accessories"] = {},
 	["Shirts"] = {},
 	["Pants"] = {},
-	["CharacterMesh"] = {}
+	["CharacterMesh"] = {},
 }
 if hdAdmin then
 rankName = hdAdmin.MainFrame.Pages.About.Info.m2RankName
@@ -40,7 +40,7 @@ local Stepped = game:GetService("RunService").Stepped
 local Camera = workspace.CurrentCamera
 local Rstep = game:GetService("RunService").RenderStepped
 local Hbeat = game:GetService("RunService").Heartbeat
-local Rstorage = game:GetService("ReplicatedStorage")
+local ReSt = game:GetService("ReplicatedStorage")
 local CreateClientRay = function(RayS, CustomColor)
 	for i = 1, #RayS do
 		local NewRay = Instance.new("Part", workspace.CurrentCamera)
@@ -192,8 +192,8 @@ local ShootKill = function(plr, amount, guntouse, hitpart)
 				end
 			end
 			CreateClientRay(EA)
-			Rstorage.ShootEvent:FireServer(EA, HasGun)
-			Rstorage.ReloadEvent:FireServer(HasGun)
+			ReSt.ShootEvent:FireServer(EA, HasGun)
+			ReSt.ReloadEvent:FireServer(HasGun)
 			task.wait(.1)
 			if plr.Character and plr.Character:FindFirstChildOfClass("Humanoid").Health == 0 then
 			    LAction("unequip")
@@ -12102,27 +12102,27 @@ badass.TimePosition = died and 77.4 or not died and 0
 					if v:IsA("Part") then
 						spawn(function()
 							v:SetAttribute("OGMaterial",v.Material)
-							table.insert(storage.Parts,v:Clone())
+							table.insert(Tables["Parts"],v:Clone())
 						end)
 						v.Material = "Pebble"
 					elseif v:IsA("Accessory") then
 						spawn(function()
-							table.insert(storage.Accessories,v:Clone())
+							table.insert(Tables["Accessories"],v:Clone())
 						end)
 						v:Remove()
 					elseif v:IsA("Shirt") then
 						spawn(function()
-							table.insert(storage.Shirts,v:Clone())
+							table.insert(Tables["Shirts"],v:Clone())
 						end)
 						v:Remove()
 					elseif v:IsA("Pants") then
 						spawn(function()
-							table.insert(storage.Pants,v:Clone())
+							table.insert(Tables["Pants"],v:Clone())
 						end)
 						v:Remove()
 					elseif v:IsA('CharacterMesh') then
 						spawn(function()
-							table.insert(storage.CharacterMesh,v:Clone())
+							table.insert(Tables["CharacterMesh"],v:Clone())
 						end)
 						v:Remove()
 					end
@@ -12176,7 +12176,7 @@ badass.TimePosition = died and 77.4 or not died and 0
 			working = true
 			pcall(function()
 				globalBool.Value = false
-				for i,v in storage.Parts do
+				for i,v in Tables["Parts do
 					if v.Name == "Head" then
 						local newMesh = v.Mesh
 						newMesh.Parent = char.Head
@@ -12184,10 +12184,10 @@ badass.TimePosition = died and 77.4 or not died and 0
 						local newFace = v.face
 						newFace.Parent = char.Head
 						char.Head.Material = v:GetAttribute("OGMaterial")
-						storage.Parts[v] = nil
+						Tables["Parts[v] = nil
 					else
 						char[v.Name].Material = v:GetAttribute("OGMaterial")
-						storage.Parts[v] = nil
+						Tables["Parts[v] = nil
 					end
 				end
 				for name,sub in storage do
