@@ -1,11 +1,20 @@
 local sufficientrank = false
 local isHDAdmin = false
 local isPrisonLife = false
+local isDemon = false
 local justkill = getgenv().OnlyKill
 local hdAdmin = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("HDAdminGUIs")
 local CAS = game:GetService("ContextActionService")
 local rankName,prefix = nil,nil
 local RunService = game:GetService("RunService")
+local globalBool = Instance.new("BoolValue")
+local storage = {
+	Parts = {},
+	Accessories = {},
+	Shirts = {},
+	Pants = {},
+	CharacterMesh = {}
+}
 if hdAdmin then
 rankName = hdAdmin.MainFrame.Pages.About.Info.m2RankName
 prefix = hdAdmin.MainFrame.Pages.Settings.Custom["AE1 Prefix"].SettingValue.TextBox
@@ -2665,126 +2674,136 @@ ping.Position = UDim2.new(0,0,0.05,0)
 		list = {}
 	end
 
-	function bleed(frick,OwO)
-		local good = true
-		frick.AncestryChanged:connect(function()
-			good = false
-		end)
-		while frick.Parent ~= nil and good == true do
-			local reeee = coroutine.wrap(function()
-				if #curbloodnum < maxbloodnum then
-					local thing = Instance.new('Part',workspace)
-					thing.Size = Vector3.new(0.2,0.2,0.2)
-					thing.CFrame = frick.CFrame
-					thing.Transparency = 1
-					thing.BrickColor = BrickColor.new(Frame_2.BackgroundColor3)
-					thing.Material = Enum.Material.SmoothPlastic
-					thing.Name = "Blood"
-					thing.CanCollide =false
-					thing:BreakJoints()
-					local int = Instance.new('IntValue',thing)
-					int.Name = 'already broken u pleb'
-					table.insert(curbloodnum,thing)
-					local rawrxd = Instance.new('BodyForce',thing)
-					rawrxd.Force = frick.CFrame.upVector*(math.random()*2)+Vector3.new(math.random(-5, 5)/10,1.5,0)
-					local coru = coroutine.wrap(function()
-						wait(0.01)
-						rawrxd:Destroy()
-					end)
-					coru()
-					local ree = Instance.new('ParticleEmitter',thing)
-					if OwO ~= true then
-						ree.Color = ColorSequence.new({ColorSequenceKeypoint.new(0,Frame_2.BackgroundColor3),ColorSequenceKeypoint.new(1,Frame_2.BackgroundColor3)})
-					else
-						ree.Color = ColorSequence.new({ColorSequenceKeypoint.new(0,Color3.new(1,1,1)),ColorSequenceKeypoint.new(1,Color3.new(1,1,1))})
-					end
-					ree.Size = NumberSequence.new({NumberSequenceKeypoint.new(0,0.1),NumberSequenceKeypoint.new(1,0.1)})
-					ree.Texture = 'rbxassetid://867743272'
-					ree.Lifetime = NumberRange.new(0.4)
-					ree.Rate = 50
-					ree.LockedToPart = true
-					ree.Speed = NumberRange.new(0, 2)  
-					thing.Touched:connect(function(tou)
-						if tou.Parent and tou.Name ~= "ayybleed" and tou.Parent:IsA('Tool') == false and tou.Parent.Parent:FindFirstChildOfClass('Humanoid') == nil and tou.Parent:FindFirstChildOfClass('Humanoid') == nil and tou.Name ~= "Blood" and tou.Parent.Name ~= "Projectile" and tou.Parent.Name ~= "big ass knife" and tou.Parent ~= player.Character and tou.Parent.ClassName ~= "Accessory" and tou.Parent.Name ~= "bitch ass knife" and tou.Parent.Name ~= 'handle' and tou.Name ~= "blade" and tou.Name ~= 'handle' and tou.Name ~= "Projectile" and tou.Parent.Name ~= "Projectile" then
-							local pos = Vector3.new(thing.Position.X,(tou.Position.Y+(tou.Size.Y/2))+0.02,thing.Position.Z)
-							local Point1 = pos-Vector3.new(0.01,0.01,0.01)
-							local Point2 = pos+Vector3.new(0.01,0.01,0.01)
-							local Region = Region3.new(Point1,Point2)
-							for _,Part in pairs(workspace:FindPartsInRegion3(Region,nil,math.huge)) do
-								if Part.Name == "BloodPuddle" then
-									tou = Part
+	function bleed(frick,OwO,bool)
+		local good = false
+		if bool then
+			good = bool.Value
+		else
+			good = true
+			frick.AncestryChanged:connect(function()
+				good = false
+			end)
+		end
+		pcall(function()
+			while frick.Parent ~= nil and good == true do
+				if bool then
+					good = bool.Value
+				end
+				local reeee = coroutine.wrap(function()
+					if #curbloodnum < maxbloodnum then
+						local thing = Instance.new('Part',workspace)
+						thing.Size = Vector3.new(0.2,0.2,0.2)
+						thing.CFrame = frick.CFrame
+						thing.Transparency = 1
+						thing.BrickColor = BrickColor.new(Frame_2.BackgroundColor3)
+						thing.Material = Enum.Material.SmoothPlastic
+						thing.Name = "Blood"
+						thing.CanCollide =false
+						thing:BreakJoints()
+						local int = Instance.new('IntValue',thing)
+						int.Name = 'already broken u pleb'
+						table.insert(curbloodnum,thing)
+						local rawrxd = Instance.new('BodyForce',thing)
+						rawrxd.Force = frick.CFrame.upVector*(math.random()*2)+Vector3.new(math.random(-5, 5)/10,1.5,0)
+						local coru = coroutine.wrap(function()
+							wait(0.01)
+							rawrxd:Destroy()
+						end)
+						coru()
+						local ree = Instance.new('ParticleEmitter',thing)
+						if OwO ~= true then
+							ree.Color = ColorSequence.new({ColorSequenceKeypoint.new(0,Frame_2.BackgroundColor3),ColorSequenceKeypoint.new(1,Frame_2.BackgroundColor3)})
+						else
+							ree.Color = ColorSequence.new({ColorSequenceKeypoint.new(0,Color3.new(1,1,1)),ColorSequenceKeypoint.new(1,Color3.new(1,1,1))})
+						end
+						ree.Size = NumberSequence.new({NumberSequenceKeypoint.new(0,0.1),NumberSequenceKeypoint.new(1,0.1)})
+						ree.Texture = 'rbxassetid://867743272'
+						ree.Lifetime = NumberRange.new(0.4)
+						ree.Rate = 50
+						ree.LockedToPart = true
+						ree.Speed = NumberRange.new(0, 2)  
+						thing.Touched:connect(function(tou)
+							if tou.Parent and tou.Name ~= "ayybleed" and tou.Parent:IsA('Tool') == false and tou.Parent.Parent:FindFirstChildOfClass('Humanoid') == nil and tou.Parent:FindFirstChildOfClass('Humanoid') == nil and tou.Name ~= "Blood" and tou.Parent.Name ~= "Projectile" and tou.Parent.Name ~= "big ass knife" and tou.Parent ~= player.Character and tou.Parent.ClassName ~= "Accessory" and tou.Parent.Name ~= "bitch ass knife" and tou.Parent.Name ~= 'handle' and tou.Name ~= "blade" and tou.Name ~= 'handle' and tou.Name ~= "Projectile" and tou.Parent.Name ~= "Projectile" then
+								local pos = Vector3.new(thing.Position.X,(tou.Position.Y+(tou.Size.Y/2))+0.02,thing.Position.Z)
+								local Point1 = pos-Vector3.new(0.01,0.01,0.01)
+								local Point2 = pos+Vector3.new(0.01,0.01,0.01)
+								local Region = Region3.new(Point1,Point2)
+								for _,Part in pairs(workspace:FindPartsInRegion3(Region,nil,math.huge)) do
+									if Part.Name == "BloodPuddle" then
+										tou = Part
+									end
+								end
+								for i,v in pairs(curbloodnum) do
+									if v == thing then
+										table.remove(curbloodnum,i)
+									end
+								end
+								thing:Destroy()
+								if tou.Name == "BloodPuddle" then
+									if tou.Size.X < 1 then
+										pcall(function()
+											tou.Sound:Play()
+										end)
+									end
+									local reee = tou.CFrame
+									if tou.Transparency > -0.2 then
+										tou.Transparency = tou.Transparency -0.1
+									end
+									if tou.Size.X < 5 then
+										tou.Size = tou.Size+Vector3.new(0.1,0,0.1)
+										tou.CFrame = reee
+									end
+								elseif tou.CanCollide == true then
+									local bloodlol = Instance.new('Part',workspace)
+									local sound = Instance.new('Sound',bloodlol)
+									sound.SoundId = 'rbxassetid://685857471'
+									sound.Volume = 0.025
+									sound:Play()
+									bloodlol.Size=Vector3.new(1,0.2,1)
+									bloodlol.Name = "BloodPuddle"
+									bloodlol.Anchored = true
+									bloodlol.CanCollide = false
+									bloodlol.Material = Enum.Material.SmoothPlastic
+									if OwO ~= true then
+										bloodlol.Color = Frame_2.BackgroundColor3
+									else
+										bloodlol.Color = Color3.new(1,1,1)
+									end
+									local int = Instance.new('IntValue',bloodlol)
+									int.Name = 'already broken u pleb'
+									local cyl = Instance.new('CylinderMesh',bloodlol)
+									cyl.Scale = Vector3.new(1,0.1,1)
+									bloodlol.CFrame = CFrame.new(pos)
+									local coru=coroutine.wrap(function()
+										while bloodlol.Parent ~= nil do
+											if bloodlol.Transparency < 1 then
+												bloodlol.Transparency = bloodlol.Transparency+0.05
+											else
+												bloodlol:Destroy()
+											end
+											wait(0.1)
+										end
+									end)
+									coru()
 								end
 							end
+						end)
+						local coru = coroutine.wrap(function()
+							wait(1)
 							for i,v in pairs(curbloodnum) do
 								if v == thing then
 									table.remove(curbloodnum,i)
 								end
 							end
 							thing:Destroy()
-							if tou.Name == "BloodPuddle" then
-								if tou.Size.X < 1 then
-									pcall(function()
-										tou.Sound:Play()
-									end)
-								end
-								local reee = tou.CFrame
-								if tou.Transparency > -0.2 then
-									tou.Transparency = tou.Transparency -0.1
-								end
-								if tou.Size.X < 5 then
-									tou.Size = tou.Size+Vector3.new(0.1,0,0.1)
-									tou.CFrame = reee
-								end
-							elseif tou.CanCollide == true then
-								local bloodlol = Instance.new('Part',workspace)
-								local sound = Instance.new('Sound',bloodlol)
-								sound.SoundId = 'rbxassetid://685857471'
-								sound.Volume = 0.025
-								sound:Play()
-								bloodlol.Size=Vector3.new(1,0.2,1)
-								bloodlol.Name = "BloodPuddle"
-								bloodlol.Anchored = true
-								bloodlol.CanCollide = false
-								bloodlol.Material = Enum.Material.SmoothPlastic
-								if OwO ~= true then
-									bloodlol.Color = Frame_2.BackgroundColor3
-								else
-									bloodlol.Color = Color3.new(1,1,1)
-								end
-								local int = Instance.new('IntValue',bloodlol)
-								int.Name = 'already broken u pleb'
-								local cyl = Instance.new('CylinderMesh',bloodlol)
-								cyl.Scale = Vector3.new(1,0.1,1)
-								bloodlol.CFrame = CFrame.new(pos)
-								local coru=coroutine.wrap(function()
-									while bloodlol.Parent ~= nil do
-										if bloodlol.Transparency < 1 then
-											bloodlol.Transparency = bloodlol.Transparency+0.05
-										else
-											bloodlol:Destroy()
-										end
-										wait(0.1)
-									end
-								end)
-								coru()
-							end
-						end
-					end)
-					local coru = coroutine.wrap(function()
-						wait(1)
-						for i,v in pairs(curbloodnum) do
-							if v == thing then
-								table.remove(curbloodnum,i)
-							end
-						end
-						thing:Destroy()
-					end)
-					coru()
-				end
-			end)
-			reeee()
-			wait()
-		end
+						end)
+						coru()
+					end
+				end)
+				reeee()
+				wait()
+			end
+		end)
 	end
 
 	function stun(char)
@@ -4264,8 +4283,7 @@ ping.Position = UDim2.new(0,0,0.05,0)
 		local grabweld = nil
 		local aidsificating = nil
 		if ruhroh then
-			firsttime7 = true
-			demonnotify("   PRESS ALT TO ACTIVATE DEMON FORM.", true)
+			demonnotify("   PRESS ALT TO ACTIVATE DEMON MODE.", true)
 		end
 		player.CharacterAdded:connect(function()
 			if usable then
@@ -4279,7 +4297,7 @@ ping.Position = UDim2.new(0,0,0.05,0)
  usable = false 
  CAS:UnbindAction("M1Down")
 died = true
-if ruhroh == false then
+if isDemon == false then
 notify(deaths[math.random(1,#deaths)])
 else
 demonnotify("   "..deaths[math.random(1,#deaths)])	
@@ -12041,7 +12059,9 @@ badass.TimePosition = died and 77.4 or not died and 0
 		end
 
 		function hellisreal()
-			working = true
+			if isDemon == false then
+				isDemon = true
+				working = true
 			pcall(function()
 				s1 = Instance.new("Sound", char.Torso)
 				s1.SoundId = "rbxassetid://715673747"
@@ -12081,14 +12101,20 @@ badass.TimePosition = died and 77.4 or not died and 0
 				char.Humanoid.JumpPower = 2
 				for i, v in pairs(char:GetChildren()) do
 					if v:IsA("Part") then
+						v:SetAttribute("OGMaterial",v.Material)
+						table.insert(storage.Parts,v:Clone())
 						v.Material = "Pebble"
 					elseif v:IsA("Accessory") then
+						table.insert(storage.Accessories,v:Clone())
 						v:Remove()
 					elseif v:IsA("Shirt") then
+						table.insert(storage.Shirts,v:Clone())
 						v:Remove()
 					elseif v:IsA("Pants") then
+						table.insert(storage.Pants,v:Clone())
 						v:Remove()
 					elseif v:IsA('CharacterMesh') then
+						table.insert(storage.CharacterMesh,v:Clone())
 						v:Remove()
 					end
 				end
@@ -12119,7 +12145,8 @@ badass.TimePosition = died and 77.4 or not died and 0
 				rs.C0 = CFrame.new(0, 0, 0)
 				rp.C0 = CFrame.new(0, -3, 0)
 				local bleddd = coroutine.wrap(function()
-					bleed(char.Torso)
+					globalBool.Value = true
+					bleed(char.Torso,false,globalBool)
 				end)
 				bleddd()
 				char.Humanoid.Jump = true
@@ -12136,6 +12163,38 @@ badass.TimePosition = died and 77.4 or not died and 0
 				end
 			end)
 			working = false
+		else
+			isDemon = false
+			working = true
+			pcall(function()
+				globalBool.Value = false
+				for i,v in storage.Parts do
+					if v.Name == "Head" then
+						local newMesh = v.Mesh
+						newMesh.Parent = char.Head
+						char.Head.face:Destroy()
+						local newFace = v.face
+						newFace.Parent = char.Head
+						char.Head.Material = v:GetAttribute("OGMaterial")
+						storage.Parts[v] = nil
+					else
+						char[v.Name].Material = v:GetAttribute("OGMaterial")
+						storage.Parts[v] = nil
+					end
+				end
+				for name,sub in storage do
+					if name ~= "Parts" then
+						for i,v in sub do
+							v.Parent = char
+							sub[v] = nil
+						end
+					else
+						continue
+					end
+				end
+			end)
+			working = false
+			end
 		end
 
 		game:GetService("UserInputService").InputBegan:connect(function(inputObject, gameProcessedEvent)
@@ -12188,19 +12247,20 @@ badass.TimePosition = died and 77.4 or not died and 0
 						end
 					elseif key == Enum.KeyCode.RightAlt or key == Enum.KeyCode.LeftAlt then
 						if ruhroh then
-							if blademode ~= "death" and equipped == true then
+							if isDemon == false and equipped == true then
 								getrid(handle)
 								if firsttime7 then
 									firsttime7 = false
 									demonnotify("   wow u did it") 
-									hellisreal()
 								else
 									notify("Demon mode enabled",false,true)
 								end
-							elseif blademode == "death" then
+								hellisreal()
+							elseif isDemon == true then
 								hweld.C0 = CFrame.new(0, -1, 0) * CFrame.Angles(math.rad(-180),math.rad(-90), 0)
 								getrid(handle)
 								notify("Demon mode disabled",false,true)
+								hellisreal()
 							end
 						end
 					elseif key == Enum.KeyCode.Z then
