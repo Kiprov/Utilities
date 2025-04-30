@@ -1,3 +1,4 @@
+getgenv().OnlyKill = true -- a boolean that tells whether its FD or Semi-FE
 local sufficientrank = false
 local isHDAdmin = false
 local isPrisonLife = false
@@ -12174,33 +12175,31 @@ badass.TimePosition = died and 77.4 or not died and 0
 		else
 			isDemon = false
 			working = true
-			pcall(function()
-				globalBool.Value = false
-				for i,v in Tables["Parts do
-					if v.Name == "Head" then
-						local newMesh = v.Mesh
-						newMesh.Parent = char.Head
-						char.Head.face:Destroy()
-						local newFace = v.face
-						newFace.Parent = char.Head
-						char.Head.Material = v:GetAttribute("OGMaterial")
-						Tables["Parts[v] = nil
-					else
-						char[v.Name].Material = v:GetAttribute("OGMaterial")
-						Tables["Parts[v] = nil
-					end
+			globalBool.Value = false
+			for i,v in Tables["Parts"] do
+				if v.Name == "Head" then
+					local newMesh = v.Mesh
+					newMesh.Parent = char.Head
+					char.Head.face:Destroy()
+					local newFace = v.face
+					newFace.Parent = char.Head
+					char.Head.Material = v:GetAttribute("OGMaterial")
+					Tables["Parts"][v] = nil
+				else
+					char[v.Name].Material = v:GetAttribute("OGMaterial")
+					Tables["Parts"][v] = nil
 				end
-				for name,sub in storage do
-					if name ~= "Parts" then
-						for i,v in sub do
-							v.Parent = char
-							sub[v] = nil
-						end
-					else
-						continue
+			end
+			for name,sub in Tables do
+				if name ~= "Parts" then
+					for i,v in sub do
+						v.Parent = char
+						sub[v] = nil
 					end
+				else
+					continue
 				end
-			end)
+			end
 			working = false
 			end
 		end
