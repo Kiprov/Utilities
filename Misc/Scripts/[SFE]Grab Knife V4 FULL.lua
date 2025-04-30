@@ -9,11 +9,11 @@ local rankName,prefix = nil,nil
 local RunService = game:GetService("RunService")
 local globalBool = Instance.new("BoolValue")
 local storage = {
-	Parts = {},
-	Accessories = {},
-	Shirts = {},
-	Pants = {},
-	CharacterMesh = {}
+	["Parts"] = {},
+	["Accessories"] = {},
+	["Shirts"] = {},
+	["Pants"] = {},
+	["CharacterMesh"] = {}
 }
 if hdAdmin then
 rankName = hdAdmin.MainFrame.Pages.About.Info.m2RankName
