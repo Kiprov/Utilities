@@ -113,7 +113,7 @@ local TeamEve = function(args)
 	workspace.Remote.TeamEvent:FireServer(args)
 end
 local TeamTo = function(args)
-	local tempos = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame; SavedPositions.AutoRe = tempos; SaveCamPos()
+	local tempos = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame;
 	if args == "criminal" then
 		if LocalPlayer.TeamColor.Name == "Medium stone grey" then
 			TeamEve("Bright orange")
@@ -125,7 +125,6 @@ local TeamTo = function(args)
 			end)
 			Stepped:Wait()
 		until LocalPlayer.TeamColor == BrickColor.new("Really red")
-		workspace['Criminals Spawn'].SpawnLocation.CFrame = SavedPositions.Crimpad
 		return
 	elseif args == "inmate" then
 		TeamEve("Bright orange")
