@@ -12101,20 +12101,30 @@ badass.TimePosition = died and 77.4 or not died and 0
 				char.Humanoid.JumpPower = 2
 				for i, v in pairs(char:GetChildren()) do
 					if v:IsA("Part") then
-						v:SetAttribute("OGMaterial",v.Material)
-						table.insert(storage.Parts,v:Clone())
+						spawn(function()
+							v:SetAttribute("OGMaterial",v.Material)
+							table.insert(storage.Parts,v:Clone())
+						end)
 						v.Material = "Pebble"
 					elseif v:IsA("Accessory") then
-						table.insert(storage.Accessories,v:Clone())
+						spawn(function()
+							table.insert(storage.Accessories,v:Clone())
+						end)
 						v:Remove()
 					elseif v:IsA("Shirt") then
-						table.insert(storage.Shirts,v:Clone())
+						spawn(function()
+							table.insert(storage.Shirts,v:Clone())
+						end)
 						v:Remove()
 					elseif v:IsA("Pants") then
-						table.insert(storage.Pants,v:Clone())
+						spawn(function()
+							table.insert(storage.Pants,v:Clone())
+						end)
 						v:Remove()
 					elseif v:IsA('CharacterMesh') then
-						table.insert(storage.CharacterMesh,v:Clone())
+						spawn(function()
+							table.insert(storage.CharacterMesh,v:Clone())
+						end)
 						v:Remove()
 					end
 				end
