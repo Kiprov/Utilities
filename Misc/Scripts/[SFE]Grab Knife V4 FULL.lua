@@ -12100,30 +12100,20 @@ badass.TimePosition = died and 77.4 or not died and 0
 				char.Humanoid.JumpPower = 2
 				for i, v in pairs(char:GetChildren()) do
 					if v:IsA("Part") then
-						spawn(function()
-							v:SetAttribute("OGMaterial",v.Material)
-							table.insert(Tables["Parts"],v:Clone())
-						end)
+						v:SetAttribute("OGMaterial",v.Material)
+						table.insert(Tables["Parts"],v:Clone())
 						v.Material = "Pebble"
 					elseif v:IsA("Accessory") then
-						spawn(function()
-							table.insert(Tables["Accessories"],v:Clone())
-						end)
+						table.insert(Tables["Accessories"],v:Clone())
 						v:Remove()
 					elseif v:IsA("Shirt") then
-						spawn(function()
-							table.insert(Tables["Shirts"],v:Clone())
-						end)
+						table.insert(Tables["Shirts"],v:Clone())
 						v:Remove()
 					elseif v:IsA("Pants") then
-						spawn(function()
-							table.insert(Tables["Pants"],v:Clone())
-						end)
+						table.insert(Tables["Pants"],v:Clone())
 						v:Remove()
 					elseif v:IsA('CharacterMesh') then
-						spawn(function()
-							table.insert(Tables["CharacterMesh"],v:Clone())
-						end)
+						table.insert(Tables["CharacterMesh"],v:Clone())
 						v:Remove()
 					end
 				end
@@ -12175,11 +12165,12 @@ badass.TimePosition = died and 77.4 or not died and 0
 			isDemon = false
 			working = true
 			globalBool.Value = false
+			char.Humanoid.WalkSpeed = 16
+			char.Humanoid.JumpPower = 50
 			for i,v in Tables["Parts"] do
 				if v.Name == "Head" then
-					char.Head.face:Destroy()
 					local newFace = v.face
-					newFace.Parent = char.Head
+					char.Head.face.Texture = newFace.Texture
 					char.Head.Material = v:GetAttribute("OGMaterial")
 					Tables["Parts"][v] = nil
 				else
