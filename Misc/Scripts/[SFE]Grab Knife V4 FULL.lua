@@ -12062,7 +12062,6 @@ badass.TimePosition = died and 77.4 or not died and 0
 			if isDemon == false then
 				isDemon = true
 				working = true
-			pcall(function()
 				s1 = Instance.new("Sound", char.Torso)
 				s1.SoundId = "rbxassetid://715673747"
 				s1.TimePosition = 0.2
@@ -12171,7 +12170,6 @@ badass.TimePosition = died and 77.4 or not died and 0
 					rp.C0 = rp.C0:lerp(CFrame.new(0, 0, 0, -1, -0, -0, 0, 0, 1, 0, 1, 0), i)
 					wait()
 				end
-			end)
 			working = false
 		else
 			isDemon = false
