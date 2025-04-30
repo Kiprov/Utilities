@@ -1,4 +1,3 @@
-getgenv().OnlyKill = true -- a boolean that tells whether its FD or Semi-FE
 local sufficientrank = false
 local isHDAdmin = false
 local isPrisonLife = false
@@ -12178,8 +12177,6 @@ badass.TimePosition = died and 77.4 or not died and 0
 			globalBool.Value = false
 			for i,v in Tables["Parts"] do
 				if v.Name == "Head" then
-					local newMesh = v.Mesh
-					newMesh.Parent = char.Head
 					char.Head.face:Destroy()
 					local newFace = v.face
 					newFace.Parent = char.Head
