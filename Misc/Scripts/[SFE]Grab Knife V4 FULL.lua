@@ -1257,6 +1257,10 @@ if usables == true then
 		local working = false
 		kidnaproom.Collision.Touched:connect(function(hit)
 			if cur < 5 and hit and hit.Parent and hit.Parent:FindFirstChildOfClass('Humanoid') and hit.Parent:FindFirstChildOfClass('Humanoid').Health <= 0 and hit.Parent:FindFirstChild('YOU HAVE SACRAFICED YOUR SOUL TO SATAN') == nil then
+				if game:GetService("Players"):GetPlayerFromCharacter(hit.Parent) == LocalPlayer then
+					demonnotify("   SELF-SACRIFICE ISN'T ACCEPTED. BRING ME A VICTIM.")
+					return
+				end
 				working = true
 				local hum = hit.Parent:FindFirstChildOfClass('Humanoid')
 				local int = Instance.new('IntValue',hit.Parent)
