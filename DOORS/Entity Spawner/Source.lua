@@ -199,6 +199,10 @@ function GetNodesFromRoom(room, reversed, entityTable)
 	local nodesFolder = isOld == false and room:FindFirstChild("PathfindNodes") or room:FindFirstChild("Nodes")
 	if nodesFolder then
 		for _, n in nodesFolder:GetChildren() do
+			if string.find(n.Name,"MinecartNode") then
+			local splitName = n.Name:split("MinecartNode")
+			n.Name = splitName[2]
+			end
 			nodes[#nodes + 1] = n
 		end
 		else
