@@ -12,6 +12,9 @@
 if VynixuEntitySpawnerV2 then return VynixuEntitySpawnerV2 end
 
 -- Preventing Nodes Destruction
+pcall(function()
+workspace.CurrentRooms["0"].PathfindNodes:Destroy()
+end)
 local namecall = nil
 namecall = hookmetamethod(game,"__namecall", newcclosure(function(self,...)
 local method = getnamecallmethod()
@@ -24,6 +27,18 @@ end
 return namecall(self,...)
 end))
 warn("Initiated anti-nodes destruction.")
+-- Room Renaming Process
+function renameRooms()
+for i,v in next, workspace.Game.Rooms:GetChildren() do
+if string.find(v.Name,"Room") then
+local newName = string.gsub(v.Name,"Room","")
+v.Name = newName
+end
+end
+end
+renameRooms()
+workspace.Game.Rooms.ChildAdded:Connect(renameRooms)
+warn("Initiated room renaming process")
 --Very Important Check
 local isOld = false
 -- Services
@@ -51,11 +66,21 @@ local vynixuModules = {
 	CrucifixFunctions = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kiprov/Utilities/refs/heads/main/DOORS/Crucifix%20Functions/Source.lua"))()
 }
 local CameraShaker = require(ReplicatedStorage:WaitForChild("CameraShaker"))
-local Camera = workspace.CurrentCamera
 local moduleScripts = {
-	camShaker = CameraShaker.new(Enum.RenderPriority.Camera.Value, function(shakeCF)
-	Camera.CFrame = Camera.CFrame * shakeCF
+	Module_Events = {
+	flicker = function(...)
+	print("no flicker for you")
+	end,
+	shatter = function(...)
+	print("no shatter for you")
+	end,
+},
+	Main_Game = {
+		camShaker = CameraShaker.new(Enum.RenderPriority.Camera.Value, function(shakeCF)
+	localCamera.CFrame = localCamera.CFrame * shakeCF
 	end)
+},
+	Earthquake = function() end,
 }
 local defaultEntityAttributes = {
     Running = false,
@@ -166,7 +191,7 @@ function GetCurrentRoom(latest)
     if latest then
         return workspace.Game.Rooms:GetChildren()[#workspace.Game.Rooms:GetChildren()]
     end
-    return workspace.Game.Rooms:FindFirstChild("Room"..localChar.RoomInsideNumber.Value)
+    return workspace.Game.Rooms:FindFirstChild(localChar.RoomInsideNumber.Value)
 end
 
 local IT = Instance.new
@@ -190,11 +215,15 @@ function GetNodesFromRoom(room, reversed, entityTable)
 
 	local nodesFolder = isOld == false and room:FindFirstChild("Nodes") or room:FindFirstChild("Nodes")
 	if nodesFolder then
-		for _, n in nodesFolder:GetChildren() do
+		for i, n in nodesFolder:GetChildren() do
+			if string.find(n.Name,"MinecartNode") then
+			n.Name = i
+			end
 			nodes[#nodes + 1] = n
 		end
 		else
-		if not roomEntrance or not roomExit then return nodes end
+		-- Code is now unused due to crazy stuff.
+		--[[if not roomEntrance or not roomExit then return nodes end
 		local path = ps:CreatePath()
 		path:ComputeAsync(roomEntrance:GetPivot().Position,roomExit:GetPivot().Position)
 		nodesFolder = path:GetWaypoints()
@@ -215,7 +244,7 @@ end
 nodesFolder = fold
 for _, n in nodesFolder:GetChildren() do
 			nodes[#nodes + 1] = n
-		end
+		end]]--
 	end
 	if roomExit then
 		local index = #nodes + 1
@@ -385,7 +414,8 @@ function DamagePlayer(entityTable)
 	end
 end
 
-function GetRoomAtPoint(vector3)
+function GetRoomAtPoint(vector3,ignoreTable)
+if isOld == false then
 	local whitelist = {}
 	for _, room in workspace.Game.Rooms:GetChildren() do
 		local p = room:FindFirstChild(room.Name)
@@ -402,13 +432,31 @@ function GetRoomAtPoint(vector3)
 
 		local result = workspace:Raycast(vector3, Vector3.new(0, -100, 0), params)
 		if result then
-			for _, room in workspace.Game.Rooms:GetChildren() do
+			for _, room in workspace.CurrentRooms:GetChildren() do
 				if result.Instance.Parent == room then
 					return room
 				end
 			end
 		end
 	end
+	else
+	local floors = {"Floor","Carpet","CarpetLight"}
+	local roomAtPoint = nil
+	local floorRay = workspace:FindPartOnRayWithIgnoreList(Ray.new(vector3, Vector3.new(0, -10, 0)), ignoreTable)
+	if floorRay ~= nil and table.find(floors,floorRay.Name) then
+	for _, room in next, workspace.Game.Rooms:GetChildren() do
+	if floorRay:IsDescendantOf(room) then
+	roomAtPoint = room
+	break
+	end
+	end
+	return roomAtPoint
+	end
+	end
+end
+
+function FixRoomLights(room)
+	print("this is not door, you cant fix lights")
 end
 
 function EntityMoveTo(model, cframe, speed)
@@ -531,6 +579,7 @@ function loadSound(entityTable,entityModel)
 				local sndorigvolume = snd.Volume
 				snd.Volume = 0
 				snd:Play()
+				snd.SoundGroup = game:GetService("SoundService").Main
 				wait(0.1)
 				local tween = game.TweenService:Create(snd,TweenInfo.new(entityTable.Movement.Delay,Enum.EasingStyle.Linear,Enum.EasingDirection.Out),{Volume = sndorigvolume})
 				tween:Play()
@@ -678,13 +727,15 @@ end
 spawner.Run = function(entityTable)
 	task.spawn(function()
 		if not entityTable.Config.Entity.CanSpawnWithoutClosets then
-			if GetClosetsInRoom(workspace.Game.Rooms["Room"..gameData.RoomsNumber.Value]) == false then
+			if GetClosetsInRoom(workspace.CurrentRooms[gameData.RoomsNumber.Value]) == false then
 				return
 			end
 		end
 		if PrerunCheck(entityTable) == false then
 			return
 		end
+		
+		moduleScripts.Main_Game.camShaker:Start()
 	
 		local model = entityTable.Model
 		local config = entityTable.Config
@@ -729,16 +780,22 @@ spawner.Run = function(entityTable)
 			-- Flickering lights
 			if config.Lights.Flicker.Enabled then
 				local currentRoom = GetCurrentRoom(false)
+				if currentRoom then
+					if isOld == false then
+					moduleScripts.Module_Events.flicker(currentRoom, config.Lights.Flicker.Duration)
+					else
+					moduleScripts.Module_Events.flicker(currentRoom, config.Lights.Flicker.Duration)
+					end
+				end
 			end
 			-- Earthquake
 			if config.Earthquake.Enabled then
-				
+				moduleScripts.Earthquake(moduleScripts.Main_Game, currentRoom)
 			end
 	
 			-- Movement detection handling
 			task.wait(config.Movement.Delay)
 			task.spawn(entityTable.RunCallback, entityTable, "OnStartMoving") -- OnStartMoving
-			moduleScripts.camShaker:Start()
 			task.spawn(function()
 				while model.Parent do
 					if not model:GetAttribute("Paused") then
@@ -756,7 +813,7 @@ spawner.Run = function(entityTable)
 						
 						-- Room detection
 						do
-							local room = GetRoomAtPoint(pivot.Position)
+							local room = GetRoomAtPoint(pivot.Position,{model})
 							if room then
 								local index = tonumber(room.Name)
 								if index ~= model:GetAttribute("LastEnteredRoom") then
@@ -774,7 +831,18 @@ spawner.Run = function(entityTable)
 										local latestRoom = GetCurrentRoom(true)
 										if room ~= latestRoom then
 											if config.Lights.Shatter then -- Shatter lights
+												if isOld == false then
+												moduleScripts.Module_Events.shatter(room)
+												else
+												moduleScripts.Module_Events.shatter(room)
+												end
+												delay(math.random(1,5),function()
+												room:SetAttribute("IsDark",true)
+												end)
+		
 											elseif config.Lights.Repair then -- Repair lights
+												FixRoomLights(room)
+												room:SetAttribute("IsDark",nil)
 											end
 										end
 									end
@@ -823,7 +891,7 @@ spawner.Run = function(entityTable)
 	
 									cloned[1] = c.Values[1] / c.Range * (c.Range - mag) -- Magnitude
 									cloned[2] = c.Values[2] / c.Range * (c.Range - mag) -- Roughness
-									moduleScripts.camShaker:ShakeOnce(table.unpack(cloned))
+									moduleScripts.Main_Game.camShaker:ShakeOnce(table.unpack(cloned))
 								end
 							end
 						end
@@ -840,7 +908,7 @@ spawner.Run = function(entityTable)
 					local nodesToCurrent, nodesToEnd = GetPathfindNodesBlitz(entityTable)
 	
 					for _, n in nodesToCurrent do
-						local cframe = n.CFrame + Vector3.new(0, 0 + config.Entity.HeightOffset, 0)
+						local cframe = n.CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
 						EntityMoveTo(model, cframe, config.Movement.Speed)
 						task.spawn(entityTable.RunCallback, entityTable, "OnReachNode", n) -- OnReachNode
 					end
@@ -875,7 +943,7 @@ spawner.Run = function(entityTable)
 							
 							local nodeIndex = tonumber(randomNode.Name)
 							for i = #roomNodes, nodeIndex, -1 do
-								local cframe = roomNodes[math.clamp(i, 1, #roomNodes)].CFrame + Vector3.new(0, 0 + config.Entity.HeightOffset, 0)
+								local cframe = roomNodes[math.clamp(i, 1, #roomNodes)].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
 								EntityMoveTo(model, cframe, config.Movement.Speed)
 								task.spawn(entityTable.RunCallback, entityTable, "OnReachNode", n) -- OnReachNode
 							end
@@ -885,7 +953,7 @@ spawner.Run = function(entityTable)
 							task.spawn(entityTable.RunCallback, entityTable, "OnRebounding", false) -- OnRebounding
 		
 							for i = nodeIndex, #roomNodes, 1 do
-								local cframe = roomNodes[math.clamp(i, 1, #roomNodes)].CFrame + Vector3.new(0, 0 + config.Entity.HeightOffset, 0)
+								local cframe = roomNodes[math.clamp(i, 1, #roomNodes)].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
 								EntityMoveTo(model, cframe, config.Movement.Speed)
 								task.spawn(entityTable.RunCallback, entityTable, "OnReachNode", n) -- OnReachNode
 							end
@@ -894,7 +962,7 @@ spawner.Run = function(entityTable)
 					
 					local _, updatedToEnd = GetPathfindNodesBlitz(entityTable)
 					for _, n in updatedToEnd do
-						local cframe = n.CFrame + Vector3.new(0, 0 + config.Entity.HeightOffset, 0)
+						local cframe = n.CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
 						EntityMoveTo(model, cframe, config.Movement.Speed)
 						task.spawn(entityTable.RunCallback, entityTable, "OnReachNode", n) -- OnReachNode
 					end
@@ -912,7 +980,7 @@ spawner.Run = function(entityTable)
 					end)
 					for nodeIdx = 1, #pathfindNodes, 1 do
 						if not pathfindNodes[nodeIdx] then continue end
-						local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 0 + config.Entity.HeightOffset, 0)
+						local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
 						EntityMoveTo(model, cframe, config.Movement.Speed)
 						task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", pathfindNodes[nodeIdx]) -- OnReachNode
 					end
@@ -938,7 +1006,7 @@ spawner.Run = function(entityTable)
 		local offset = CFrame.new(0,0,offsetNum)
 											model:PivotTo(spawnPoint.CFrame * offset + Vector3.new(0, config.Entity.HeightOffset, 0))
 							for _, n in pathfindNodes do
-								local cframe = n.CFrame + Vector3.new(0, 0 + config.Entity.HeightOffset, 0)
+								local cframe = n.CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
 								EntityMoveTo(model, cframe, config.Movement.Speed)
 								task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", n) -- OnReachNode
 							end
@@ -964,7 +1032,7 @@ spawner.Run = function(entityTable)
 							-- Run forwards through nodes
 							for nodeIdx = 1, #pathfindNodes, 1 do
 								if not pathfindNodes[nodeIdx] then continue end
-								local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 0 + config.Entity.HeightOffset, 0)
+								local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
 								EntityMoveTo(model, cframe, config.Movement.Speed)
 								task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", pathfindNodes[nodeIdx]) -- OnReachNode
 							end
@@ -991,7 +1059,7 @@ spawner.Run = function(entityTable)
 					end)
 					for nodeIdx = 1, #pathfindNodes, 1 do
 						if not pathfindNodes[nodeIdx] then continue end
-						local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 0 + config.Entity.HeightOffset, 0)
+						local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
 						EntityMoveTo(model, cframe, config.Movement.Speed)
 						task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", pathfindNodes[nodeIdx]) -- OnReachNode
 					end
@@ -1007,7 +1075,7 @@ spawner.Run = function(entityTable)
 							-- Run backwards through nodes
 							for i = #pathfindNodes, 1, -1 do
 								if not pathfindNodes[i] then continue end
-								local cframe = pathfindNodes[i].CFrame + Vector3.new(0, 0 + config.Entity.HeightOffset, 0)
+								local cframe = pathfindNodes[i].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
 								EntityMoveTo(model, cframe, config.Movement.Speed)
 								task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", pathfindNodes[i]) -- OnReachNode
 							end
@@ -1021,7 +1089,7 @@ spawner.Run = function(entityTable)
 							-- Run forwards through nodes
 							for nodeIdx = 1, #pathfindNodes, 1 do
 								if not pathfindNodes[nodeIdx] then continue end
-								local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 0 + config.Entity.HeightOffset, 0)
+								local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
 								EntityMoveTo(model, cframe, config.Movement.Speed)
 								task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", pathfindNodes[nodeIdx]) -- OnReachNode
 							end
@@ -1048,7 +1116,7 @@ spawner.Run = function(entityTable)
 					end)
 					for nodeIdx = 1, #pathfindNodes, 1 do
 						if not pathfindNodes[nodeIdx] then continue end
-						local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 0 + config.Entity.HeightOffset, 0)
+						local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
 						EntityMoveTo(model, cframe, config.Movement.Speed)
 						task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", pathfindNodes[nodeIdx]) -- OnReachNode
 					end
@@ -1064,7 +1132,7 @@ spawner.Run = function(entityTable)
 							-- Run backwards through nodes
 							for i = #pathfindNodes, 1, -1 do
 								if not pathfindNodes[i] then continue end
-								local cframe = pathfindNodes[i].CFrame + Vector3.new(0, 0 + config.Entity.HeightOffset, 0)
+								local cframe = pathfindNodes[i].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
 								EntityMoveTo(model, cframe, config.Movement.Speed)
 								task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", pathfindNodes[i]) -- OnReachNode
 							end
@@ -1078,7 +1146,7 @@ spawner.Run = function(entityTable)
 							-- Run forwards through nodes
 							for nodeIdx = 1, #pathfindNodes, 1 do
 								if not pathfindNodes[nodeIdx] then continue end
-								local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 0 + config.Entity.HeightOffset, 0)
+								local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
 								EntityMoveTo(model, cframe, config.Movement.Speed)
 								task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", pathfindNodes[nodeIdx]) -- OnReachNode
 							end
@@ -1095,7 +1163,7 @@ spawner.Run = function(entityTable)
 				
 				-- Despawning
 				if not model:GetAttribute("Despawning") then
-					if config.Rebounding.Max ~= 1 then
+					if config.Rebounding.Max > 1 then
 						reboundCon = false
 						model:SetAttribute("Despawning", true)
 						if config.Entity.SmoothSound then
