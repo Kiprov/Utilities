@@ -29,15 +29,6 @@ Players.LocalPlayer.OnTeleport:Connect(function(State)
 		queue_on_teleport([[loadstring(game:HttpGet("https://raw.githubusercontent.com/Kiprov/Utilities/refs/heads/main/FE/ScriptLoader/Source.lua"))()]])
 	end
 end)    
-function rj()
-    if #Players:GetPlayers() <= 1 then
-		Players.LocalPlayer:Kick("\nRejoining...")
-		wait()
-		TeleportService:Teleport(PlaceId, Players.LocalPlayer)
-	else
-		TeleportService:TeleportToPlaceInstance(PlaceId, JobId, Players.LocalPlayer)
-	end
-end
 local names = {}
 local reanimnames = {"Hatless","Krypton","Empyrean","MW","Limb","Gelatek"}
 for i,v in next, scripts do
@@ -83,6 +74,16 @@ Time = 5,
 SoundId = alertSound
 }
 Library:Notify(data)
+end
+function rj()
+	Notify("SCRIPT LOADER","Rejoining...")
+    if #Players:GetPlayers() <= 1 then
+		Players.LocalPlayer:Kick("\nRejoining...")
+		wait()
+		TeleportService:Teleport(PlaceId, Players.LocalPlayer)
+	else
+		TeleportService:TeleportToPlaceInstance(PlaceId, JobId, Players.LocalPlayer)
+	end
 end
 -- CALLBACK NOTE:
 -- Passing in callback functions via the initial element parameters (i.e. Callback = function(Value)...) works
