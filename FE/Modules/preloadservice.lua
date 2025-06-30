@@ -28,7 +28,7 @@ function GetGitSound(new,GithubSnd,SoundName,FileFormat)
 		writefile(directory.."/"..SoundName..FileFormat, game:HttpGet(url))
 	end
 	local sound=new or Instance.new("Sound")
-	sound.SoundId=getcustomasset(directory.."/"..SoundName..FileFormat)
+	sound.SoundId=getcustomasset(directory.."/"..SoundName..FileFormat,true)
 	return sound
 end
 
@@ -38,7 +38,7 @@ local FileFormat = FileFormat or ".rbxm"
 if not isfile(directory.."/"..ModelName..FileFormat) then
 writefile(directory.."/"..ModelName..FileFormat,game:HttpGet(url))
 end
-local model=getcustomasset(directory.."/"..ModelName..FileFormat)
+local model=game:GetObjects(getcustomasset(directory.."/"..ModelName..FileFormat,true))[1]
 return model
 end
 
