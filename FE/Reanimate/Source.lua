@@ -1,3 +1,9 @@
+if not MultiReanimate then
+getgenv().MultiReanimate = {
+	ScriptName = "Script",
+	Framework = "Limb"
+}
+end
 local config = getgenv().MultiReanimate
 script.Name = config.ScriptName
 local cas = game:GetService("ContextActionService")
