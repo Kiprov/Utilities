@@ -11,8 +11,8 @@ local shouldSpawn = false
 local directory
 
 function preloadService:SetDirectory(directoryName)
-if not isFolder(directoryName) then
-makeFolder(directoryName)
+if not isfolder(directoryName) then
+makefolder(directoryName)
 end
 directory = directoryName
 end
