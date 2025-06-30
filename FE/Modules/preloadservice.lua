@@ -31,10 +31,10 @@ end
 function GetGitModel(GitRBXM,ModelName,FileFormat)
 local url=GitRBXM
 local FileFormat = FileFormat or ".rbxm"
-if not isfile(ModelName..FileFormat) then
-writefile(ModelName..FileFormat,game:HttpGet(url))
+if not isfile(directory.."/"..ModelName..FileFormat) then
+writefile(directory.."/"..ModelName..FileFormat,game:HttpGet(url))
 end
-local model=getcustomasset(ModelName..FileFormat)
+local model=getcustomasset(directory.."/"..ModelName..FileFormat)
 return model
 end
 
