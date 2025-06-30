@@ -17,6 +17,10 @@ end
 directory = directoryName
 end
 
+function preloadService:SetSpawn(bool)
+shouldSpawn = bool or false
+end
+
 function GetGitSound(new,GithubSnd,SoundName,FileFormat)
 	local url=GithubSnd
 	local FileFormat = FileFormat or ".mp3"
