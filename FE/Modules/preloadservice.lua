@@ -59,7 +59,9 @@ end
 return tempAsset
 else
 if url == nil then return end
+if asset ~= nil then
 if not asset:IsA("Sound") then return end
+end
 if shouldSpawn then
 spawn(function()
 tempAsset = GetGitSound(asset,url,name,format)
