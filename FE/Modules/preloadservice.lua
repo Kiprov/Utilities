@@ -10,7 +10,7 @@ Models = {},
 local shouldSpawn = false
 local directory
 
-function preloadService:CreateDirectory(directoryName)
+function preloadService:SetDirectory(directoryName)
 if not isFolder(directoryName) then
 makeFolder(directoryName)
 end
