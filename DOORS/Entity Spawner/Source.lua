@@ -1043,7 +1043,7 @@ spawner.Run = function(entityTable)
 					reboundCon = true
 					spawn(function()
 						repeat
-							wait()
+							task.wait()
 							for i = 1,10 do
 								pathfindNodes = GetPathfindNodesAmbush(entityTable)
 							end
@@ -1122,7 +1122,7 @@ spawner.Run = function(entityTable)
 					reboundCon = true
 					spawn(function()
 						repeat
-							wait()
+							task.wait()
 							for i = 1,10 do
 								pathfindNodes = GetPathfindNodesA120(entityTable)
 							end
@@ -1179,7 +1179,7 @@ spawner.Run = function(entityTable)
 					reboundCon = true
 					spawn(function()
 						repeat
-							wait()
+							task.wait()
 							for i = 1,10 do
 								pathfindNodes = GetPathfindNodesAmbush(entityTable)
 							end
