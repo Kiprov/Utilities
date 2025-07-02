@@ -1040,24 +1040,15 @@ spawner.Run = function(entityTable)
 				elseif reboundType == "rebound" then
 					-- Rebound rebounding
 					local pathfindNodes = GetPathfindNodesAmbush(entityTable)
-					reboundCon = workspace.CurrentRooms.ChildAdded:Connect(function()
-					model:SetAttribute("Paused",true)
-					for i = 1,10 do
-								pathfindNodes = GetPathfindNodesAmbush(entityTable)
-					end
-					delay(.1,function()
-					model:SetAttribute("Paused",false)
-					end)
-					end)
-					-- Old Update Below
-					--[[spawn(function()
+					reboundCon = true
+					spawn(function()
 						repeat
 							wait()
 							for i = 1,10 do
 								pathfindNodes = GetPathfindNodesAmbush(entityTable)
 							end
 						until reboundCon == false
-					end)]]--
+					end)
 					for nodeIdx = 1, #pathfindNodes, 1 do
 						if not pathfindNodes[nodeIdx] then continue end
 						local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
@@ -1128,24 +1119,15 @@ spawner.Run = function(entityTable)
 					elseif reboundType == "a-120" then
 					-- A-120 rebounding
 					local pathfindNodes = GetPathfindNodesA120(entityTable)
-					reboundCon = workspace.CurrentRooms.ChildAdded:Connect(function()
-					model:SetAttribute("Paused",true)
-					for i = 1,10 do
-								pathfindNodes = GetPathfindNodesAmbush(entityTable)
-					end
-					delay(.1,function()
-					model:SetAttribute("Paused",false)
-					end)
-					end)
-					-- Old Update Below
-					--[[spawn(function()
+					reboundCon = true
+					spawn(function()
 						repeat
 							wait()
 							for i = 1,10 do
 								pathfindNodes = GetPathfindNodesA120(entityTable)
 							end
 						until reboundCon == false
-					end)]]--
+					end)
 					for nodeIdx = 1, #pathfindNodes, 1 do
 						if not pathfindNodes[nodeIdx] then continue end
 						local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
@@ -1194,24 +1176,15 @@ spawner.Run = function(entityTable)
 				else
 					-- Ambush rebounding
 					local pathfindNodes = GetPathfindNodesAmbush(entityTable)
-					reboundCon = workspace.CurrentRooms.ChildAdded:Connect(function()
-					model:SetAttribute("Paused",true)
-					for i = 1,10 do
-								pathfindNodes = GetPathfindNodesAmbush(entityTable)
-					end
-					delay(.1,function()
-					model:SetAttribute("Paused",false)
-					end)
-					end)
-					-- Old Update Below
-					--[[spawn(function()
+					reboundCon = true
+					spawn(function()
 						repeat
 							wait()
 							for i = 1,10 do
 								pathfindNodes = GetPathfindNodesAmbush(entityTable)
 							end
 						until reboundCon == false
-					end)]]--
+					end)
 					for nodeIdx = 1, #pathfindNodes, 1 do
 						if not pathfindNodes[nodeIdx] then continue end
 						local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
@@ -1262,10 +1235,7 @@ spawner.Run = function(entityTable)
 				-- Despawning
 				if not model:GetAttribute("Despawning") then
 					if config.Rebounding.Max ~= 1 then
-						if reboundCon then
-						reboundCon:Disconnect()
-						reboundCon = nil
-						end
+						reboundCon = false
 						model:SetAttribute("Despawning", true)
 						if config.Entity.SmoothSound then
 							unloadSound(entityTable, model)
@@ -1274,10 +1244,7 @@ spawner.Run = function(entityTable)
 						EntityMoveTo(model, model:GetPivot() + Vector3.new(0, 300, 0), config.Movement.Speed)
 						entityTable:Despawn()
 					elseif config.Rebounding.Max <= 1 then
-						if reboundCon then
-						reboundCon:Disconnect()
-						reboundCon = nil
-						end
+						reboundCon = false
 						if config.Entity.SmoothSound then
 							unloadSound(entityTable, model)
 						end
