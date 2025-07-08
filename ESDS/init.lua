@@ -11,9 +11,8 @@ return function(explosionPos,canShutdownSystem,destroyEverything,shutdown,explos
 	local selfdestruct = script
 	selfdestruct.Name = "selfdestruct"
 	local assets = game:GetObjects("rbxassetid://18808036556")[1]
-	for i,v in next, assets:GetChildren() do
+	for i,v in next, assets.selfdestruct:GetChildren() do
 	v:Clone().Parent = selfdestruct
-	print("moved asset")
 	end
 	setIfNotNil(selfdestruct.Values.explosionPos,explosionPos,"explosionPos")
 	setIfNotNil(selfdestruct.Values.canShutdown,canShutdownSystem,"canShutdownSystem")
