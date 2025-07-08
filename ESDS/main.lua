@@ -3954,21 +3954,8 @@ local function createRandomWallExplosion(explodeSnd)
 end
 
 local glassNoCollideName = util.genRandomText(20)
-physics:RegisterCollisionGroup(glassNoCollideName)
-physics:CollisionGroupSetCollidable(glassNoCollideName,glassNoCollideName,false)
 local function updateCollisions()
-	for _,registered in ipairs(physics:GetRegisteredCollisionGroups()) do
-		physics:CollisionGroupSetCollidable(
-			glassNoCollideName,
-			registered.name,
-			physics:CollisionGroupsAreCollidable("Default",registered.name)
-		)
-		physics:CollisionGroupSetCollidable(
-			registered.name,
-			glassNoCollideName,
-			physics:CollisionGroupsAreCollidable(registered.name,"Default")
-		)
-	end
+	print("only server can do this")
 end
 local collisionsTask = task.spawn(function()
 	while task.wait(5) do
@@ -5421,7 +5408,6 @@ do
 	if e then
 		warn(e)
 	end
-	physics:UnregisterCollisionGroup(glassNoCollideName) -- will cause an error but idk why this happens
 end
 
 if endTimer then
