@@ -34,7 +34,7 @@ local bufferTypes = loadstring(game:HttpGet("https://raw.githubusercontent.com/K
 
 local getTrisForObj = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kiprov/Utilities/refs/heads/main/ESDS/Modules/mapModifiers/getTrisForObj/main.lua"))()
 local mapDefiner = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kiprov/Utilities/refs/heads/main/ESDS/Modules/mapModifiers/mapDefiner/main.lua"))()
-local geometry = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kiprov/Utilities/refs/heads/main/ESDS/Modules/mapModifiers/mapDefiner/geometryDefiner.lua"))()
+local geometry = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kiprov/Utilities/refs/heads/main/ESDS/Modules/mapModifiers/mapDefiner/geometryFinder.lua"))()
 local staticize = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kiprov/Utilities/refs/heads/main/ESDS/Modules/mapModifiers/staticize.lua"))()
 
 local util = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kiprov/Utilities/refs/heads/main/ESDS/Modules/utility/main.lua"))()
