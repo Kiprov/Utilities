@@ -1,4 +1,3 @@
-local assets = game:GetObjects("rbxassetid://18808036556")[1]
 local function setIfNotNil(val,newval,name)
 	if newval == nil then return end
 	assert(typeof(val.Value) == typeof(newval),
@@ -11,6 +10,7 @@ end
 return function(explosionPos,canShutdownSystem,destroyEverything,shutdown,explosionOnly,skipTo,skipIntro)
 	local selfdestruct = script
 	selfdestruct.Name = "selfdestruct"
+	local assets = game:GetObjects("rbxassetid://18808036556")[1]
 	for i,v in next, assets:GetChildren() do
 	v:Clone().Parent = selfdestruct
 	end
