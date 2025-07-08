@@ -32,7 +32,7 @@ local shatterGlass = loadstring(game:HttpGet("https://raw.githubusercontent.com/
 
 local bufferTypes = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kiprov/Utilities/refs/heads/main/ESDS/Modules/misc/bufferTypes.lua"))()
 
-local getTrisForObj = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kiprov/Utilities/refs/heads/main/ESDS/Modules/mapModifiers/genTrisForObj/main.lua"))()
+local getTrisForObj = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kiprov/Utilities/refs/heads/main/ESDS/Modules/mapModifiers/getTrisForObj/main.lua"))()
 local mapDefiner = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kiprov/Utilities/refs/heads/main/ESDS/Modules/mapModifiers/mapDefiner/main.lua"))()
 local geometry = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kiprov/Utilities/refs/heads/main/ESDS/Modules/mapModifiers/mapDefiner/geometryDefiner.lua"))()
 local staticize = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kiprov/Utilities/refs/heads/main/ESDS/Modules/mapModifiers/staticize.lua"))()
