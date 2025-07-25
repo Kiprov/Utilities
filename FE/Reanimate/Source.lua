@@ -1140,7 +1140,8 @@ _G.Reanimate = {
 }
 elseif Reanimate == "Limb" then
 -- gonna get patched soon, have fun while you still can
-local roothidecf = CFrame.new(0,-1000,0) -- -255
+local fpdh = workspace.FallenPartsDestroyHeight + 5
+local roothidecf = CFrame.new(0,fpdh,0) -- -255
 
 
 
