@@ -38,7 +38,6 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
-local reboundCon = nil
 
 -- Variables
 local localPlayer = Players.LocalPlayer
@@ -1040,14 +1039,8 @@ spawner.Run = function(entityTable)
 				elseif reboundType == "rebound" then
 					-- Rebound rebounding
 					local pathfindNodes = GetPathfindNodesAmbush(entityTable)
-					reboundCon = true
-					spawn(function()
-						repeat
-							task.wait()
-							for i = 1,10 do
-								pathfindNodes = GetPathfindNodesAmbush(entityTable)
-							end
-						until reboundCon == false
+					RunService:BindToRenderStep("updateNodes_"..config.Entity.Name,Enum.RenderPriority.First,function()
+					    pathfindNodes = GetPathfindNodesAmbush(entityTable)
 					end)
 					for nodeIdx = 1, #pathfindNodes, 1 do
 						if not pathfindNodes[nodeIdx] then continue end
@@ -1119,14 +1112,8 @@ spawner.Run = function(entityTable)
 					elseif reboundType == "a-120" then
 					-- A-120 rebounding
 					local pathfindNodes = GetPathfindNodesA120(entityTable)
-					reboundCon = true
-					spawn(function()
-						repeat
-							task.wait()
-							for i = 1,10 do
-								pathfindNodes = GetPathfindNodesA120(entityTable)
-							end
-						until reboundCon == false
+					RunService:BindToRenderStep("updateNodes_"..config.Entity.Name,Enum.RenderPriority.Last,function()
+					    pathfindNodes = GetPathfindNodesAmbush(entityTable)
 					end)
 					for nodeIdx = 1, #pathfindNodes, 1 do
 						if not pathfindNodes[nodeIdx] then continue end
@@ -1176,14 +1163,8 @@ spawner.Run = function(entityTable)
 				else
 					-- Ambush rebounding
 					local pathfindNodes = GetPathfindNodesAmbush(entityTable)
-					reboundCon = true
-					spawn(function()
-						repeat
-							task.wait()
-							for i = 1,10 do
-								pathfindNodes = GetPathfindNodesAmbush(entityTable)
-							end
-						until reboundCon == false
+					RunService:BindToRenderStep("updateNodes_"..config.Entity.Name,Enum.RenderPriority.Last,function()
+					    pathfindNodes = GetPathfindNodesAmbush(entityTable)
 					end)
 					for nodeIdx = 1, #pathfindNodes, 1 do
 						if not pathfindNodes[nodeIdx] then continue end
@@ -1234,8 +1215,8 @@ spawner.Run = function(entityTable)
 				
 				-- Despawning
 				if not model:GetAttribute("Despawning") then
+				    RunService:UnbindFromRenderStep("updateNodes_"..config.Entity.Name)
 					if config.Rebounding.Max ~= 1 then
-						reboundCon = false
 						model:SetAttribute("Despawning", true)
 						if config.Entity.SmoothSound then
 							unloadSound(entityTable, model)
@@ -1244,7 +1225,6 @@ spawner.Run = function(entityTable)
 						EntityMoveTo(model, model:GetPivot() + Vector3.new(0, 300, 0), config.Movement.Speed)
 						entityTable:Despawn()
 					elseif config.Rebounding.Max <= 1 then
-						reboundCon = false
 						if config.Entity.SmoothSound then
 							unloadSound(entityTable, model)
 						end
