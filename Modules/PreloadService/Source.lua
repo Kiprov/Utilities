@@ -59,7 +59,6 @@ end)
 else
 tempAsset = GetGitSound(asset,url,name,format)
 end
-preloads.SFX[name] = tempAsset
 return tempAsset
 elseif assetType == "Model" then
 -- GitHub RBXM Model
@@ -71,7 +70,6 @@ end)
 else
 tempAsset = GetGitModel(url,name,format)
 end
-preloads.Models[name] = tempAsset
 return tempAsset
 end
 end
