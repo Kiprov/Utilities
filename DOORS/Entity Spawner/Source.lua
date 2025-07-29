@@ -1053,7 +1053,7 @@ spawner.Run = function(entityTable)
 				elseif reboundType == "rebound" then
 					-- Rebound rebounding
 					local pathfindNodes = GetPathfindNodesAmbush(entityTable)
-					methods.BindToHeartbeat("updateNodes_"..config.Entity.Name,0,function()
+					RunService:BindToRenderStep("updateNodes_"..config.Entity.Name,0,function()
 					    pathfindNodes = GetPathfindNodesAmbush(entityTable)
 					end)
 					for nodeIdx = 1, #pathfindNodes, 1 do
@@ -1126,7 +1126,7 @@ spawner.Run = function(entityTable)
 					elseif reboundType == "a-120" then
 					-- A-120 rebounding
 					local pathfindNodes = GetPathfindNodesA120(entityTable)
-					methods.BindToHeartbeat("updateNodes_"..config.Entity.Name,0,function()
+					RunService:BindToRenderStep("updateNodes_"..config.Entity.Name,0,function()
 					    pathfindNodes = GetPathfindNodesA120(entityTable)
 					end)
 					for nodeIdx = 1, #pathfindNodes, 1 do
@@ -1177,7 +1177,7 @@ spawner.Run = function(entityTable)
 				else
 					-- Ambush rebounding
 					local pathfindNodes = GetPathfindNodesAmbush(entityTable)
-					methods.BindToHeartbeat("updateNodes_"..config.Entity.Name,0,function()
+					RunService:BindToRenderStep("updateNodes_"..config.Entity.Name,0,function()
 					    pathfindNodes = GetPathfindNodesAmbush(entityTable)
 					end)
 					for nodeIdx = 1, #pathfindNodes, 1 do
@@ -1229,7 +1229,7 @@ spawner.Run = function(entityTable)
 				
 				-- Despawning
 				if not model:GetAttribute("Despawning") then
-				    methods.UnbindFromHeartbeat("updateNodes_"..config.Entity.Name)
+				    RunService:UnbindFromRenderStep("updateNodes_"..config.Entity.Name)
 					if config.Rebounding.Max ~= 1 then
 						model:SetAttribute("Despawning", true)
 						if config.Entity.SmoothSound then
