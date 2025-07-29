@@ -10,6 +10,7 @@ return getgenv().VisualIndicator
 end
 local cloneref = (cloneref or clonereference or function(instance: any) return instance end)
 local CoreGui: CoreGui = cloneref(game:GetService('CoreGui'))
+local InputService: UserInputService = cloneref(game:GetService('UserInputService'))
 local Players: Players = cloneref(game:GetService('Players'))
 local RunService: RunService = cloneref(game:GetService('RunService'))
 local TweenService: TweenService = cloneref(game:GetService('TweenService'))
@@ -25,6 +26,30 @@ local assert = function(condition, errorMessage)
         error(if errorMessage then errorMessage else "assert failed", 3)
     end
 end
+local function SafeParentUI(Instance: Instance, Parent: Instance | () -> Instance)
+    if not pcall(function()
+        local DestinationParent
+        if typeof(Parent) == "function" then
+            DestinationParent = Parent()
+        else
+            DestinationParent = Parent
+        end
+
+        Instance.Parent = DestinationParent
+    end) then
+        Instance.Parent = LocalPlayer:WaitForChild("PlayerGui", math.huge)
+    end
+end
+
+local function ParentUI(UI: Instance, SkipHiddenUI: boolean?)
+    if SkipHiddenUI then
+        SafeParentUI(UI, CoreGui)
+        return
+    end
+
+    pcall(ProtectGui, UI)
+    SafeParentUI(UI, GetHUI)
+end
 local plr = LocalPlayer
 local ui = Instance.new("ScreenGui")
 ui.Name = "Visuals"
@@ -33,8 +58,7 @@ ui.ResetOnSpawn = false
 ui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ui.ClipToDeviceSafeArea = false
 ui.DisplayOrder = 999
-pcall(ProtectGui, ui)
-ui.Parent = GetHUI()
+ParentUI(ui)
 local preloadService = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kiprov/Utilities/refs/heads/main/Modules/PreloadService/Source.lua"))()
 preloadService:SetDirectory("VisualIndicator")
 function preload(assetType,assetURL,assetName,format)
@@ -121,13 +145,18 @@ function module.TrackEntity(part, distance, color, length)
 		local actualTime = length or 0.75
 		local calcTime = 1 - actualTime
 		local actualColor = color or Color3.fromRGB(51, 34, 61)
-		local renderName = "EntityIndicator"..part.Parent.Name
+		local ancestor = part:FindFirstAncestorWhichIsA("Model")
+		if not ancestor then
+		ancestor = part
+		end
+		local ancestorName = ancestor.Name
+		local renderName = "EntityIndicator"..ancestorName
 		local entityUI = module.UI.GeneralIndicator:Clone()
 		entityUI.Name = part.Parent.Name
 		entityUI.Parent = module.UI
 		entityUI.ZIndex = #module.EntityIndicatorUIS
-		module.EntityIndicatorUIS[part.Parent.Name] = entityUI
-		module.Enableds[part.Parent.Name] = false
+		module.EntityIndicatorUIS[ancestorName] = entityUI
+		module.Enableds[ancestorName] = false
 		RunService:UnbindFromRenderStep(renderName)
 		RunService:BindToRenderStep(renderName, 205, function()
 		local char = plr.Character or plr.CharacterAdded:Wait()
@@ -138,12 +167,12 @@ function module.TrackEntity(part, distance, color, length)
 				if part and part.Parent then
 					local magni = (part.Position - root.Position).Magnitude
 					if distance < magni then
-						if module.Enableds[part.Parent.Name] then
-							module.EntityDisable(part.Parent.Name)
+						if module.Enableds[ancestorName] then
+							module.EntityDisable(ancestorName)
 						end
 					else
-						if not module.Enableds[part.Parent.Name] then
-							module.EntityEnable(part.Parent.Name,actualColor)
+						if not module.Enableds[ancestorName] then
+							module.EntityEnable(ancestorName,actualColor)
 						end
 						local mapTime = mapValue(magni, distance, 50, actualTime, calcTime)
 						game.TweenService:Create(entityUI, TweenInfo.new(mapTime, Enum.EasingStyle.Bounce, Enum.EasingDirection.Out), {
@@ -153,15 +182,15 @@ function module.TrackEntity(part, distance, color, length)
 					end
 				else
 					RunService:UnbindFromRenderStep(renderName)
-					if module.Enableds[part.Parent.Name] then
-						module.EntityDisable(part.Parent.Name)
+					if module.Enableds[ancestorName] then
+						module.EntityDisable(ancestorName)
 						Debris:AddItem(entityUI,0.4)
 					end
 					return
 				end
 			else
-				if module.Enableds[part.Parent.Name] then
-					module.EntityDisable(part.Parent.Name)
+				if module.Enableds[ancestorName] then
+					module.EntityDisable(ancestorName)
 					Debris:AddItem(entityUI,0.4)
 				end
 				return
