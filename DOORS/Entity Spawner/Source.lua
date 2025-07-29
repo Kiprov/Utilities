@@ -38,6 +38,20 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
+local heartbeats = {}
+local methods = { -- Run Service Methods
+	BindToHeartbeat = function(name,_,callback)
+	if not heartbeats[name] then
+	heartbeats[name] = RunService.Heartbeat:Connect(callback)
+	end
+	end,
+	UnbindFromHeartbeat = function(name)
+	if heartbeats[name] then
+	heartbeats[name]:Disconnect()
+	heartbeats[name] = nil
+	end
+	end
+}
 
 -- Variables
 local localPlayer = Players.LocalPlayer
@@ -1039,7 +1053,7 @@ spawner.Run = function(entityTable)
 				elseif reboundType == "rebound" then
 					-- Rebound rebounding
 					local pathfindNodes = GetPathfindNodesAmbush(entityTable)
-					RunService:BindToRenderStep("updateNodes_"..config.Entity.Name,0,function()
+					methods.BindToHeartbeat("updateNodes_"..config.Entity.Name,0,function()
 					    pathfindNodes = GetPathfindNodesAmbush(entityTable)
 					end)
 					for nodeIdx = 1, #pathfindNodes, 1 do
@@ -1112,8 +1126,8 @@ spawner.Run = function(entityTable)
 					elseif reboundType == "a-120" then
 					-- A-120 rebounding
 					local pathfindNodes = GetPathfindNodesA120(entityTable)
-					RunService:BindToRenderStep("updateNodes_"..config.Entity.Name,0,function()
-					    pathfindNodes = GetPathfindNodesAmbush(entityTable)
+					methods.BindToHeartbeat("updateNodes_"..config.Entity.Name,0,function()
+					    pathfindNodes = GetPathfindNodesA120(entityTable)
 					end)
 					for nodeIdx = 1, #pathfindNodes, 1 do
 						if not pathfindNodes[nodeIdx] then continue end
@@ -1163,7 +1177,7 @@ spawner.Run = function(entityTable)
 				else
 					-- Ambush rebounding
 					local pathfindNodes = GetPathfindNodesAmbush(entityTable)
-					RunService:BindToRenderStep("updateNodes_"..config.Entity.Name,0,function()
+					methods.BindToHeartbeat("updateNodes_"..config.Entity.Name,0,function()
 					    pathfindNodes = GetPathfindNodesAmbush(entityTable)
 					end)
 					for nodeIdx = 1, #pathfindNodes, 1 do
@@ -1215,7 +1229,7 @@ spawner.Run = function(entityTable)
 				
 				-- Despawning
 				if not model:GetAttribute("Despawning") then
-				    RunService:UnbindFromRenderStep("updateNodes_"..config.Entity.Name)
+				    methods.UnbindFromHeartbeat("updateNodes_"..config.Entity.Name)
 					if config.Rebounding.Max ~= 1 then
 						model:SetAttribute("Despawning", true)
 						if config.Entity.SmoothSound then
