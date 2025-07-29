@@ -1,12 +1,9 @@
---[[Preload Asset Service
-Made by Kip.
-I decided to make a service module, that preloads assets on exploits.
+--[[
+Preload Asset Service
+
+A service module that helps to preload assets for exploits.
 ]]--
 local preloadService = {}
-local preloads = {
-SFX = {},
-Models = {},
-}
 local shouldSpawn = false
 local directory
 
@@ -51,13 +48,6 @@ local format = args[4] or nil
 local tempAsset
 if assetType == "SFX" then
 -- GitHub Sound
-if preloads.SFX[name] then
-tempAsset = preloads.SFX[name]
-if asset and asset:IsA("Sound") then
-asset.SoundId = tempAsset.SoundId
-end
-return tempAsset
-else
 if url == nil then return end
 if asset ~= nil then
 if not asset:IsA("Sound") then return end
@@ -71,16 +61,8 @@ tempAsset = GetGitSound(asset,url,name,format)
 end
 preloads.SFX[name] = tempAsset
 return tempAsset
-end
 elseif assetType == "Model" then
 -- GitHub RBXM Model
-if preloads.Models[name] then
-tempAsset = preloads.Models[name]
-if asset then
-asset = tempAsset
-end
-return tempAsset
-else
 if url == nil then return end
 if shouldSpawn then
 spawn(function()
@@ -91,7 +73,6 @@ tempAsset = GetGitModel(url,name,format)
 end
 preloads.Models[name] = tempAsset
 return tempAsset
-end
 end
 end
 return preloadService
