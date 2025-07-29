@@ -77,16 +77,18 @@ function module.ActivateCircle(part, range, length, color)
 		end
 end
 module.Time = 1
-module.EntityEnabled = false
-module.EntityIndicatorUI = module.UI.GeneralIndicator
-function module.EntityEnable(p44)
-	module.Enabled = true
-	module.EntityIndicatorUI.ImageColor3 = p44
-	module.EntityIndicatorUI.Visible = true
+module.Enableds = {}
+module.EntityIndicatorUIS = {}
+function module.EntityEnable(name,color)
+	module.Enableds[name] = true
+	local ei = module.EntityIndicatorUIS[name]
+	ei.ImageColor3 = color
+	ei.Visible = true
 end
-function module.EntityDisable()
-	module.Enabled = false
-	game.TweenService:Create(module.EntityIndicatorUI, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+function module.EntityDisable(name)
+	module.Enableds[name] = false
+	local ei = module.EntityIndicatorUIS[name]
+	game.TweenService:Create(ei, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
 		["Size"] = UDim2.new(1.25, 0, 1.25, 0),
 		["ImageTransparency"] = 1
 	}):Play()
@@ -99,6 +101,11 @@ function module.TrackEntity(part, distance, color, length)
 		local calcTime = 1 - actualTime
 		local actualColor = color or Color3.fromRGB(51, 34, 61)
 		local renderName = "EntityIndicator"..part.Parent.Name
+		local entityUI = module.UI.GeneralIndicator:Clone()
+		entityUI.Name = part.Parent.Name
+		entityUI.Parent = module.UI
+		module.EntityIndicatorUIS[part.Parent.Name] = entityUI
+		module.Enableds[part.Parent.Name] = false
 		game["Run Service"]:UnbindFromRenderStep(renderName)
 		game["Run Service"]:BindToRenderStep(renderName, 205, function()
 		local char = plr.Character or plr.CharacterAdded:Wait()
@@ -109,29 +116,31 @@ function module.TrackEntity(part, distance, color, length)
 				if part and part.Parent then
 					local magni = (part.Position - root.Position).Magnitude
 					if distance < magni then
-						if module.Enabled then
-							module.EntityDisable()
+						if module.Enableds[part.Parent.Name] then
+							module.EntityDisable(part.Parent.Name)
 						end
 					else
-						if not module.Enabled then
-							module.EntityEnable(actualColor)
+						if not module.Enableds[part.Parent.Name] then
+							module.EntityEnable(part.Parent.Name,actualColor)
 						end
 						local mapTime = mapValue(magni, distance, 50, actualTime, calcTime)
-						game.TweenService:Create(module.EntityIndicatorUI, TweenInfo.new(mapTime, Enum.EasingStyle.Bounce, Enum.EasingDirection.Out), {
+						game.TweenService:Create(entityUI, TweenInfo.new(mapTime, Enum.EasingStyle.Bounce, Enum.EasingDirection.Out), {
 							["Size"] = UDim2.new(calcTime + mapTime, 0, calcTime + mapTime, 0),
 							["ImageTransparency"] = mapTime
 						}):Play()
 					end
 				else
-					game["Run Service"]:UnbindFromRenderStep("EntityIndicator")
-					if module.Enabled then
-						module.EntityDisable()
+					game["Run Service"]:UnbindFromRenderStep(renderName)
+					if module.Enableds[part.Parent.Name] then
+						module.EntityDisable(part.Parent.Name)
+						game.Debris:AddItem(entityUI,0.4)
 					end
 					return
 				end
 			else
-				if module.Enabled then
-					module.EntityDisable()
+				if module.Enableds[part.Parent.Name] then
+					module.EntityDisable(part.Parent.Name)
+					game.Debris:AddItem(entityUI,0.4)
 				end
 				return
 			end
