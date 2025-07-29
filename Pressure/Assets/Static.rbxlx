@@ -1,0 +1,38 @@
+<!-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw --><roblox version="4"><Item class="Frame" referent="0"><Properties><Vector2 name="AnchorPoint"><X>0.5</X><Y>0.5</Y></Vector2><Color3 name="BackgroundColor3"><R>1</R><G>1</G><B>1</B></Color3><float name="BackgroundTransparency">1</float><Color3 name="BorderColor3"><R>0.10588236153125763</R><G>0.16470588743686676</G><B>0.20784315466880798</B></Color3><UDim2 name="Position"><XS>0.5</XS><XO>0</XO><YS>0.5</YS><YO>0</YO></UDim2><UDim2 name="Size"><XS>1.25</XS><XO>0</XO><YS>1.25</YS><YO>0</YO></UDim2><BinaryString name="AttributesSerialize">AQAAAA0AAABBbHJlYWR5QWN0aXZlAwA=</BinaryString><bool name="DefinesCapabilities">false</bool><string name="Name"><![CDATA[Static]]></string><BinaryString name="Tags"></BinaryString></Properties><Item class="ImageLabel" referent="1"><Properties><Content name="Image"><url><![CDATA[http://www.roblox.com/asset/?id=268592462]]></url></Content><float name="ImageTransparency">0.6650000214576721</float><Color3 name="BackgroundColor3"><R>0.3490196168422699</R><G>0.3450980484485626</G><B>0.3529411852359772</B></Color3><float name="BackgroundTransparency">1</float><Color3 name="BorderColor3"><R>0.10588236153125763</R><G>0.16470588743686676</G><B>0.20784315466880798</B></Color3><UDim2 name="Size"><XS>1</XS><XO>0</XO><YS>1</YS><YO>0</YO></UDim2><bool name="Visible">false</bool><BinaryString name="AttributesSerialize"></BinaryString><bool name="DefinesCapabilities">false</bool><BinaryString name="Tags"></BinaryString></Properties></Item><Item class="ImageLabel" referent="2"><Properties><Content name="Image"><url><![CDATA[http://www.roblox.com/asset/?id=268592485]]></url></Content><float name="ImageTransparency">0.6650000214576721</float><Color3 name="BackgroundColor3"><R>0.3490196168422699</R><G>0.3450980484485626</G><B>0.3529411852359772</B></Color3><float name="BackgroundTransparency">1</float><Color3 name="BorderColor3"><R>0.10588236153125763</R><G>0.16470588743686676</G><B>0.20784315466880798</B></Color3><UDim2 name="Size"><XS>1</XS><XO>0</XO><YS>1</YS><YO>0</YO></UDim2><bool name="Visible">false</bool><BinaryString name="AttributesSerialize"></BinaryString><bool name="DefinesCapabilities">false</bool><BinaryString name="Tags"></BinaryString></Properties></Item><Item class="ImageLabel" referent="3"><Properties><Content name="Image"><url><![CDATA[http://www.roblox.com/asset/?id=268590007]]></url></Content><float name="ImageTransparency">0.6650000214576721</float><Color3 name="BackgroundColor3"><R>0.3490196168422699</R><G>0.3450980484485626</G><B>0.3529411852359772</B></Color3><float name="BackgroundTransparency">1</float><Color3 name="BorderColor3"><R>0.10588236153125763</R><G>0.16470588743686676</G><B>0.20784315466880798</B></Color3><UDim2 name="Size"><XS>1</XS><XO>0</XO><YS>1</YS><YO>0</YO></UDim2><bool name="Visible">false</bool><BinaryString name="AttributesSerialize"></BinaryString><bool name="DefinesCapabilities">false</bool><BinaryString name="Tags"></BinaryString></Properties></Item><Item class="ImageLabel" referent="4"><Properties><Content name="Image"><url><![CDATA[http://www.roblox.com/asset/?id=268592427]]></url></Content><float name="ImageTransparency">0.6650000214576721</float><Color3 name="BackgroundColor3"><R>0.3490196168422699</R><G>0.3450980484485626</G><B>0.3529411852359772</B></Color3><float name="BackgroundTransparency">1</float><Color3 name="BorderColor3"><R>0.10588236153125763</R><G>0.16470588743686676</G><B>0.20784315466880798</B></Color3><UDim2 name="Size"><XS>1</XS><XO>0</XO><YS>1</YS><YO>0</YO></UDim2><bool name="Visible">false</bool><BinaryString name="AttributesSerialize"></BinaryString><bool name="DefinesCapabilities">false</bool><BinaryString name="Tags"></BinaryString></Properties></Item></Item><Item class="Script" referent="5"><Properties><string name="Name"><![CDATA[README]]></string><ProtectedString name="Source"><![CDATA[--[[
+		Thank you for using UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw.
+
+		If you didn't save in Binary (rbxl) - it's recommended to save the game right away to take advantage of the binary format & to preserve values of certain properties if you used IgnoreDefaultProperties setting (as they might change in the future).
+		You can do that by going to FILE -> Save to File As -> Make sure File Name ends with .rbxl -> Save
+
+		ServerStorage, ServerScriptService and Server Scripts are IMPOSSIBLE to save because of FilteringEnabled.
+
+		If your player cannot spawn into the game, please move the scripts in StarterPlayer somewhere else. Then run `game:GetService("Players").CharacterAutoLoads = true`.
+		And use "Play Here" to start game instead of "Play" to spawn your Character where your Camera currently is.
+
+		If the chat system does not work, please use the explorer and delete everything inside the TextChatService/Chat service(s). 
+		Or run `game:GetService("Chat"):ClearAllChildren() game:GetService("TextChatService"):ClearAllChildren()`
+				
+		If Union and MeshPart collisions don't work, run the script below in the Studio Command Bar:
+				
+				
+		local C = game:GetService("CoreGui")
+		local D = Enum.CollisionFidelity.Default
+				
+		for _, v in game:GetDescendants() do
+			if v:IsA("TriangleMeshPart") and not v:IsDescendantOf(C) then
+				v.CollisionFidelity = D
+			end
+		end
+		print("Done")
+				
+		If you can't move the Camera, run this script in the Studio Command Bar:
+			
+		workspace.CurrentCamera.CameraType = Enum.CameraType.Fixed
+		
+		Or Destroy the Camera.
+
+		This file was generated with the following settings:
+		{"SaveBytecode":false,"Callback":false,"ShowStatus":true,"IgnoreDefaultPlayerScripts":true,"NilInstancesFixes":{"BaseWrap":null,"Animator":null,"Attachment":null,"PackageLink":null,"AdPortal":null},"IgnoreList":["CoreGui","CorePackages"],"__DEBUG_MODE":false,"DecompileJobless":false,"IgnoreNotArchivable":true,"RemovePlayerCharacters":true,"Object":false,"DecompileIgnore":["TextChatService",null,null],"IgnoreSpecialProperties":false,"TreatUnionsAsParts":false,"IsModel":false,"NilInstances":false,"ExtraInstances":[null],"noscripts":true,"ReadMe":true,"scriptcache":true,"OptionsAliases":{"IgnoreArchivable":"IgnoreNotArchivable","DecompileTimeout":"timeout","SaveNonCreatable":"SaveNotCreatable","SavePlayers":"IsolatePlayers","FileName":"FilePath","IgnoreDefaultProps":"IgnoreDefaultProperties"},"AlternativeWritefile":true,"mode":"invalid","SaveCacheInterval":56320,"SharedStringOverwrite":false,"IsolatePlayers":false,"IgnoreSharedStrings":true,"timeout":10,"NotCreatableFixes":["","AnimationTrack","Player","PlayerGui","PlayerScripts","PlayerMouse","ScreenshotHud","StudioData","TextSource","TouchTransmitter"],"Anonymous":false,"IgnoreDefaultProperties":true,"IsolateStarterPlayer":false,"IgnorePropertiesOfNotScriptsOnScriptsMode":false,"IsolateLocalPlayerCharacter":false,"SaveNotCreatable":false,"IsolateLocalPlayer":false,"FilePath":"PressureAssets/Static","AntiIdle":true,"ShutdownWhenDone":false,"SafeMode":false,"IgnoreProperties":[]}
+
+		Elapsed time: 0.017278281040489674 PlaceId: 12552538292 PlaceVersion: 12445 Client Version: 2.683.775 Executor: Krnl
+]]]]></ProtectedString></Properties></Item></roblox><!-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw -->
