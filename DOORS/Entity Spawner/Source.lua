@@ -1039,7 +1039,7 @@ spawner.Run = function(entityTable)
 				elseif reboundType == "rebound" then
 					-- Rebound rebounding
 					local pathfindNodes = GetPathfindNodesAmbush(entityTable)
-					RunService:BindToRenderStep("updateNodes_"..config.Entity.Name,Enum.RenderPriority.First,function()
+					RunService:BindToRenderStep("updateNodes_"..config.Entity.Name,0,function()
 					    pathfindNodes = GetPathfindNodesAmbush(entityTable)
 					end)
 					for nodeIdx = 1, #pathfindNodes, 1 do
@@ -1112,7 +1112,7 @@ spawner.Run = function(entityTable)
 					elseif reboundType == "a-120" then
 					-- A-120 rebounding
 					local pathfindNodes = GetPathfindNodesA120(entityTable)
-					RunService:BindToRenderStep("updateNodes_"..config.Entity.Name,Enum.RenderPriority.Last,function()
+					RunService:BindToRenderStep("updateNodes_"..config.Entity.Name,0,function()
 					    pathfindNodes = GetPathfindNodesAmbush(entityTable)
 					end)
 					for nodeIdx = 1, #pathfindNodes, 1 do
@@ -1163,7 +1163,7 @@ spawner.Run = function(entityTable)
 				else
 					-- Ambush rebounding
 					local pathfindNodes = GetPathfindNodesAmbush(entityTable)
-					RunService:BindToRenderStep("updateNodes_"..config.Entity.Name,Enum.RenderPriority.Last,function()
+					RunService:BindToRenderStep("updateNodes_"..config.Entity.Name,0,function()
 					    pathfindNodes = GetPathfindNodesAmbush(entityTable)
 					end)
 					for nodeIdx = 1, #pathfindNodes, 1 do
