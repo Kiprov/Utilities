@@ -98,8 +98,9 @@ function module.TrackEntity(part, distance, color, length)
 		local actualTime = length or 0.75
 		local calcTime = 1 - actualTime
 		local actualColor = color or Color3.fromRGB(51, 34, 61)
-		game["Run Service"]:UnbindFromRenderStep("EntityIndicator")
-		game["Run Service"]:BindToRenderStep("EntityIndicator", 205, function()
+		local renderName = "EntityIndicator"..part.Parent.Name
+		game["Run Service"]:UnbindFromRenderStep(renderName)
+		game["Run Service"]:BindToRenderStep(renderName, 205, function()
 		local char = plr.Character or plr.CharacterAdded:Wait()
 			local hum = char:FindFirstChildWhichIsA("Humanoid")
 			local root = hum.RootPart
