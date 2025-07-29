@@ -104,6 +104,7 @@ function module.TrackEntity(part, distance, color, length)
 		local entityUI = module.UI.GeneralIndicator:Clone()
 		entityUI.Name = part.Parent.Name
 		entityUI.Parent = module.UI
+	        entityUI.ZIndex = #module.EntityIndicatorUIS
 		module.EntityIndicatorUIS[part.Parent.Name] = entityUI
 		module.Enableds[part.Parent.Name] = false
 		game["Run Service"]:UnbindFromRenderStep(renderName)
