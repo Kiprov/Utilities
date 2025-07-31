@@ -449,44 +449,18 @@ function DamagePlayer(entityTable)
 end
 
 function GetRoomAtPoint(vector3,ignoreTable)
-if isOld == false then
-	local whitelist = {}
-	for _, room in workspace.CurrentRooms:GetChildren() do
-		local p = room:FindFirstChild(room.Name)
-		if p then
-			whitelist[#whitelist + 1] = p
-		end
-	end
-
-	if #whitelist > 0 then
-		local params = RaycastParams.new()
-		params.FilterType = Enum.RaycastFilterType.Include
-		params.FilterDescendantsInstances = whitelist
-		params.CollisionGroup = "BaseCheck"
+    local params = RaycastParams.new()
+		params.FilterType = Enum.RaycastFilterType.Exclude
+		params.FilterDescendantsInstances = ignoreTable
 
 		local result = workspace:Raycast(vector3, Vector3.new(0, -100, 0), params)
-		if result then
+		if result and result.Instance then
 			for _, room in workspace.CurrentRooms:GetChildren() do
-				if result.Instance.Parent == room then
+				if result.Instance:IsDescendantOf(room) then
 					return room
 				end
 			end
 		end
-	end
-	else
-	local floors = {"Floor","Carpet","CarpetLight"}
-	local roomAtPoint = nil
-	local floorRay = workspace:FindPartOnRayWithIgnoreList(Ray.new(vector3, Vector3.new(0, -10, 0)), ignoreTable)
-	if floorRay ~= nil and table.find(floors,floorRay.Name) then
-	for _, room in next, workspace.CurrentRooms:GetChildren() do
-	if floorRay:IsDescendantOf(room) then
-	roomAtPoint = room
-	break
-	end
-	end
-	return roomAtPoint
-	end
-	end
 end
 
 function FixRoomLights(room)
