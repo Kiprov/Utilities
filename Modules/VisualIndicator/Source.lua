@@ -134,7 +134,7 @@ end
 function module.EntityDisable(name)
 	module.Enableds[name] = false
 	local ei = module.EntityIndicatorUIS[name]
-	game.TweenService:Create(ei, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+	TweenService:Create(ei, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
 		["Size"] = UDim2.new(1.25, 0, 1.25, 0),
 		["ImageTransparency"] = 1
 	}):Play()
@@ -183,7 +183,7 @@ function module.TrackEntity(part, distance, color, length)
 							module.EntityEnable(ancestorName,actualColor)
 						end
 						local mapTime = mapValue(magni, distance, 50, actualTime, calcTime)
-						game.TweenService:Create(entityUI, TweenInfo.new(mapTime, Enum.EasingStyle.Bounce, Enum.EasingDirection.Out), {
+						TweenService:Create(entityUI, TweenInfo.new(mapTime, Enum.EasingStyle.Bounce, Enum.EasingDirection.Out), {
 							["Size"] = UDim2.new(calcTime + mapTime, 0, calcTime + mapTime, 0),
 							["ImageTransparency"] = mapTime
 						}):Play()
