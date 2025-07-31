@@ -63,6 +63,12 @@ local gameStats = ReplicatedStorage:WaitForChild("GameStats")
 local gameData = ReplicatedStorage:WaitForChild("GameData")
 local floorReplicated = isOld == false and ReplicatedStorage:WaitForChild("FloorReplicated") or nil
 local remotesFolder = isOld == false and ReplicatedStorage:WaitForChild("RemotesFolder") or ReplicatedStorage:WaitForChild("Bricks")
+-- Camera Shaker
+local CameraShaker = require(ReplicatedStorage:WaitForChild("CameraShaker",.5))
+local camShake = CameraShaker.new(Enum.RenderPriority.Camera.Value,function(shakeCF)
+localCamera.CFrame = localCamera.CFrame * shakeCF
+end)
+camShake:Start()
 
 local lastRespawn;
 local BaseEntitySpeed = 65
@@ -217,30 +223,6 @@ function GetNodesFromRoom(room, reversed, entityTable)
 			end
 			nodes[#nodes + 1] = n
 		end
-		else
-		-- Code is now unused due to crazy stuff.
-		--[[if not roomEntrance or not roomExit then return nodes end
-		local path = ps:CreatePath()
-		path:ComputeAsync(roomEntrance:GetPivot().Position,roomExit:GetPivot().Position)
-		nodesFolder = path:GetWaypoints()
-		local fold = Instance.new("Folder")
-		for i,v in next, nodesFolder do
-local node = IT("Part")
-node.Name = i
-node.Anchored = true
-node.Size = V3(1,1,1)
-node.CanCollide = false
-node.Material = "ForceField"
-node.Shape = "Ball"
-node.Color = C3(0,1,1)
-node.Transparency = 0
-node.Position = v.Position
-node.Parent = fold
-end
-nodesFolder = fold
-for _, n in nodesFolder:GetChildren() do
-			nodes[#nodes + 1] = n
-		end]]--
 	end
 	if roomExit then
 		local index = #nodes + 1
@@ -947,7 +929,7 @@ spawner.Run = function(entityTable)
 	
 									cloned[1] = c.Values[1] / c.Range * (c.Range - mag) -- Magnitude
 									cloned[2] = c.Values[2] / c.Range * (c.Range - mag) -- Roughness
-									moduleScripts.Main_Game.camShaker:ShakeOnce(table.unpack(cloned))
+									camShake:ShakeOnce(table.unpack(cloned))
 								end
 							end
 						end
