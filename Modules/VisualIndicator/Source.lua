@@ -69,6 +69,7 @@ vIF.Parent,static.Parent = ui,ui
 local module = {
 	["UI"] = vIF
 }
+local renderSteps = {}
 module.CircleUI = module.UI.CircleIndicator
 module.CircleTween = nil
 function module.ActivateCircle(part, range, length, color)
@@ -151,13 +152,20 @@ function module.TrackEntity(part, distance, color, length)
 		end
 		local ancestorName = ancestor.Name
 		local renderName = "EntityIndicator"..ancestorName
+		if renderSteps[renderName] then
+		RunService:UnbindFromRenderStep(renderName)
+		module.EntityDisable(ancestorName)
+		Debris:AddItem(module.EntityIndicatorUIS[ancestorName],.4)
+		module.Enableds[ancestorName] = false
+		renderSteps[renderName] = nil
+		end
+		renderSteps[renderName] = true
 		local entityUI = module.UI.GeneralIndicator:Clone()
 		entityUI.Name = part.Parent.Name
 		entityUI.Parent = module.UI
 		entityUI.ZIndex = #module.EntityIndicatorUIS
 		module.EntityIndicatorUIS[ancestorName] = entityUI
 		module.Enableds[ancestorName] = false
-		RunService:UnbindFromRenderStep(renderName)
 		RunService:BindToRenderStep(renderName, 205, function()
 		local char = plr.Character or plr.CharacterAdded:Wait()
 			local hum = char:FindFirstChildWhichIsA("Humanoid")
