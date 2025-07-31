@@ -519,11 +519,9 @@ function FixRoomLights(room)
     end
 end
 
-function EntityMoveTo(model, cframe, speed)
+function EntityMoveTo(model, cframe, entityTable)
 	local alpha = 0
-	local speed = speed
 	local distance = (model.PrimaryPart.Position - cframe.Position).Magnitude
-	local relativeSpeed = distance / speed
 	local startCFrame = model.PrimaryPart.CFrame
 	local loop
 	local reachedEvent = Instance.new("BindableEvent")
@@ -531,7 +529,7 @@ function EntityMoveTo(model, cframe, speed)
 		if not model:GetAttribute("Paused") then
 			local goalCFrame = startCFrame:Lerp(cframe, alpha)
 			model:PivotTo(goalCFrame)
-			alpha += delta / relativeSpeed
+			alpha += delta / (distance / entityTable.Config.Movement.Speed)
 			if alpha >= 1 then
 				loop:Disconnect()
 				reachedEvent:Fire()
@@ -967,7 +965,7 @@ spawner.Run = function(entityTable)
 	
 					for _, n in nodesToCurrent do
 						local cframe = n.CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
-						EntityMoveTo(model, cframe, config.Movement.Speed)
+						EntityMoveTo(model, cframe, entityTable)
 						task.spawn(entityTable.RunCallback, entityTable, "OnReachNode", n) -- OnReachNode
 					end
 					
@@ -1002,7 +1000,7 @@ spawner.Run = function(entityTable)
 							local nodeIndex = tonumber(randomNode.Name)
 							for i = #roomNodes, nodeIndex, -1 do
 								local cframe = roomNodes[math.clamp(i, 1, #roomNodes)].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
-								EntityMoveTo(model, cframe, config.Movement.Speed)
+								EntityMoveTo(model, cframe, entityTable)
 								task.spawn(entityTable.RunCallback, entityTable, "OnReachNode", n) -- OnReachNode
 							end
 							
@@ -1012,7 +1010,7 @@ spawner.Run = function(entityTable)
 		
 							for i = nodeIndex, #roomNodes, 1 do
 								local cframe = roomNodes[math.clamp(i, 1, #roomNodes)].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
-								EntityMoveTo(model, cframe, config.Movement.Speed)
+								EntityMoveTo(model, cframe, entityTable)
 								task.spawn(entityTable.RunCallback, entityTable, "OnReachNode", n) -- OnReachNode
 							end
 						end
@@ -1021,7 +1019,7 @@ spawner.Run = function(entityTable)
 					local _, updatedToEnd = GetPathfindNodesBlitz(entityTable)
 					for _, n in updatedToEnd do
 						local cframe = n.CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
-						EntityMoveTo(model, cframe, config.Movement.Speed)
+						EntityMoveTo(model, cframe, entityTable)
 						task.spawn(entityTable.RunCallback, entityTable, "OnReachNode", n) -- OnReachNode
 					end
 				elseif reboundType == "rebound" then
@@ -1033,7 +1031,7 @@ spawner.Run = function(entityTable)
 					for nodeIdx = 1, #pathfindNodes, 1 do
 						if not pathfindNodes[nodeIdx] then continue end
 						local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
-						EntityMoveTo(model, cframe, config.Movement.Speed)
+						EntityMoveTo(model, cframe, entityTable)
 						task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", pathfindNodes[nodeIdx]) -- OnReachNode
 					end
 
@@ -1059,7 +1057,7 @@ spawner.Run = function(entityTable)
 											model:PivotTo(spawnPoint.CFrame * offset + Vector3.new(0, config.Entity.HeightOffset, 0))
 							for _, n in pathfindNodes do
 								local cframe = n.CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
-								EntityMoveTo(model, cframe, config.Movement.Speed)
+								EntityMoveTo(model, cframe, entityTable)
 								task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", n) -- OnReachNode
 							end
 							task.spawn(entityTable.RunCallback, entityTable, "OnRebounding", false) -- OnRebounding
@@ -1085,7 +1083,7 @@ spawner.Run = function(entityTable)
 							for nodeIdx = 1, #pathfindNodes, 1 do
 								if not pathfindNodes[nodeIdx] then continue end
 								local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
-								EntityMoveTo(model, cframe, config.Movement.Speed)
+								EntityMoveTo(model, cframe, entityTable)
 								task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", pathfindNodes[nodeIdx]) -- OnReachNode
 							end
 
@@ -1106,7 +1104,7 @@ spawner.Run = function(entityTable)
 					for nodeIdx = 1, #pathfindNodes, 1 do
 						if not pathfindNodes[nodeIdx] then continue end
 						local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
-						EntityMoveTo(model, cframe, config.Movement.Speed)
+						EntityMoveTo(model, cframe, entityTable)
 						task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", pathfindNodes[nodeIdx]) -- OnReachNode
 					end
 
@@ -1122,7 +1120,7 @@ spawner.Run = function(entityTable)
 							for i = #pathfindNodes, 1, -1 do
 								if not pathfindNodes[i] then continue end
 								local cframe = pathfindNodes[i].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
-								EntityMoveTo(model, cframe, config.Movement.Speed)
+								EntityMoveTo(model, cframe, entityTable)
 								task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", pathfindNodes[i]) -- OnReachNode
 							end
 
@@ -1136,7 +1134,7 @@ spawner.Run = function(entityTable)
 							for nodeIdx = 1, #pathfindNodes, 1 do
 								if not pathfindNodes[nodeIdx] then continue end
 								local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
-								EntityMoveTo(model, cframe, config.Movement.Speed)
+								EntityMoveTo(model, cframe, entityTable)
 								task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", pathfindNodes[nodeIdx]) -- OnReachNode
 							end
 
@@ -1157,7 +1155,7 @@ spawner.Run = function(entityTable)
 					for nodeIdx = 1, #pathfindNodes, 1 do
 						if not pathfindNodes[nodeIdx] then continue end
 						local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
-						EntityMoveTo(model, cframe, config.Movement.Speed)
+						EntityMoveTo(model, cframe, entityTable)
 						task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", pathfindNodes[nodeIdx]) -- OnReachNode
 					end
 
@@ -1173,7 +1171,7 @@ spawner.Run = function(entityTable)
 							for i = #pathfindNodes, 1, -1 do
 								if not pathfindNodes[i] then continue end
 								local cframe = pathfindNodes[i].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
-								EntityMoveTo(model, cframe, config.Movement.Speed)
+								EntityMoveTo(model, cframe, entityTable)
 								task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", pathfindNodes[i]) -- OnReachNode
 							end
 
@@ -1187,7 +1185,7 @@ spawner.Run = function(entityTable)
 							for nodeIdx = 1, #pathfindNodes, 1 do
 								if not pathfindNodes[nodeIdx] then continue end
 								local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
-								EntityMoveTo(model, cframe, config.Movement.Speed)
+								EntityMoveTo(model, cframe, entityTable)
 								task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", pathfindNodes[nodeIdx]) -- OnReachNode
 							end
 
@@ -1204,20 +1202,20 @@ spawner.Run = function(entityTable)
 				-- Despawning
 				if not model:GetAttribute("Despawning") then
 				    RunService:UnbindFromRenderStep("updateNodes_"..config.Entity.Name)
-					if config.Rebounding.Max ~= 1 then
+					if config.Rebounding.Max > 1 then
 						model:SetAttribute("Despawning", true)
 						if config.Entity.SmoothSound then
 							unloadSound(entityTable, model)
 						end
 						task.spawn(entityTable.RunCallback, entityTable, "OnDespawning") -- OnDespawning
-						EntityMoveTo(model, model:GetPivot() + Vector3.new(0, 300, 0), config.Movement.Speed)
+						EntityMoveTo(model, model:GetPivot() + Vector3.new(0, 300, 0), entityTable)
 						entityTable:Despawn()
 					elseif config.Rebounding.Max <= 1 then
 						if config.Entity.SmoothSound then
 							unloadSound(entityTable, model)
 						end
 						task.spawn(entityTable.RunCallback, entityTable, "OnDespawning") -- OnDespawning
-						EntityMoveTo(model, model:GetPivot() - Vector3.new(0, 300, 0), config.Movement.Speed)
+						EntityMoveTo(model, model:GetPivot() - Vector3.new(0, 300, 0), entityTable)
 						entityTable:Despawn()
 					end
 				end
