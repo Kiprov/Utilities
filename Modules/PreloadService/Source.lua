@@ -25,7 +25,7 @@ function GetGitSound(new,GithubSnd,SoundName,FileFormat)
 		writefile(directory.."/"..SoundName..FileFormat, game:HttpGet(url))
 	end
 	local sound=new or Instance.new("Sound")
-	sound.SoundId=getcustomasset(directory.."/"..SoundName..FileFormat)
+	sound.SoundId=getcustomasset(directory.."/"..SoundName..FileFormat,true)
 	return sound
 end
 
@@ -74,4 +74,5 @@ return tempAsset
 end
 end
 return preloadService
+
 
