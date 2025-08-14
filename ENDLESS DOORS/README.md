@@ -1,4 +1,3 @@
-# Important
-This directory is all roblox scripts for a game called "ENDLESS DOORS".
-Remember that exploiting is against Roblox TOS.
+# ENDLESS DOORS
+A folder that contains all of my scripts for a ROBLOX game "ENDLESS DOORS".
 Use at your own risk!
