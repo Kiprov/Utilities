@@ -80,7 +80,7 @@ local vynixuModules = {
 	CrucifixFunctions = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kiprov/Utilities/refs/heads/main/DOORS/Crucifix%20Functions/Source.lua"))()
 }
 local moduleScripts = {
-	Module_Events = require(ReplicatedStorage.ClientModules.Module_Events),
+	Module_Events = require(ReplicatedStorage.ModulesClient.Module_Events),
 	Main_Game = require(playerGui.MainUI.Initiator.Main_Game),
 	Earthquake = isOld == false and require(remotesFolder.RequestAsset:InvokeServer("Earthquake")) or function() end,
 }
@@ -458,7 +458,7 @@ function FixRoomLights(room)
     end
     
     -- Set room ambient
-    require(ReplicatedStorage.ClientModules.Module_Events).toggle(room, true, ambientStorage[room])
+    moduleScripts.Module_Events.toggle(room, true, ambientStorage[room])
 
     -- Fix lights
     local stuff = {}
