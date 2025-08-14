@@ -1,7 +1,7 @@
-# Important.
-This is an entity spawner made specifically for a roblox game called "ENDLESS DOORS".
-I have to thank @RegularVynixu for providing me with his old entity spawner that i remade into his entity spawner v2 and improved it.
-Remember to use this README file to understand how to use the entity spawner. If you're too lazy to follow this guide, you can use one of my templates for custom entities. Here it is! [Example](https://github.com/Kiprov/Utilities/blob/main/ENDLESS%20DOORS/Entity%20Spawner/Example.lua)
+# Entity Spawner
+This module allows u to create ur custom entities.
+Module forked from RegularVynixu, port for "ENDLESS DOORS" made by Kip.
+If you wish to skip the tutorial, use this example:[Example](https://github.com/Kiprov/Utilities/blob/main/ENDLESS%20DOORS/Entity%20Spawner/Example.lua)
 # Setup of the Entity Spawner.
 Firstly you want to copy the raw link of the "Source.lua" file.
 Then you want to make a new blank txt or lua file.
@@ -19,7 +19,7 @@ local entity = spawner.Create({
 		Name = "Template Entity",
 		Asset = "", --This can be a raw roblox rbxm file on github or a "rbxassetid://" model from the marketplace.
 		HeightOffset = 0,
-    SmoothTransition = true,
+        SmoothTransition = true,
 	},
 	Lights = {
 		Flicker = {
@@ -133,21 +133,19 @@ end)
 
 entity:Run()
 -- entity:Pause()
--- entity:Resume()
 -- entity:IsPaused()
 -- entity:Despawn()
 ```
 Now you may have noticed there are some functions associated with the entity u created("entity:Run()","entity:Pause()","entity:Resume()","entity:IsPaused" and "entity:Despawn")
 Let's go over what each function does!
+# Entity Functions
 # entity:Run()
-This function as you may have guessed spawns the entity into the game.
-# entity:Pause()
-This function as you may have guessed pauses the entity so it cant move.
-# entity:Resume()
-As you may have guessed this function resumed the entity if it was paused.
+This function spawns the entity into the game.
+# entity:Pause(bool)
+This function pauses or resumes the entity by providing a boolean value.
 # entity:IsPaused()
-This function checks whether the entity is paused or not and returns either true or false. Useful in some conditions.
+This function returns the state of the entity(paused or resumed).
 # entity:Despawn()
-As you may have guessed this function despawns the entity if it was spawned in the game.
-# Epilogue
-Now that you know what each function does it's time for you to create awesome custom entities out there and use them for anything(ex:a mode, a entity spawner hub, etc.).
+This function completely removes the entity from the game.
+# End of the setup
+Now that you know what each function does it's time for you to create awesome custom entities out there and use them for anything(ex:a mode, an entity spawner hub, etc.).
