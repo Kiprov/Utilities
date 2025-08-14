@@ -1,3 +1,3 @@
-# Important
-This script doesn't copy the april fools mode from "ENDLESS DOORS".
-Instead I put my own assets for the entities.
+# April Fools Mode
+A script that reskins a lot of entities into joke entities.
+This mode is not associated with the Epic Mode.
