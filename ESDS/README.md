@@ -1,1 +1,2 @@
-This is a port of ESDS by jnp(@jnprge). Go check him out!
+# Emergency Self Destruct System
+A port of an ESDS script by jnp(@jnprge). Go check him out!
