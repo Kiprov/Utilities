@@ -107,6 +107,7 @@ local defaultDebug = {
 	OnDespawning = function() end,
 	OnDespawned = function() end,
 	OnDamagePlayer = function() end,
+	OnEndRush = function() end,
 	CrucifixionOverwrite = ""
 }
 local defaultConfig = {
@@ -951,6 +952,8 @@ spawner.Run = function(entityTable)
 						task.spawn(entityTable.RunCallback, entityTable, "OnReachNode", n) -- OnReachNode
 					end
 					
+					task.spawn(entityTable.RunCallback, entityTable, "OnEndRush") -- OnEndRush
+					
 					-- Rebounding handling
 					if config.Rebounding.Enabled then
 						local currentRoom = GetCurrentRoom(false)
@@ -1016,6 +1019,8 @@ spawner.Run = function(entityTable)
 						EntityMoveTo(model, cframe, entityTable)
 						task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", pathfindNodes[nodeIdx]) -- OnReachNode
 					end
+					
+					task.spawn(entityTable.RunCallback, entityTable, "OnEndRush") -- OnEndRush
 
 					-- Rebounding handling
 					if config.Rebounding.Enabled then
@@ -1089,6 +1094,8 @@ spawner.Run = function(entityTable)
 						EntityMoveTo(model, cframe, entityTable)
 						task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", pathfindNodes[nodeIdx]) -- OnReachNode
 					end
+					
+					task.spawn(entityTable.RunCallback, entityTable, "OnEndRush") -- OnEndRush
 
 					-- Rebounding handling
 					if config.Rebounding.Enabled then
@@ -1140,6 +1147,8 @@ spawner.Run = function(entityTable)
 						EntityMoveTo(model, cframe, entityTable)
 						task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", pathfindNodes[nodeIdx]) -- OnReachNode
 					end
+					
+					task.spawn(entityTable.RunCallback, entityTable, "OnEndRush") -- OnEndRush
 
 					-- Rebounding handling
 					if config.Rebounding.Enabled then
