@@ -225,6 +225,15 @@ function GetNodesFromRoom(room, reversed, entityTable)
 			nodes[#nodes + 1] = n
 		end
 	end
+	local runnerNodes = room:FindFirstChild("RunnerNodes",true)
+	if runnerNodes then
+	    for i, n in runnerNodes:GetChildren() do
+			if string.find(n.Name,"MinecartNode") then
+			n.Name = i
+			end
+			nodes[#nodes + 1] = n
+		end
+	end
 	if roomExit then
 		local index = #nodes + 1
 		local n = roomExit:Clone()
