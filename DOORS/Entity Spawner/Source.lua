@@ -117,7 +117,7 @@ local defaultConfig = {
 		HeightOffset = 0,
 		SpawnOffset = 0,
 		SmoothSound = false,
-		CanSpawnWithoutClosets = true,
+		CanSpawnWithoutClosets = false,
 	},
 	Movement = {
 		Speed = 100,
@@ -650,16 +650,23 @@ function unloadSound(entityTable, entityModel)
 		end
 	end
 end
-local function GetClosetsInRoom(room)
-	if room:FindFirstChild("Assets") then
-		if room.Assets:FindFirstChild("Wardrobe") or room.Assets:FindFirstChild("Toolshed") then
-			return true
-		else
-			return false
-		end
-	else
-		return false
+local function GetSpotsInRoom()
+    local spots = {"Wardrobe","Toolshed","Locker_Large"}
+	local spotFound = false
+	local latestRoom = workspace.CurrentRooms[gameData.LatestRoom.Value]
+	local prevRoom = workspace.CurrentRooms[gameData.LatestRoom.Value-1]
+	-- Spot Recursive Attack
+	for i,v in next, spots do
+	    if latestRoom:FindFirstChild(v,true) then
+	        spotFound = true
+	        break
+	    end
+	    if prevRoom:FindFirstChild(v,true) then
+	        spotFound = true
+	        break
+	    end
 	end
+	return spotFound
 end
 
 spawner.Create = function(config)
@@ -776,8 +783,8 @@ end
 
 spawner.Run = function(entityTable)
 	task.spawn(function()
-		if not entityTable.Config.Entity.CanSpawnWithoutClosets then
-			if GetClosetsInRoom(workspace.CurrentRooms[gameData.LatestRoom.Value]) == false then
+		if entityTable.Config.Entity.CanSpawnWithoutClosets == false then
+			if not GetSpotsInRoom() then
 				return
 			end
 		end
