@@ -651,7 +651,7 @@ function unloadSound(entityTable, entityModel)
 	end
 end
 local function GetSpotsInRoom()
-    local spots = {"Wardrobe","Toolshed","Locker_Large"}
+    local spots = {"HidePrompt"}
 	local spotFound = false
 	local latestRoom = workspace.CurrentRooms[gameData.LatestRoom.Value]
 	local prevRoom = workspace.CurrentRooms[gameData.LatestRoom.Value-1]
