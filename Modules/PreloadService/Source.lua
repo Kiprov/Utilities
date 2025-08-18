@@ -4,38 +4,37 @@ Preload Asset Service
 A service module that helps to preload assets for exploits.
 ]]--
 local preloadService = {}
-local shouldSpawn = false
-local directory
+preloadService.__index = preloadService
 
 function preloadService:SetDirectory(directoryName)
 if not isfolder(directoryName) then
 makefolder(directoryName)
 end
-directory = directoryName
+self.Directory = directoryName
 end
 
 function preloadService:SetSpawn(bool)
-shouldSpawn = bool or false
+self.shouldSpawn = bool or false
 end
 
 function GetGitSound(new,GithubSnd,SoundName,FileFormat)
 	local url=GithubSnd
 	local FileFormat = FileFormat or ".mp3"
-	if not isfile(directory.."/"..SoundName..FileFormat) then
-		writefile(directory.."/"..SoundName..FileFormat, game:HttpGet(url))
+	if not isfile(self.Directory.."/"..SoundName..FileFormat) then
+		writefile(self.Directory.."/"..SoundName..FileFormat, game:HttpGet(url))
 	end
 	local sound=new or Instance.new("Sound")
-	sound.SoundId=getcustomasset(directory.."/"..SoundName..FileFormat,true)
+	sound.SoundId=getcustomasset(self.Directory.."/"..SoundName..FileFormat,true)
 	return sound
 end
 
 function GetGitModel(GitRBXM,ModelName,FileFormat)
 local url=GitRBXM
 local FileFormat = FileFormat or ".rbxm"
-if not isfile(directory.."/"..ModelName..FileFormat) then
-writefile(directory.."/"..ModelName..FileFormat,game:HttpGet(url))
+if not isfile(self.Directory.."/"..ModelName..FileFormat) then
+writefile(self.Directory.."/"..ModelName..FileFormat,game:HttpGet(url))
 end
-local model=game:GetObjects(getcustomasset(directory.."/"..ModelName..FileFormat,true))[1]
+local model=game:GetObjects(getcustomasset(self.Directory.."/"..ModelName..FileFormat,true))[1]
 return model
 end
 
@@ -52,7 +51,7 @@ if url == nil then return end
 if asset ~= nil then
 if not asset:IsA("Sound") then return end
 end
-if shouldSpawn then
+if self.shouldSpawn then
 spawn(function()
 tempAsset = GetGitSound(asset,url,name,format)
 end)
@@ -63,7 +62,7 @@ return tempAsset
 elseif assetType == "Model" then
 -- GitHub RBXM Model
 if url == nil then return end
-if shouldSpawn then
+if self.shouldSpawn then
 spawn(function()
 tempAsset = GetGitModel(url,name,format)
 end)
@@ -73,6 +72,14 @@ end
 return tempAsset
 end
 end
+function preloadService.new()
+local self = {}
+self.Directory = "null"
+self.shouldSpawn = false
+setmetatable(self,preloadService)
+return self
+end
 return preloadService
+
 
 
