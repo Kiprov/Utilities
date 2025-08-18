@@ -59,7 +59,8 @@ ui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ui.ClipToDeviceSafeArea = false
 ui.DisplayOrder = 999
 ParentUI(ui)
-local preloadService = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kiprov/Utilities/refs/heads/main/Modules/PreloadService/Source.lua"))()
+local preloadServiceModule = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kiprov/Utilities/refs/heads/main/Modules/PreloadService/Source.lua"))()
+local preloadService = preloadServiceModule.new()
 preloadService:SetDirectory("VisualIndicator")
 function preload(assetType,assetURL,assetName,format)
 return preloadService:Preload(assetType,assetURL,assetName,nil,format)
