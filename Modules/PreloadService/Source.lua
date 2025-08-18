@@ -69,10 +69,10 @@ elseif assetType == "Model" then
 if url == nil then return end
 if self.shouldSpawn then
 spawn(function()
-tempAsset = GetGitModel(url,name,format)
+tempAsset = self:GetGitModel(url,name,format)
 end)
 else
-tempAsset = GetGitModel(url,name,format)
+tempAsset = self:GetGitModel(url,name,format)
 end
 return tempAsset
 end
@@ -86,4 +86,5 @@ setmetatable(self,preloadService)
 return self
 end
 return preloadService
+
 
