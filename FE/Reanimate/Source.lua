@@ -80,7 +80,7 @@ KryptonConfiguration = {
 	},
 }
 local Reanimate = loadstring(game:HttpGet("https://raw.githubusercontent.com/KadeTheExploiter/Krypton/main/Module.luau"))()
-	repeat wait until Reanimate ~= nil
+repeat wait() until Reanimate ~= nil
 _G.Character = Reanimate:GetCharacter()
 _G.Reanimate = {
 	fling = Reanimate.CallFling
@@ -214,6 +214,7 @@ v.CanTouch = false
 end
 end
 end
+
 
 
 
