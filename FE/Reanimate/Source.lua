@@ -149,7 +149,7 @@ emp = Reanimate.Start({
 	},
 	ApplyDescription = true,
 	BreakJointsDelay = 0.255,
-	ClickFling = true,
+	ClickFling = false,
 	DefaultFlingOptions = {
 		HatFling = true,--{ MeshId="", TextureId = ""},
 		Highlight = true,
@@ -213,5 +213,6 @@ v.CanTouch = false
 end
 end
 end
+
 
 
