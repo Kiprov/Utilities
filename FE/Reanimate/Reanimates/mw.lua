@@ -39,7 +39,7 @@ local hedafterneck = true --disable aligns for head and enable after neck or tor
 local simrad = 2147483647 --simulation radius with sethiddenproperty (nil to disable)
 local loadtime = game:GetService("Players").RespawnTime + 0.5 --anti respawn delay
 local method = 2 --reanimation method
-if config.ScriptName == "VoidBoss" then
+if script.Name == "VoidBoss" then
 method = 0
 end
 --method 1,2 work the best
