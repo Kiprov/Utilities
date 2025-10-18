@@ -171,7 +171,7 @@ emp = Reanimate.Start({
 	R15 = false,
 	SetCameraSubject = true,
 	SetCameraType = true,
-	SetCharacter = false,
+	SetCharacter = true,
 	SetCollisionGroup = true,
 	SimulationRadius = 2147483647,
 	TeleportRadius = 12,
@@ -214,3 +214,4 @@ v.CanTouch = false
 end
 end
 end
+
