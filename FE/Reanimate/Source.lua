@@ -1,3 +1,8 @@
+--[[
+Multi-Reanimate made by Kip.
+Idea originally taken from MelonScripter.
+Please do not remove these credits, thanks.
+]]--
 if not MultiReanimate then
 getgenv().MultiReanimate = {
 	ScriptName = "Script",
@@ -291,4 +296,5 @@ v.CanTouch = false
 end
 end
 end
+
 chatMessage("Successfully reanimated with "..Framework.." Reanimate.")
