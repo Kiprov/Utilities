@@ -7,7 +7,6 @@ end
 local config = getgenv().MultiReanimate
 script.Name = config.ScriptName
 local cas = game:GetService("ContextActionService")
-local fpdh = workspace.FallenPartsDestroyHeight + 5
 _G.CAS = cas
 Framework = config.Framework
 Reanimate = Framework
@@ -162,7 +161,7 @@ emp = Reanimate.Start({
 	DisableHealthBar = true,
 	DisableRigCollisions = true,
 	HatDrop = false,
-	HideCharacter = Vector3.new(0, fpdh, 0),
+	HideCharacter = Vector3.new(0, - 30, 0),
 	ParentCharacter = true,
 	PermanentDeath = true,
 	Refit = true,
@@ -214,4 +213,5 @@ v.CanTouch = false
 end
 end
 end
+
 
