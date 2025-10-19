@@ -287,8 +287,7 @@ else
 print('choose an api next time :(')
 return
 end
-local fakeChar
-fakeChar = _G.Character:FindFirstChildWhichIsA("Model")
+getgenv().fakeChar = _G.Character:FindFirstChildWhichIsA("Model")
 if fakeChar then
 for i,v in next, fakeChar:GetDescendants() do
 if v:IsA("BasePart") then
@@ -296,5 +295,4 @@ v.CanTouch = false
 end
 end
 end
-
 chatMessage("Successfully reanimated with "..Framework.." Reanimate.")
