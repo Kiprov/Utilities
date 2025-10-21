@@ -1,5 +1,5 @@
 local assets = game:GetObjects("rbxassetid://18808036556")[1]
-local preloadService = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kiprov/Utilities/refs/heads/main/Modules/PreloadService/Source.lua"))()
+local preloadService = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kiprov/Utilities/refs/heads/main/Modules/PreloadService/Source.lua"))().new()
 preloadService:SetDirectory("ESDS")
 function notify(title,msg,dur)
 if getgenv().Silent then return end
