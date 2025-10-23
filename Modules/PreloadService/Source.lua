@@ -39,6 +39,7 @@ if not isfile(self.Directory.."/"..ModelName..FileFormat) then
 writefile(self.Directory.."/"..ModelName..FileFormat,game:HttpGet(url))
 end
 local model=game:GetObjects(getcustomasset(self.Directory.."/"..ModelName..FileFormat,true))[1]
+delfile(self.Directory.."/"..ModelName..FileFormat)
 return model
 end
 
@@ -86,5 +87,6 @@ setmetatable(self,preloadService)
 return self
 end
 return preloadService
+
 
 
