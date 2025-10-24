@@ -8,7 +8,6 @@ end
 --// Below are the settings
 -- SETTINGS --
 local settings = _G
-local fpdh = math.abs(workspace.FallenPartsDestroyHeight + 5)
 
 settings["Use default animations"] = true
 settings["Fake character transparency level"] = 1
@@ -22,7 +21,7 @@ settings["PermaDeath fake character"] = true
 settings["R15 Reanimate"] = false
 settings["Click Fling"] = false
 settings["Anti-Fling"] = true
-settings["Hide RootPart Distance"] = CFrame.new(fpdh, fpdh, 0)
+settings["Hide RootPart Distance"] = CFrame.new(255, 255, 0)
 
 settings["Names to exclude from transparency"] = {}
 --// Settings end
