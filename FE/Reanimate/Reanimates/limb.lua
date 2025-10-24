@@ -8,7 +8,7 @@ end
 --// Below are the settings
 -- SETTINGS --
 local settings = _G
-local fpdh = workspace.FallenPartsDestroyHeight + 5
+local fpdh = math.abs(workspace.FallenPartsDestroyHeight + 5)
 
 settings["Use default animations"] = true
 settings["Fake character transparency level"] = 1
