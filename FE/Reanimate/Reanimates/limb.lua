@@ -27,4 +27,4 @@ settings["Hide RootPart Distance"] = CFrame.new(fpdh, fpdh, 0)
 settings["Names to exclude from transparency"] = {}
 --// Settings end
 
-loadstring(game:HttpGet("https://raw.githubusercontent.com/somethingsimade/CurrentAngleV4/refs/heads/main/currentanglev2.5.lua"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/somethingsimade/CurrentAngleV4/refs/heads/main/v4.lua"))()
