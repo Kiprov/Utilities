@@ -9,7 +9,7 @@ Global.GelatekReanimateConfig = {
     ["TeleportBackWhenVoided"] = true,
     
     -- [[ Reanimation Settings ]] --
-    ["AlignReanimate"] = true,
+    ["AlignReanimate"] = false,
     ["FullForceAlign"] = false,
     ["FasterHeartbeat"] = true,
     ["DynamicalVelocity"] = true,
