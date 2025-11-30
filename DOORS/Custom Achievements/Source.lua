@@ -5,6 +5,12 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 -- Variables
 local localPlayer = Players.LocalPlayer
 local playerGui = localPlayer:WaitForChild("PlayerGui")
+local globalUi = playerGui:FindFirstChild("GlobalUI")
+if not playerGui:FindFirstChild("Globalui") then
+    local globalUI = globalUi:Clone()
+    globalUI.Parent = playerGui
+    globalUI.Name = "Globalui"
+end
 
 local moduleScripts = {
     AchievementUnlock = require(playerGui:FindFirstChild("AchievementUnlock", true)),
