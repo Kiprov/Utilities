@@ -12,7 +12,7 @@ Global.GelatekReanimateConfig = {
     ["AlignReanimate"] = false,
     ["FullForceAlign"] = false,
     ["FasterHeartbeat"] = true,
-    ["DynamicalVelocity"] = false,
+    ["DynamicalVelocity"] = true,
     ["DisableTweaks"] = false,
     
     -- [[ Optimization ]] --
