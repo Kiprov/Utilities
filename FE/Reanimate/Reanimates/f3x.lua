@@ -177,7 +177,7 @@ end)
 
 --// Stop On Death? [unsure if this works]
 
-lp.CharacterAdded:Connect(function()
+humanoid.Died:Once(function()
 	connect:Disconnect()
 	stop()
 end)
