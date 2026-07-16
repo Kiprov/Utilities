@@ -1027,8 +1027,18 @@ spawner.Run = function(entityTable)
 				elseif reboundType == "rebound" then
 					-- Rebound rebounding
 					local pathfindNodes = GetPathfindNodesAmbush(entityTable)
-					nodeCon = workspace.CurrentRooms.ChildAdded:Connect(function()
-					    pathfindNodes = GetPathfindNodesAmbush(entityTable)
+					nodeCon = workspace.CurrentRooms.ChildAdded:Connect(function(room)
+					    if config.Movement.Reversed == false then
+					        local roomNodes = GetNodesFromRoom(room, false, entityTable)
+                            for _, node in roomNodes do
+                                pathfindNodes[#pathfindNodes + 1] = node
+                            end
+                        else
+                            local roomNodes = GetNodesFromRoom(room, true, entityTable)
+                            for nodeIdx, node in roomNodes do
+                                table.insert(pathfindNodes, nodeIdx, node)
+                            end
+					    end
 					end)
 					for _, n in pairs(pathfindNodes) do
 						if not n then continue end
@@ -1103,8 +1113,18 @@ spawner.Run = function(entityTable)
 				else
 					-- Ambush rebounding
 					local pathfindNodes = GetPathfindNodesAmbush(entityTable)
-					nodeCon = workspace.CurrentRooms.ChildAdded:Connect(function()
-					    pathfindNodes = GetPathfindNodesAmbush(entityTable)
+					nodeCon = workspace.CurrentRooms.ChildAdded:Connect(function(room)
+					    if config.Movement.Reversed == false then
+					        local roomNodes = GetNodesFromRoom(room, false, entityTable)
+                            for _, node in roomNodes do
+                                pathfindNodes[#pathfindNodes + 1] = node
+                            end
+                        else
+                            local roomNodes = GetNodesFromRoom(room, true, entityTable)
+                            for nodeIdx, node in roomNodes do
+                                table.insert(pathfindNodes, nodeIdx, node)
+                            end
+					    end
 					end)
 					for _, n in pairs(pathfindNodes) do
 						if not n then continue end
