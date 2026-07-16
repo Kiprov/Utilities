@@ -957,6 +957,7 @@ spawner.Run = function(entityTable)
 			
 			-- Pathfinding
 			task.spawn(function()
+			    local nodeCon = nil
 				local reboundType = config.Rebounding.Type:lower()
 				if reboundType == "blitz" then
 					-- Blitz rebounding
@@ -1026,14 +1027,14 @@ spawner.Run = function(entityTable)
 				elseif reboundType == "rebound" then
 					-- Rebound rebounding
 					local pathfindNodes = GetPathfindNodesAmbush(entityTable)
-					RunService:BindToRenderStep("updateNodes_"..config.Entity.Name,0,function()
+					nodeCon = workspace.CurrentRooms.ChildAdded:Connect(function()
 					    pathfindNodes = GetPathfindNodesAmbush(entityTable)
 					end)
-					for nodeIdx = 1, #pathfindNodes, 1 do
-						if not pathfindNodes[nodeIdx] then continue end
-						local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
+					for _, n in pairs(pathfindNodes) do
+						if not n then continue end
+						local cframe = n.CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
 						EntityMoveTo(model, cframe, entityTable)
-						task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", pathfindNodes[nodeIdx]) -- OnReachNode
+						task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", n) -- OnReachNode
 					end
 					
 					task.spawn(entityTable.RunCallback, entityTable, "OnEndRush") -- OnEndRush
@@ -1058,7 +1059,8 @@ spawner.Run = function(entityTable)
 		local offsetNum = config.Movement.Reversed and -configNum or configNum
 		local offset = CFrame.new(0,0,offsetNum)
 											model:PivotTo(spawnPoint.CFrame * offset + Vector3.new(0, config.Entity.HeightOffset, 0))
-							for _, n in pathfindNodes do
+							for _, n in pairs(pathfindNodes) do
+							    if not n then continue end
 								local cframe = n.CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
 								EntityMoveTo(model, cframe, entityTable)
 								task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", n) -- OnReachNode
@@ -1083,64 +1085,11 @@ spawner.Run = function(entityTable)
 							pathfindNodes = GetPathfindNodesAmbush(entityTable)
 
 							-- Run forwards through nodes
-							for nodeIdx = 1, #pathfindNodes, 1 do
-								if not pathfindNodes[nodeIdx] then continue end
-								local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
+							for _, n in pairs(pathfindNodes) do
+								if not n then continue end
+								local cframe = n.CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
 								EntityMoveTo(model, cframe, entityTable)
-								task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", pathfindNodes[nodeIdx]) -- OnReachNode
-							end
-
-							task.spawn(entityTable.RunCallback, entityTable, "OnRebounding", false) -- OnRebounding
-
-							-- Delay unless last rebound
-							if i < reboundsCount then
-								task.wait(config.Rebounding.Delay)
-							end
-						end
-					end
-					elseif reboundType == "a-120" then
-					-- A-120 rebounding
-					local pathfindNodes = GetPathfindNodesA120(entityTable)
-					RunService:BindToRenderStep("updateNodes_"..config.Entity.Name,0,function()
-					    pathfindNodes = GetPathfindNodesA120(entityTable)
-					end)
-					for nodeIdx = 1, #pathfindNodes, 1 do
-						if not pathfindNodes[nodeIdx] then continue end
-						local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
-						EntityMoveTo(model, cframe, entityTable)
-						task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", pathfindNodes[nodeIdx]) -- OnReachNode
-					end
-					
-					task.spawn(entityTable.RunCallback, entityTable, "OnEndRush") -- OnEndRush
-
-					-- Rebounding handling
-					if config.Rebounding.Enabled then
-						local reboundsCount = math.random(config.Rebounding.Min, config.Rebounding.Max)
-						for i = 1, reboundsCount, 1 do
-							task.wait(config.Rebounding.Delay)
-							model:SetAttribute("Damage", true)
-							task.spawn(entityTable.RunCallback, entityTable, "OnRebounding", true) -- OnRebounding
-
-							-- Run backwards through nodes
-							for i = #pathfindNodes, 1, -1 do
-								if not pathfindNodes[i] then continue end
-								local cframe = pathfindNodes[i].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
-								EntityMoveTo(model, cframe, entityTable)
-								task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", pathfindNodes[i]) -- OnReachNode
-							end
-
-							task.spawn(entityTable.RunCallback, entityTable, "OnRebounding", false) -- OnRebounding
-							task.wait(config.Rebounding.Delay)
-							model:SetAttribute("Damage", true)
-							task.spawn(entityTable.RunCallback, entityTable, "OnRebounding", true) -- OnRebounding
-							pathfindNodes = GetPathfindNodesA120(entityTable)
-
-							-- Run forwards through nodes
-							for nodeIdx = 1, #pathfindNodes, 1 do
-								if not pathfindNodes[nodeIdx] then continue end
-								local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
-								EntityMoveTo(model, cframe, entityTable)
-								task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", pathfindNodes[nodeIdx]) -- OnReachNode
+								task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", n) -- OnReachNode
 							end
 
 							task.spawn(entityTable.RunCallback, entityTable, "OnRebounding", false) -- OnRebounding
@@ -1154,14 +1103,14 @@ spawner.Run = function(entityTable)
 				else
 					-- Ambush rebounding
 					local pathfindNodes = GetPathfindNodesAmbush(entityTable)
-					RunService:BindToRenderStep("updateNodes_"..config.Entity.Name,0,function()
+					nodeCon = workspace.CurrentRooms.ChildAdded:Connect(function()
 					    pathfindNodes = GetPathfindNodesAmbush(entityTable)
 					end)
-					for nodeIdx = 1, #pathfindNodes, 1 do
-						if not pathfindNodes[nodeIdx] then continue end
-						local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
+					for _, n in pairs(pathfindNodes) do
+						if not n then continue end
+						local cframe = n.CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
 						EntityMoveTo(model, cframe, entityTable)
-						task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", pathfindNodes[nodeIdx]) -- OnReachNode
+						task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", n) -- OnReachNode
 					end
 					
 					task.spawn(entityTable.RunCallback, entityTable, "OnEndRush") -- OnEndRush
@@ -1189,11 +1138,11 @@ spawner.Run = function(entityTable)
 							pathfindNodes = GetPathfindNodesAmbush(entityTable)
 
 							-- Run forwards through nodes
-							for nodeIdx = 1, #pathfindNodes, 1 do
-								if not pathfindNodes[nodeIdx] then continue end
-								local cframe = pathfindNodes[nodeIdx].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
+							for _, n in pairs(pathfindNodes) do
+								if not n then continue end
+								local cframe = n.CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
 								EntityMoveTo(model, cframe, entityTable)
-								task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", pathfindNodes[nodeIdx]) -- OnReachNode
+								task.spawn(entityTable.RunCallback, entityTable, "OnReachedNode", n) -- OnReachNode
 							end
 
 							task.spawn(entityTable.RunCallback, entityTable, "OnRebounding", false) -- OnRebounding
@@ -1208,7 +1157,9 @@ spawner.Run = function(entityTable)
 				
 				-- Despawning
 				if not model:GetAttribute("Despawning") then
-				    RunService:UnbindFromRenderStep("updateNodes_"..config.Entity.Name)
+				    if nodeCon then
+				        nodeCon:Disconnect()
+				    end
 					if config.Rebounding.Max > 1 then
 						model:SetAttribute("Despawning", true)
 						if config.Entity.SmoothSound then
