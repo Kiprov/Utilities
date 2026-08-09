@@ -63,6 +63,7 @@ local gameStats = ReplicatedStorage:WaitForChild("GameStats")
 local gameData = ReplicatedStorage:WaitForChild("GameData")
 local floorReplicated = isOld == false and ReplicatedStorage:WaitForChild("FloorReplicated") or nil
 local remotesFolder = isOld == false and ReplicatedStorage:WaitForChild("RemotesFolder") or ReplicatedStorage:WaitForChild("Bricks")
+local modulesClient = isOld == false and ReplicatedStorage:WaitForChild("ModulesClient") or ReplicatedStorage:WaitForChild("ClientModules")
 -- Camera Shaker
 local CameraShaker = require(ReplicatedStorage:WaitForChild("CameraShaker",.5))
 local camShake = CameraShaker.new(Enum.RenderPriority.Camera.Value,function(shakeCF)
@@ -80,7 +81,7 @@ local vynixuModules = {
 	CrucifixFunctions = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kiprov/Utilities/refs/heads/main/DOORS/Crucifix%20Functions/Source.lua"))()
 }
 local moduleScripts = {
-	Module_Events = require(ReplicatedStorage.ModulesClient.Module_Events),
+	Module_Events = require(modulesClient.Module_Events),
 	Main_Game = require(playerGui.MainUI.Initiator.Main_Game),
 	Earthquake = isOld == false and require(remotesFolder.RequestAsset:InvokeServer("Earthquake")) or function() end,
 }
