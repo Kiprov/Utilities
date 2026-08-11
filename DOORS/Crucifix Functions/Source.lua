@@ -1,5 +1,9 @@
 if getgenv().KiprovCrucifixFunctions then return getgenv().KiprovCrucifixFunctions end
 local module = {}
+local isOld = false
+if game.PlaceId == 110258689672367 then
+    isOld = true
+end
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Functions.lua"))()
 
@@ -21,6 +25,7 @@ local Humanoid = Character:WaitForChild("Humanoid")
 local RootPart = Humanoid.RootPart or Character.PrimaryPart
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 local Camera = workspace.CurrentCamera
+local ModulesClient = not isOld and ReplicatedStorage:WaitForChild("ModulesClient") or ReplicatedStorage:WaitForChild("ClientModules") :: Folder
 local Modules = {
 	Module_Events = require(ModulesClient.Module_Events :: ModuleScript),
 	Main_Game = require(PlayerGui.MainUI.Initiator.Main_Game :: ModuleScript)
