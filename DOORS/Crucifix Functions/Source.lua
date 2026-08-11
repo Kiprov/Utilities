@@ -94,7 +94,7 @@ function module:CrucifyEntity(entity: any, tool: Tool)
 			model:PivotTo(entityPart.CFrame)
 			task.wait()
 		end
-		model:Destroy()
+		entity:Despawn()
 	end)
 
 	-- Animation
