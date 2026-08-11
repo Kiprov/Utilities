@@ -147,5 +147,3 @@ MyEntity:Run(true) -- creates & runs a copy of your entity template
 * entity:Pause(paused: boolean) -- Pauses/Resumes the entity via the paused boolean argument.
 * entity:IsPaused() -- Returns a boolean value, telling if the entity is paused or not.
 * entity:Despawn() -- Despawns the entity, if spawned.
-# End of the setup
-Now that you know what each function does it's time for you to create awesome custom entities out there and use them for anything(ex:a mode, an entity spawner hub, etc.).
