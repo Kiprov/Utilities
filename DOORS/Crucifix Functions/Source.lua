@@ -1,1447 +1,332 @@
+if getgenv().KiprovCrucifixFunctions then return getgenv().KiprovCrucifixFunctions end
 local module = {}
 
-local Player = game.Players.LocalPlayer
-local Character = Player.Character
-local Hum = Character.Humanoid
-local MainModels = game:GetObjects("rbxassetid://17394237675")[1]
-local Portal = MainModels.Repentance
-local tweensv = game:GetService("TweenService")
-local LatestRoom = nil
-if game.ReplicatedStorage:FindFirstChild("GameData") then
-	LatestRoom = game:GetService("ReplicatedStorage").GameData.LatestRoom
-end
-local CameraShaker = require(game.ReplicatedStorage.CameraShaker)
-local Camera = workspace.CurrentCamera
-local camShake = CameraShaker.new(Enum.RenderPriority.Camera.Value, function(shakeCf)
-	Camera.CFrame = Camera.CFrame * shakeCf
-end)
+loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Functions.lua"))()
 
-camShake:Start()
+local ROOT = "https://github.com/Kiprov/Utilities/raw/main/DOORS/Entity%20Spawner/raw/main"
+local Assets = {
+	Repentance = LoadCustomInstance(ROOT.."/Assets/Repentance.rbxm"),
+	Earthquake = LoadCustomInstance(ROOT.."/Assets/Earthquake.rbxm")
+}
+
+local CollectionService = game:GetService("CollectionService")
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+
+local LocalPlayer = Players.LocalPlayer
+local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+local Humanoid = Character:WaitForChild("Humanoid")
+local RootPart = Humanoid.RootPart or Character.PrimaryPart
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+local Camera = workspace.CurrentCamera
+local Modules = {
+	Module_Events = require(ModulesClient.Module_Events :: ModuleScript),
+	Main_Game = require(PlayerGui.MainUI.Initiator.Main_Game :: ModuleScript)
+}
+local function OnCharacterAdded(char: Model)
+	Character = char
+	Humanoid = char:WaitForChild("Humanoid")
+    RootPart = Humanoid.RootPart or char.PrimaryPart
+
+    Modules.Main_Game = require(PlayerGui:WaitForChild("MainUI").Initiator.Main_Game :: ModuleScript)
+end
+
+LocalPlayer.CharacterAdded:Connect(OnCharacterAdded)
 
 --// main code
-local Portal = MainModels.Repentance
 
-function module:CrucifyEntity(config,oldentity,ToolHandle)
-	local entity
+function module:CrucifyEntity(entity: any, tool: Tool)
+    local model = entity.Model
+	local config = entity.Config
 
+	local resist = config.Crucifixion.Resist
 
-	entity = oldentity:Clone()
-    oldentity:SetAttribute("Paused",true)
-	oldentity:SetAttribute("BeingBanished",true)
-	entity.Name = "Fake_"..oldentity.Name
-	entity.Parent = workspace
-    config:Despawn()
-
-
-	if game.ReplicatedStorage:FindFirstChild("GameData") then
-		game.ReplicatedStorage.GameData.ChaseInSession.Value = false
-	end
-	local primary = entity.PrimaryPart or entity:FindFirstChildOfClass("Part")
-	task.spawn(function()
-		if entity:GetAttribute("Repent") == "Normal" then
-			primary:FindFirstChild("PlaySound"):Stop()
-			primary:FindFirstChild("Footsteps"):Stop()
-			local RepentParticle = primary.Attachment:FindFirstChild("RepentParticle")
-			local RepentSound = primary:FindFirstChild("Repent")
-			RepentSound:Play()
-			RepentParticle.Enabled = true
-			primary.Attachment:FindFirstChild("BlackTrail").Enabled = false
-		elseif entity:GetAttribute("Repent") == "Quick" then
-			primary:FindFirstChild("PlaySound"):Stop()
-			primary:FindFirstChild("Footsteps"):Stop()
-			local RepentParticle = primary.Attachment:FindFirstChild("RepentParticle")
-			local RepentParticle2 = primary.Attachment:FindFirstChild("RepentParticle2")
-			local RepentSound = primary:FindFirstChild("Repent")
-			RepentSound:Play()
-			RepentParticle.Enabled = true
-			wait(1)
-			RepentParticle2.Enabled = true
-			task.wait(0.8)
-			RepentParticle.Enabled = false
-			RepentParticle2.Enabled = false
-		elseif entity:GetAttribute("Repent") == "Eyes" then
-			primary:FindFirstChild("Ambience"):Stop()
-			local RepentParticle = primary.Attachment:FindFirstChild("RepentParticle")
-			local RepentSound = primary:FindFirstChild("Repent")
-			RepentSound:Play()
-			RepentParticle.Enabled = true
-			primary.Attachment:FindFirstChild("BlackTrail").Enabled = false
-		elseif entity:GetAttribute("Repent") == "Screech" then
-			primary:FindFirstChild("PSST"):Stop()
-			entity:SetAttribute("Idled",false)
-			local RepentAnim = entity.Monster:LoadAnimation(entity:FindFirstChild("Crucifix_Config").Animation.Working.Animation)
-			local RepentSound = primary:FindFirstChild("Repent")
-			RepentSound:Play()
-			RepentAnim:Play()
-		else
-			--No Repent
-		end
-	end)
-
-	--CAST A RAY
+	local toolPivot = tool:GetPivot()
+	local entityPivot = model:GetPivot()
 
 	local params = RaycastParams.new()
-	params.FilterType = Enum.RaycastFilterType.Blacklist
-	params.FilterDescendantsInstances = { Character, entity }
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	params.FilterDescendantsInstances = {Character, model}
+	local result = workspace:Raycast(entityPivot.Position, Vector3.new(0, -1000, 0), params)
+	if not result then return end
 
-	local ray = workspace:Raycast(primary.Position, Vector3.new(0,-1,0) * 20, params)
+	-- Setup
+	model:SetAttribute("BeingBanished", true)
 
+	local repentance = Assets.Repentance:Clone()
+	local crucifix = repentance.Crucifix
+	local pentagram = repentance.Pentagram
+	local entityPart = repentance.Entity
+	local sound = (config.Crucifixion.Resist and crucifix.SoundFail or crucifix.Sound)
+	local shaker = Modules.Main_Game.camShaker:StartShake(5, 20, 2, Vector3.new())
 
-
-
-	local gate = Portal:Clone()
-	gate.Parent = workspace
-
-	local pentagram = gate.Pentagram
-
-	if ray then
-		local part = Instance.new("Part")
-		part.Anchored = true
-		part.Position = ray.Position + Vector3.new(0, 1, 0)
-
-		gate:PivotTo(part.CFrame * CFrame.new(0, -0.5, 0) * CFrame.Angles(0, 0, 0))
-
-		part:Destroy()
+	local function waitUntil(t: number)
+		repeat RunService.RenderStepped:Wait() until sound.TimePosition >= t
 	end
-
-	--Spinning
-
-
-	local spinrate = 2
-	local crucifix_spin = Instance.new("NumberValue")
-	local spinrate_changed = Instance.new("NumberValue")
-
-	local gate_spin = game:GetService("RunService").Heartbeat:Connect(function()
-		--pentagram.RingAddonA.Orientation += Vector3.new(0, spinrate, 0)
-		--pentagram.RingAddonB.Orientation += Vector3.new(0, -spinrate, 0)
-		--pentagram.RingAddonC.Orientation += Vector3.new(0, spinrate * 0.8, 0)
-		--pentagram.Base.Orientation += Vector3.new(0, -spinrate * 0.5, 0)
-
-		gate.Crucifix.Glow.Orientation += Vector3.new(0, crucifix_spin.Value, 0)
-	end)
-
-	spinrate_changed.Changed:Connect(function(V)
-		spinrate = V
-	end)
-
-	for _,v in pairs(entity:GetDescendants()) do
-		if v:IsA("BasePart") then 
-			v.Anchored = true
-			--v.Position = gate.Entity.Position + Vector3.new(0, 2, 0)
-		end
-	end
-
-	local Stored = gate.Crucifix.Glow.CFrame  
-
-	gate.Crucifix.Glow.Sound.TimePosition = 0
-	gate.Crucifix.Glow.SoundFail.TimePosition = 0
-
-	gate.Crucifix.Glow.Sound.SoundId = "rbxassetid://6555668806"
-	--gate.Crucifix.Glow.SoundFail.SoundId = "rbxassetid://6555668806"
-
-	--gate.Crucifix.Glow.Sound.SoundId = "rbxassetid://15746677967"
-	--gate.Crucifix.Glow.SoundFail.SoundId = "rbxassetid://15746691911"
-
-	--gate.Crucifix.Glow.Sound.SoundId = "rbxassetid://6555668806"
-	--gate.Crucifix.Glow.SoundFail.SoundId = "rbxassetid://6555668806"
-
-	gate.Crucifix.Glow.Sound:Play()
-
-	gate.Crucifix.Glow.CFrame = ToolHandle:GetPivot()
-
-	local PLAYER_HUMANOIDROOTPART = Character.HumanoidRootPart
-	local PLAYER_POSITION = PLAYER_HUMANOIDROOTPART.Position
-	local PLAYER_DIRECTION = PLAYER_HUMANOIDROOTPART.CFrame.LookVector
-	local PLAYER_ROTATION = PLAYER_HUMANOIDROOTPART.CFrame - Vector3.new(PLAYER_POSITION, PLAYER_POSITION + PLAYER_DIRECTION)
-
-	local PART_POSITION = PLAYER_POSITION + PLAYER_DIRECTION * 5
-
-	local C = Character
-	local NewPos = CFrame.new(PART_POSITION, PART_POSITION + PLAYER_ROTATION.LookVector)
-
-	spawn(function()
-
-		tweensv:Create(gate.Crucifix.Glow, TweenInfo.new(1.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-			--CFrame = Stored,
-			CFrame = NewPos,
-		}):Play()
-
-		task.wait(.6)
-
-		tweensv:Create(crucifix_spin, TweenInfo.new(4, Enum.EasingStyle.Sine, Enum.EasingDirection.In), {
-			Value = 50,
-		}):Play()
-	end)
-
-	spawn(function()
-
-		task.wait(1)
-
-		tweensv:Create(gate.Crucifix.Glow.Light, TweenInfo.new(2, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
-			Range = 15,
-			Brightness = 3
-		}):Play()
-	end)
-
-
-	tweensv:Create(pentagram.Circle, TweenInfo.new(3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
-		Position = pentagram.Circle.Position - Vector3.new(0, 10, 0),
-	}):Play()
-
-	camShake:ShakeOnce(10,15,4,5)
-
-	--tweensv:Create(spinrate_changed, TweenInfo.new(6, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-	--	Value = 5,
-	--}):Play()
-
-	--[[
-	
-	tweensv:Create(crucifix_spin, TweenInfo.new(6, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-			Value = 50,
-		}):Play()
-		
-	]]
-
-	local function move(part)
-		task.wait(2.5)
-		tweensv:Create(gate.Entity, TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
-			Position = gate.Entity.Position + Vector3.new(0,5,0),
-		}):Play()
-
-		tweensv:Create(part, TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
-			Position = part.Position + Vector3.new(0,5,0),
-		}):Play()
-
-		tweensv:Create(pentagram.Base.LightAttach.Light, TweenInfo.new(3, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
-			Range = 60,
-			Brightness = 5
-		}):Play()
-
-		task.wait(1)
-
-		tweensv:Create(part, TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-			Position = part.Position - Vector3.new(0,50,0),
-		}):Play()
-
-
-		tweensv:Create(gate.Entity, TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-			Position = gate.Entity.Position - Vector3.new(0,50,0),
-		}):Play()
-
-
-
-
-		--Sound fade
-
-		for _,v in pairs(entity:GetDescendants()) do
-			if v:IsA("Sound") then
-				tweensv:Create(v, TweenInfo.new(.5, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
-					Volume = 0,
-				}):Play()
-			elseif v:IsA("Light") then
-				tweensv:Create(v, TweenInfo.new(3, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
-					Range = 0,
-				}):Play()
-			end
-		end
-
-		task.wait(1)
-
-		tweensv:Create(gate.Crucifix.Glow.Light, TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-			Brightness = 25,
-			Range = 30,
-		}):Play()
-
-		tweensv:Create(pentagram.Base.LightAttach.Light, TweenInfo.new(3, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
-			Range = 0,
-			Brightness = 2
-		}):Play()
-
-		--Gate
-
-		tweensv:Create(spinrate_changed, TweenInfo.new(3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-			Value = 0,
-		}):Play()
-
-		for _,v in pairs(pentagram:GetChildren()) do
-			if v.Name == "BeamFlat" then
-				spawn(function()
-					if v:GetAttribute("Delay") ~= 0 then
-						task.wait(v:GetAttribute("Delay"))
-					end
-
-					tweensv:Create(v, TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-						Brightness = 0,
+	local function fadeOut()
+		for _, c in next, pentagram:GetChildren() do
+			if c.Name == "BeamFlat" then
+				task.delay(c:GetAttribute("Delay"), function()
+					TweenService:Create(c, TweenInfo.new(1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.In), {
+						Brightness = 0
 					}):Play()
-
 				end)
 			end
 		end
-
-
-
 	end
 
-	--Entity fix
-	for _,v in pairs(entity:GetDescendants()) do
-		if v:IsA("BasePart") then
-			spawn(function()
-				move(v)
-			end)
-		end	
-	end
+	repentance:PivotTo(CFrame.new(result.Position))
+	crucifix.CFrame = toolPivot
+	repentance.Entity.CFrame = entityPivot
+    crucifix.BodyPosition.Position = (RootPart.CFrame * CFrame.new(0.5, 3, -6)).Position
+	repentance.Parent = workspace
+	sound:Play()
 
+	task.spawn(function()
+		while model.Parent and repentance.Parent do
+			model:PivotTo(entityPart.CFrame)
+			task.wait()
+		end
+		model:Destroy()
+	end)
 
+	-- Animation
+	TweenService:Create(pentagram.Circle, TweenInfo.new(2, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), { CFrame = pentagram.Circle.CFrame - Vector3.new(0, 25, 0) }):Play()
+	TweenService:Create(crucifix.BodyAngularVelocity, TweenInfo.new(4, Enum.EasingStyle.Sine, Enum.EasingDirection.In), { AngularVelocity = Vector3.new(0, 40, 0) }):Play()
+	task.delay(2, pentagram.Circle.Destroy, pentagram.Circle)
 
-
-
-	--Portal closing
-
-	spawn(function()
-
-		task.wait(5)
-
-		tweensv:Create(crucifix_spin, TweenInfo.new(1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-			Value = 0,
+	task.spawn(function()
+		waitUntil(2.625)
+		TweenService:Create(pentagram.Base.LightAttach.LightBright, TweenInfo.new(1.5, Enum.EasingStyle.Circular, Enum.EasingDirection.InOut), {
+			Brightness = 5,
+			Range = 40
 		}):Play()
-
+		TweenService:Create(crucifix.Light, TweenInfo.new(1.5, Enum.EasingStyle.Circular, Enum.EasingDirection.InOut), {
+			Brightness = 11.25,
+			Range = 30
+		}):Play()
 		task.wait(1.5)
-
-		--Crucifix
-
-		tweensv:Create(gate.Crucifix.Glow.Light, TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+		TweenService:Create(pentagram.Base.LightAttach.LightBright, TweenInfo.new(1.5, Enum.EasingStyle.Circular, Enum.EasingDirection.InOut), {
 			Brightness = 0,
-			Range = 60,
+			Range = 0
+		}):Play()
+		TweenService:Create(crucifix.Light, TweenInfo.new(1.5, Enum.EasingStyle.Circular, Enum.EasingDirection.InOut), {
+			Brightness = 0,
+			Range = 0
 		}):Play()
 
-		camShake:ShakeOnce(3,10,0.7,0.5)
-
-		gate.Crucifix.Glow.ExplodeParticle:Emit(50)
-
-		tweensv:Create(gate.Crucifix.Glow, TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-			Size = gate.Crucifix.Glow.Size * 4,
-		}):Play()
-
-		tweensv:Create(gate.Crucifix.Glow, TweenInfo.new(1.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-			Transparency = 1,
-		}):Play()
-
-		task.wait(5)
-
-		gate:Destroy()
-
-		gate_spin:Disconnect()
-	end)
-
-
-	task.wait(10)
-
-	pcall(function()
-		gate:Destroy()
-
-		gate_spin:Disconnect()
-	end)
-
-
-	entity:Destroy()
-end
-
-function module:FailCrucifyEntity(config,oldentity,ToolHandle)
-	local entity = oldentity
-    entity:SetAttribute("Paused",true)
-    entity:SetAttribute("BeingBanished",true)
-	if game.ReplicatedStorage:FindFirstChild("GameData") then
-		game.ReplicatedStorage.GameData.ChaseInSession.Value = false
-	end
-
-	local primary = entity.PrimaryPart or entity:FindFirstChildOfClass("Part")
-	task.spawn(function()
-		if entity:GetAttribute("Repent") == "Normal" then
-			primary:FindFirstChild("PlaySound"):Stop()
-			primary:FindFirstChild("Footsteps"):Stop()
-			local RepentParticle = primary.Attachment:FindFirstChild("RepentParticle")
-			local RepentSound = primary:FindFirstChild("Repent")
-			RepentSound:Play()
-			RepentParticle.Enabled = true
-			primary.Attachment:FindFirstChild("BlackTrail").Enabled = false
-		elseif entity:GetAttribute("Repent") == "Quick" then
-			primary:FindFirstChild("PlaySound"):Stop()
-			primary:FindFirstChild("Footsteps"):Stop()
-			local RepentParticle = primary.Attachment:FindFirstChild("RepentParticle")
-			local RepentParticle2 = primary.Attachment:FindFirstChild("RepentParticle2")
-			local RepentSound = primary:FindFirstChild("Repent")
-			RepentSound:Play()
-			RepentParticle.Enabled = true
-			wait(1)
-			RepentParticle2.Enabled = true
-			task.wait(0.8)
-			RepentParticle.Enabled = false
-			RepentParticle2.Enabled = false
-		elseif entity:GetAttribute("Repent") == "Eyes" then
-			primary:FindFirstChild("Ambience"):Stop()
-			local RepentParticle = primary.Attachment:FindFirstChild("RepentParticle")
-			local RepentSound = primary:FindFirstChild("Repent")
-			RepentSound:Play()
-			RepentParticle.Enabled = true
-			primary.Attachment:FindFirstChild("BlackTrail").Enabled = false
-		elseif entity:GetAttribute("Repent") == "Screech" then
-			primary:FindFirstChild("PSST"):Stop()
-			entity:SetAttribute("Idled",false)
-			local RepentAnim = entity.Monster:LoadAnimation(entity:FindFirstChild("Crucifix_Config").Animation.Working.Animation)
-			local RepentSound = primary:FindFirstChild("Repent")
-			RepentSound:Play()
-			RepentAnim:Play()
-		else
-			--No Repent
+		if resist == false then
+			TweenService:Create(crucifix.Light, TweenInfo.new(1, Enum.EasingStyle.Circular, Enum.EasingDirection.InOut), { Brightness = 15, Range = 40 }):Play()
+			shaker:StartFadeOut(3)
+			fadeOut()
+			TweenService:Create(crucifix.BodyAngularVelocity, TweenInfo.new(3, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), { AngularVelocity = Vector3.new() }):Play()
 		end
 	end)
 
-	--CAST A RAY
-
-	local params = RaycastParams.new()
-	params.FilterType = Enum.RaycastFilterType.Blacklist
-	params.FilterDescendantsInstances = { Character, entity }
-
-	local ray = workspace:Raycast(primary.Position, Vector3.new(0,-1,0) * 20, params)
-
-
-
-
-	local gate = Portal:Clone()
-	gate.Parent = workspace
-
-	local pentagram = gate.Pentagram
-
-	if ray then
-		local part = Instance.new("Part")
-		part.Anchored = true
-		part.Position = ray.Position + Vector3.new(0, 1, 0)
-
-		gate:PivotTo(part.CFrame * CFrame.new(0, -0.5, 0) * CFrame.Angles(0, 0, 0))
-
-		part:Destroy()
-	end
-
-	--Spinning
-
-
-	local spinrate = 2
-	local crucifix_spin = Instance.new("NumberValue")
-	local spinrate_changed = Instance.new("NumberValue")
-
-	local gate_spin = game:GetService("RunService").Heartbeat:Connect(function()
-		--pentagram.RingAddonA.Orientation += Vector3.new(0, spinrate, 0)
-		--pentagram.RingAddonB.Orientation += Vector3.new(0, -spinrate, 0)
-		--pentagram.RingAddonC.Orientation += Vector3.new(0, spinrate * 0.8, 0)
-		--pentagram.Base.Orientation += Vector3.new(0, -spinrate * 0.5, 0)
-
-		gate.Crucifix.Glow.Orientation += Vector3.new(0, crucifix_spin.Value, 0)
-	end)
-
-	spinrate_changed.Changed:Connect(function(V)
-		spinrate = V
-	end)
-
-	for _,v in pairs(entity:GetDescendants()) do
-		if v:IsA("BasePart") then 
-			v.Anchored = true
-			--v.Position = gate.Entity.Position + Vector3.new(0, 2, 0)
-		end
-	end
-
-	local Stored = gate.Crucifix.Glow.CFrame  
-
-	gate.Crucifix.Glow.Sound.TimePosition = 0
-	gate.Crucifix.Glow.SoundFail.TimePosition = 0
-
-	--gate.Crucifix.Glow.Sound.SoundId = "rbxassetid://12657890777"
-	--gate.Crucifix.Glow.SoundFail.SoundId = "rbxassetid://12664891904"
-
-	--gate.Crucifix.Glow.Sound.SoundId = "rbxassetid://15746677967"
-	--gate.Crucifix.Glow.SoundFail.SoundId = "rbxassetid://15746691911"
-
-	gate.Crucifix.Glow.Sound.SoundId = "rbxassetid://6555668806"
-	--gate.Crucifix.Glow.SoundFail.SoundId = "rbxassetid://6555668806"
-
-	gate.Crucifix.Glow.SoundFail:Play()
-	gate.Crucifix.Glow.Sound:Stop()
-
-	gate.Crucifix.Glow.CFrame = ToolHandle:GetPivot()
-
-	local PLAYER_HUMANOIDROOTPART = Character.HumanoidRootPart
-	local PLAYER_POSITION = PLAYER_HUMANOIDROOTPART.Position
-	local PLAYER_DIRECTION = PLAYER_HUMANOIDROOTPART.CFrame.LookVector
-	local PLAYER_ROTATION = PLAYER_HUMANOIDROOTPART.CFrame - Vector3.new(PLAYER_POSITION, PLAYER_POSITION + PLAYER_DIRECTION)
-
-	local PART_POSITION = PLAYER_POSITION + PLAYER_DIRECTION * 5
-
-	local C = Player.Character
-	local NewPos = CFrame.new(PART_POSITION, PART_POSITION + PLAYER_ROTATION.LookVector)
-
-	spawn(function()
-
-		tweensv:Create(gate.Crucifix.Glow, TweenInfo.new(1.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-			--CFrame = Stored,
-			CFrame = NewPos,
-		}):Play()
-
-		task.wait(.6)
-
-		tweensv:Create(crucifix_spin, TweenInfo.new(4, Enum.EasingStyle.Sine, Enum.EasingDirection.In), {
-			Value = 50,
-		}):Play()
-	end)
-
-	spawn(function()
-
-		task.wait(1)
-
-		tweensv:Create(gate.Crucifix.Glow.Light, TweenInfo.new(2, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
-			Range = 15,
-			Brightness = 3
-		}):Play()
-	end)
-
-
-	tweensv:Create(pentagram.Circle, TweenInfo.new(3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
-		Position = pentagram.Circle.Position - Vector3.new(0, 10, 0),
-	}):Play()
-
-	camShake:ShakeOnce(10,15,4,5)
-
-	--tweensv:Create(spinrate_changed, TweenInfo.new(6, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-	--	Value = 5,
-	--}):Play()
-
-	--[[
-	
-	tweensv:Create(crucifix_spin, TweenInfo.new(6, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-			Value = 50,
-		}):Play()
+	-- Actions
+	if resist == false then
+		waitUntil(2)
+		TweenService:Create(entityPart, TweenInfo.new(3, Enum.EasingStyle.Back, Enum.EasingDirection.In), { CFrame = repentance.Entity.CFrame - Vector3.new(0, 25, 0) }):Play()
 		
-	]]
-
-	local function move(part)
-		task.wait(2.5)
-		tweensv:Create(gate.Entity, TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
-			Position = gate.Entity.Position + Vector3.new(0,5,0),
-		}):Play()
-
-		--tweensv:Create(part, TweenInfo.new(3, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
-		--	Position = part.Position + Vector3.new(0,5,0),
-		--}):Play()
-
-		tweensv:Create(pentagram.Base.LightAttach.Light, TweenInfo.new(3, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
-			Range = 60,
-			Brightness = 5
-		}):Play()
-
-		task.wait(1.5)
-
-		local tween = tweensv:Create(crucifix_spin, TweenInfo.new(1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-			Value = 0,
-		})
-
-		tween:Play()
-
-
-		for i, COLORING in pairs(pentagram:GetDescendants()) do
-
-			if COLORING:IsA("Beam") then
-				COLORING.Color = ColorSequence.new(Color3.new(1, 0.509804, 0.509804))
-			elseif COLORING:IsA("PointLight") then
-				local TWEEN_PLIGHT = tweensv:Create(COLORING, TweenInfo.new(0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.In, 0, false, 0), {Color = Color3.new(1, 0.509804, 0.509804)})
-				TWEEN_PLIGHT:Play()
-			elseif COLORING:IsA("ParticleEmitter") then
-				COLORING.Color = ColorSequence.new(Color3.new(1, 0.509804, 0.509804))
-			end
-
-		end
-
-		for i, COLORING in pairs(gate.Crucifix.Glow:GetDescendants()) do
-
-			if COLORING:IsA("PointLight") then
-				local TWEEN_PLIGHT = tweensv:Create(COLORING, TweenInfo.new(0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.In, 0, false, 0), {Color = Color3.new(1, 0.509804, 0.509804)})
-				TWEEN_PLIGHT:Play()
-			elseif COLORING:IsA("ParticleEmitter") then
-				COLORING.Color = ColorSequence.new(Color3.new(1, 0.509804, 0.509804))
-			end
-
-		end
-
-		gate.Crucifix.Glow.Color = Color3.new(1, 0.509804, 0.509804)
-		tween.Completed:Wait()
-
-		--tweensv:Create(part, TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-		--	Position = part.Position - Vector3.new(0,50,0),
-		--}):Play()
-
-
-
-
-
-
-		--Sound fade
-
-		--for _,v in pairs(entity:GetDescendants()) do
-		--	if v:IsA("Sound") then
-		--		tweensv:Create(v, TweenInfo.new(.5, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
-		--			Volume = 0,
-		--		}):Play()
-		--	elseif v:IsA("Light") then
-		--		tweensv:Create(v, TweenInfo.new(3, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
-		--			Range = 0,
-		--		}):Play()
-		--	end
-		--end
-
-
-
-	end
-
-	--Entity fix
-
-	for _,v in pairs(entity:GetDescendants()) do
-		if v:IsA("BasePart") then
-			spawn(function()
-				move(v)
-			end)
-		end	
-	end
-
-
-
-
-
-	--Portal closing
-
-	spawn(function()
-
-		task.wait(5)
-
-		task.wait(2)
-
-		tweensv:Create(pentagram.Base.LightAttach.Light, TweenInfo.new(3, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
-			Range = 0,
-			Brightness = 2
-		}):Play()
-
-		--Gate
-
-		tweensv:Create(spinrate_changed, TweenInfo.new(3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-			Value = 0,
-		}):Play()
-
-		for _,v in pairs(pentagram:GetChildren()) do
-			if v.Name == "BeamFlat" then
-				spawn(function()
-					if v:GetAttribute("Delay") ~= 0 then
-						task.wait(v:GetAttribute("Delay"))
-					end
-
-					tweensv:Create(v, TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-						Brightness = 0,
-					}):Play()
-
-				end)
-			end
-		end
-
-
-		for _,v in pairs(pentagram:GetChildren()) do
-			if v.Name == "BeamChain" then
-				spawn(function()
-					if v:GetAttribute("Delay") ~= 0 then
-						task.wait(v:GetAttribute("Delay"))
-					end
-
-					tweensv:Create(v, TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-						Brightness = 0,
-					}):Play()
-
-				end)
-			end
-		end
-
-
-
-		task.wait(2.5)
-
-		--Crucifix
-
-		tweensv:Create(gate.Crucifix.Glow.Light, TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-			Brightness = 0,
-			Range = 60,
-		}):Play()
-
-		gate.Crucifix.Glow.ExplodeParticle:Emit(50)
-
-		cacamShake:ShakeOnce(10,0.7,0.5)
-
-		tweensv:Create(gate.Crucifix.Glow, TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-			Size = gate.Crucifix.Glow.Size * 4,
-		}):Play()
-
-		tweensv:Create(gate.Crucifix.Glow, TweenInfo.new(1.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-			Transparency = 1,
-		}):Play()
-
-		task.spawn(function()
-			if entity:GetAttribute("Repent") == "Normal" then
-				primary:FindFirstChild("PlaySound"):Play()
-				primary:FindFirstChild("Footsteps"):Play()
-				local RepentParticle = primary.Attachment:FindFirstChild("RepentParticle")
-				local RepentSound = primary:FindFirstChild("Repent")
-				RepentSound:Stop()
-				RepentParticle.Enabled = false
-				primary.Attachment:FindFirstChild("BlackTrail").Enabled = true
-			elseif entity:GetAttribute("Repent") == "Quick" then
-				primary:FindFirstChild("PlaySound"):Play()
-				primary:FindFirstChild("Footsteps"):Play()
-				local RepentParticle = primary.Attachment:FindFirstChild("RepentParticle")
-				local RepentParticle2 = primary.Attachment:FindFirstChild("RepentParticle2")
-				local RepentSound = primary:FindFirstChild("Repent")
-				RepentSound:Stop()
-				RepentParticle.Enabled = false
-				RepentParticle2.Enabled = false
-			elseif entity:GetAttribute("Repent") == "Eyes" then
-				primary:FindFirstChild("Ambience"):Play()
-				local RepentParticle = primary.Attachment:FindFirstChild("RepentParticle")
-				local RepentSound = primary:FindFirstChild("Repent")
-				RepentSound:Stop()
-				RepentParticle.Enabled = false
-			elseif entity:GetAttribute("Repent") == "Screech" then
-				primary:FindFirstChild("PSST"):Play()
-				entity:SetAttribute("Idled",true)
-				local RepentAnim = entity.Monster:LoadAnimation(entity:FindFirstChild("Crucifix_Config").Animation.Working.Animation)
-				local RepentSound = primary:FindFirstChild("Repent")
-				RepentSound:Stop()
-				RepentAnim:Stop()
-				entity.LoopIdle.Enabled = false
-				entity.LoopIdle.Enabled = true
-			else
-				--No Repent
-			end
-		end)
-
-		task.wait(10)
-
-		gate:Destroy()
-
-		gate_spin:Disconnect()
-	end)
-
-	task.wait(10)
-	entity:SetAttribute("Paused",false)
-	entity:SetAttribute("BeingBanished",false)
-	if game.ReplicatedStorage:FindFirstChild("GameData") then
-		game.ReplicatedStorage.GameData.ChaseInSession.Value = true
-	end
-end
-
-function module:CrucifyEntityWithoutConfig(oldentity,ToolHandle)
-    local Entity
-    camShake:ShakeOnce(10,30,0.7,0.5)
-
-	Entity = oldentity:Clone()
-	oldentity:SetAttribute("BeingBanished",true)
-	Entity.Name = "Fake_"..oldentity.Name
-	Entity.Parent = workspace
-	oldentity:Destroy()
-
-	local primary = Entity.PrimaryPart or Entity:FindFirstChildOfClass("Part")
-	task.spawn(function()
-		if Entity:GetAttribute("Repent") == "Normal" then
-				primary:FindFirstChild("PlaySound"):Stop()
-				primary:FindFirstChild("Footsteps"):Stop()
-				local RepentParticle = primary.Attachment:FindFirstChild("RepentParticle")
-				local RepentSound = primary:FindFirstChild("Repent")
-				RepentSound:Play()
-				RepentParticle.Enabled = true
-				primary.Attachment:FindFirstChild("BlackTrail").Enabled = false
-			elseif Entity:GetAttribute("Repent") == "Quick" then
-				primary:FindFirstChild("PlaySound"):Stop()
-				primary:FindFirstChild("Footsteps"):Stop()
-				local RepentParticle = primary.Attachment:FindFirstChild("RepentParticle")
-				local RepentParticle2 = primary.Attachment:FindFirstChild("RepentParticle2")
-				local RepentSound = primary:FindFirstChild("Repent")
-				RepentSound:Play()
-				RepentParticle.Enabled = true
-				wait(1)
-				RepentParticle2.Enabled = true
-				task.wait(0.8)
-				RepentParticle.Enabled = false
-			RepentParticle2.Enabled = false
-		elseif Entity:GetAttribute("Repent") == "Eyes" then
-			primary:FindFirstChild("Ambience"):Stop()
-			local RepentParticle = primary.Attachment:FindFirstChild("RepentParticle")
-			local RepentSound = primary:FindFirstChild("Repent")
-			RepentSound:Play()
-			RepentParticle.Enabled = true
-			primary.Attachment:FindFirstChild("BlackTrail").Enabled = false
-		elseif Entity:GetAttribute("Repent") == "Screech" then
-			primary:FindFirstChild("Sound"):Stop()
-			local RepentAnim = entity:FindFirstChild("RepentAnim")
-			local RepentSound = primary:FindFirstChild("Crucifix")
-			RepentSound:Play()
-			RepentAnim.Enabled = true
-		else
-			--No Repent
-		end
-	end)
-
-	--CAST A RAY
-
-	local params = RaycastParams.new()
-	params.FilterType = Enum.RaycastFilterType.Blacklist
-	params.FilterDescendantsInstances = { Character, Entity }
-
-	local ray = workspace:Raycast(primary.Position, Vector3.new(0,-1,0) * 20, params)
-
-
-
-
-	local gate = Portal:Clone()
-	gate.Parent = workspace
-
-	local pentagram = gate.Pentagram
-
-	if ray then
-		local part = Instance.new("Part")
-		part.Anchored = true
-		part.Position = ray.Position + Vector3.new(0, 1, 0)
-
-		gate:PivotTo(part.CFrame * CFrame.new(0, -0.5, 0) * CFrame.Angles(0, 0, 0))
-
-		part:Destroy()
-	end
-	if Entity.Name ~= "Fake_Greed" then
-	Entity:PivotTo(gate.Entity.CFrame)
+        for _, v in next, model:GetDescendants() do
+			if
+				v:IsA("Sound")
+				and not v:GetAttribute("VolumeIgnore")
+			then
+                TweenService:Create(v, TweenInfo.new(3, Enum.EasingStyle.Back, Enum.EasingDirection.In), { Volume = 0 }):Play()
+            end
+        end
+        
+        waitUntil(6.75)
 	else
-	--nothing
-	end
-
-	--Spinning
-
-
-	local spinrate = 2
-	local crucifix_spin = Instance.new("NumberValue")
-	local spinrate_changed = Instance.new("NumberValue")
-
-	local gate_spin = game:GetService("RunService").Heartbeat:Connect(function()
-		--pentagram.RingAddonA.Orientation = Vector3.new(0, spinrate, 0)
-		--pentagram.RingAddonB.Orientation = Vector3.new(0, -spinrate, 0)
-		--pentagram.RingAddonC.Orientation = Vector3.new(0, spinrate * 0.8, 0)
-		--pentagram.Base.Orientation = Vector3.new(0, -spinrate * 0.5, 0)
-
-		gate.Crucifix.Glow.Orientation = gate.Crucifix.Glow.Orientation + Vector3.new(0, crucifix_spin.Value, 0)
-	end)
-
-	spinrate_changed.Changed:Connect(function(V)
-		spinrate = V
-	end)
-
-	for _,v in pairs(Entity:GetDescendants()) do
-		if v:IsA("BasePart") then 
-			v.Anchored = true
-			--v.Position = gate.Entity.Position + Vector3.new(0, 2, 0)
-		end
-	end
-
-	local Stored = gate.Crucifix.Glow.CFrame  
-
-	gate.Crucifix.Glow.Sound.TimePosition = 0
-	gate.Crucifix.Glow.SoundFail.TimePosition = 0
-
-	--gate.Crucifix.Glow.Sound.SoundId = "rbxassetid://15746677967"
-	--gate.Crucifix.Glow.SoundFail.SoundId = "rbxassetid://15746691911"
-	
-	gate.Crucifix.Glow.Sound.SoundId = "rbxassetid://6555668806"
-	--gate.Crucifix.Glow.SoundFail.SoundId = "rbxassetid://6555668806"
-
-	gate.Crucifix.Glow.Sound:Play()
-
-	gate.Crucifix.Glow.CFrame = ToolHandle:GetPivot()
-	
-	local PLAYER_HUMANOIDROOTPART = Character.HumanoidRootPart
-	local PLAYER_POSITION = PLAYER_HUMANOIDROOTPART.Position
-	local PLAYER_DIRECTION = PLAYER_HUMANOIDROOTPART.CFrame.LookVector
-	local PLAYER_ROTATION = PLAYER_HUMANOIDROOTPART.CFrame - Vector3.new(PLAYER_POSITION, PLAYER_POSITION + PLAYER_DIRECTION)
-	
-	local PART_POSITION = PLAYER_POSITION + PLAYER_DIRECTION * 5
-
-	local C = Player.Character
-	local NewPos = CFrame.new(PART_POSITION, PART_POSITION + PLAYER_ROTATION.LookVector)
-
-	spawn(function()
-
-		tweensv:Create(gate.Crucifix.Glow, TweenInfo.new(1.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-			--CFrame = Stored,
-			CFrame = NewPos,
-		}):Play()
-
-		task.wait(.6)
-
-		tweensv:Create(crucifix_spin, TweenInfo.new(4, Enum.EasingStyle.Sine, Enum.EasingDirection.In), {
-			Value = 50,
-		}):Play()
-	end)
-
-	spawn(function()
-
-		task.wait(1)
-
-		tweensv:Create(gate.Crucifix.Glow.Light, TweenInfo.new(2, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
-			Range = 15,
-			Brightness = 3
-		}):Play()
-	end)
-
-
-	tweensv:Create(pentagram.Circle, TweenInfo.new(3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
-		Position = pentagram.Circle.Position - Vector3.new(0, 10, 0),
-	}):Play()
-
-	camShake:ShakeOnce(10,15,4,5)
-
-	--tweensv:Create(spinrate_changed, TweenInfo.new(6, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-	--	Value = 5,
-	--}):Play()
-
-	--[[
-	
-	tweensv:Create(crucifix_spin, TweenInfo.new(6, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-			Value = 50,
-		}):Play()
-		
-	]]
-
-	local function move(part)
-		task.wait(2.5)
-		tweensv:Create(gate.Entity, TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
-			Position = gate.Entity.Position + Vector3.new(0,10,0),
-		}):Play()
-
-		tweensv:Create(part, TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
-			Position = part.Position + Vector3.new(0,10,0),
-		}):Play()
-
-		tweensv:Create(pentagram.Base.LightAttach.Light, TweenInfo.new(3, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
-			Range = 60,
-			Brightness = 5
-		}):Play()
-
-		task.wait(1)
-
-		tweensv:Create(part, TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-			Position = part.Position - Vector3.new(0,50,0),
-		}):Play()
-
-
-		tweensv:Create(gate.Entity, TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-			Position = gate.Entity.Position - Vector3.new(0,50,0),
-		}):Play()
-
-
-
-
-		--Sound fade
-
-		for _,v in pairs(Entity:GetDescendants()) do
-			if v:IsA("Sound") then
-				tweensv:Create(v, TweenInfo.new(.5, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
-					Volume = 0,
-				}):Play()
-			elseif v:IsA("Light") then
-				tweensv:Create(v, TweenInfo.new(3, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
-					Range = 0,
-				}):Play()
-			end
-		end
-
-		task.wait(1)
-
-		tweensv:Create(gate.Crucifix.Glow.Light, TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-			Brightness = 25,
-			Range = 30,
-		}):Play()
-
-		tweensv:Create(pentagram.Base.LightAttach.Light, TweenInfo.new(3, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
-			Range = 0,
-			Brightness = 2
-		}):Play()
-
-		--Gate
-
-		tweensv:Create(spinrate_changed, TweenInfo.new(3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-			Value = 0,
-		}):Play()
-
-		for _,v in pairs(pentagram:GetChildren()) do
-			if v.Name == "BeamFlat" then
-				spawn(function()
-					if v:GetAttribute("Delay") ~= 0 then
-						task.wait(v:GetAttribute("Delay"))
-					end
-
-					tweensv:Create(v, TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-						Brightness = 0,
-					}):Play()
-
-				end)
-			end
-		end
-
-
-
-	end
-
-	--Entity fix
-	for _,v in pairs(Entity:GetDescendants()) do
-		if v:IsA("BasePart") then
-			spawn(function()
-				move(v)
-			end)
-		end	
-	end
-
-
-
-
-
-	--Portal closing
-
-	spawn(function()
-
-		task.wait(5)
-
-		tweensv:Create(crucifix_spin, TweenInfo.new(1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-			Value = 0,
-		}):Play()
-
-		task.wait(1.5)
-
-		--Crucifix
-
-		tweensv:Create(gate.Crucifix.Glow.Light, TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-			Brightness = 0,
-			Range = 60,
-		}):Play()
-
-		camShake:ShakeOnce(3,10,0.7,0.5)
-
-		gate.Crucifix.Glow.ExplodeParticle:Emit(50)
-
-		tweensv:Create(gate.Crucifix.Glow, TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-			Size = gate.Crucifix.Glow.Size * 4,
-		}):Play()
-
-		tweensv:Create(gate.Crucifix.Glow, TweenInfo.new(1.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-			Transparency = 1,
-		}):Play()
-
-		task.wait(5)
-
-		gate:Destroy()
-
-		gate_spin:Disconnect()
-	end)
-
-
-	task.wait(10)
-	
-	pcall(function()
-		gate:Destroy()
-
-		gate_spin:Disconnect()
-	end)
-	Entity:Destroy()
-end
-
-function module:FailCrucifyEntityWithoutConfig(oldentity,ToolHandle)
-    local Entity = oldentity
-    Entity:SetAttribute("BeingBanished",true)
-    camShake:ShakeOnce(10,30,0.7,0.5)
-
-
-	local primary = Entity.PrimaryPart or Entity:FindFirstChildOfClass("Part")
-	task.spawn(function()
-		if Entity:GetAttribute("Repent") == "Normal" then
-			primary:FindFirstChild("PlaySound"):Stop()
-			primary:FindFirstChild("Footsteps"):Stop()
-			local RepentParticle = primary.Attachment:FindFirstChild("RepentParticle")
-			local RepentSound = primary:FindFirstChild("Repent")
-			RepentSound:Play()
-			RepentParticle.Enabled = true
-			primary.Attachment:FindFirstChild("BlackTrail").Enabled = false
-		elseif Entity:GetAttribute("Repent") == "Quick" then
-			primary:FindFirstChild("PlaySound"):Stop()
-			primary:FindFirstChild("Footsteps"):Stop()
-			local RepentParticle = primary.Attachment:FindFirstChild("RepentParticle")
-			local RepentParticle2 = primary.Attachment:FindFirstChild("RepentParticle2")
-			local RepentSound = primary:FindFirstChild("Repent")
-			RepentSound:Play()
-			RepentParticle.Enabled = true
-			wait(1)
-			RepentParticle2.Enabled = true
-			task.wait(0.8)
-			RepentParticle.Enabled = false
-			RepentParticle2.Enabled = false
-		elseif Entity:GetAttribute("Repent") == "Eyes" then
-			primary:FindFirstChild("Ambience"):Stop()
-			local RepentParticle = primary.Attachment:FindFirstChild("RepentParticle")
-			local RepentSound = primary:FindFirstChild("Repent")
-			RepentSound:Play()
-			RepentParticle.Enabled = true
-			primary.Attachment:FindFirstChild("BlackTrail").Enabled = false
-		elseif Entity:GetAttribute("Repent") == "Screech" then
-			primary:FindFirstChild("PSST"):Stop()
-			entity:SetAttribute("Idled",false)
-			local RepentAnim = entity.Monster:LoadAnimation(entity:FindFirstChild("Crucifix_Config").Animation.Working.Animation)
-			local RepentSound = primary:FindFirstChild("Repent")
-			RepentSound:Play()
-			RepentAnim:Play()
-		else
-			--No Repent
-		end
-	end)
-
-	--CAST A RAY
-
-	local params = RaycastParams.new()
-	params.FilterType = Enum.RaycastFilterType.Blacklist
-	params.FilterDescendantsInstances = { Character, Entity }
-
-	local ray = workspace:Raycast(primary.Position, Vector3.new(0,-1,0) * 20, params)
-
-
-
-
-	local gate = Portal:Clone()
-	gate.Parent = workspace
-
-	local pentagram = gate.Pentagram
-
-	if ray then
-		local part = Instance.new("Part")
-		part.Anchored = true
-		part.Position = ray.Position + Vector3.new(0, 1, 0)
-
-		gate:PivotTo(part.CFrame * CFrame.new(0, -0.5, 0) * CFrame.Angles(0, 0, 0))
-
-		part:Destroy()
-	end
-
-	--Spinning
-
-
-	local spinrate = 2
-	local crucifix_spin = Instance.new("NumberValue")
-	local spinrate_changed = Instance.new("NumberValue")
-
-	local gate_spin = game:GetService("RunService").Heartbeat:Connect(function()
-		--pentagram.RingAddonA.Orientation = Vector3.new(0, spinrate, 0)
-		--pentagram.RingAddonB.Orientation = Vector3.new(0, -spinrate, 0)
-		--pentagram.RingAddonC.Orientation = Vector3.new(0, spinrate * 0.8, 0)
-		--pentagram.Base.Orientation = Vector3.new(0, -spinrate * 0.5, 0)
-
-		gate.Crucifix.Glow.Orientation = gate.Crucifix.Glow.Orientation + Vector3.new(0, crucifix_spin.Value, 0)
-	end)
-
-	spinrate_changed.Changed:Connect(function(V)
-		spinrate = V
-	end)
-
-	for _,v in pairs(Entity:GetDescendants()) do
-		if v:IsA("BasePart") then 
-			v.Anchored = true
-			--v.Position = gate.Entity.Position + Vector3.new(0, 2, 0)
-		end
-	end
-
-	local Stored = gate.Crucifix.Glow.CFrame  
-
-	gate.Crucifix.Glow.Sound.TimePosition = 0
-	gate.Crucifix.Glow.SoundFail.TimePosition = 0
-	
-	-- gate.Crucifix.Glow.Sound.SoundId = "rbxassetid://12657890777"
-	-- gate.Crucifix.Glow.SoundFail.SoundId = "rbxassetid://12664891904"
-	
-	--gate.Crucifix.Glow.Sound.SoundId = "rbxassetid://15746677967"
-	--gate.Crucifix.Glow.SoundFail.SoundId = "rbxassetid://15746691911"
-
-	gate.Crucifix.Glow.Sound.SoundId = "rbxassetid://6555668806"
-	--gate.Crucifix.Glow.SoundFail.SoundId = "rbxassetid://6555668806"
-
-	gate.Crucifix.Glow.SoundFail:Play()
-	gate.Crucifix.Glow.Sound:Stop()
-
-	gate.Crucifix.Glow.CFrame = ToolHandle.CFrame
-	
-	local PLAYER_HUMANOIDROOTPART = Character.HumanoidRootPart
-	local PLAYER_POSITION = PLAYER_HUMANOIDROOTPART.Position
-	local PLAYER_DIRECTION = PLAYER_HUMANOIDROOTPART.CFrame.LookVector
-	local PLAYER_ROTATION = PLAYER_HUMANOIDROOTPART.CFrame - Vector3.new(PLAYER_POSITION, PLAYER_POSITION + PLAYER_DIRECTION)
-
-	local PART_POSITION = PLAYER_POSITION + PLAYER_DIRECTION * 5
-
-	local C = Player.Character
-	local NewPos = CFrame.new(PART_POSITION, PART_POSITION + PLAYER_ROTATION.LookVector)
-
-	spawn(function()
-
-		tweensv:Create(gate.Crucifix.Glow, TweenInfo.new(1.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-			--CFrame = Stored,
-			CFrame = NewPos,
-		}):Play()
-
-		task.wait(.6)
-
-		tweensv:Create(crucifix_spin, TweenInfo.new(4, Enum.EasingStyle.Sine, Enum.EasingDirection.In), {
-			Value = 50,
-		}):Play()
-	end)
-
-	spawn(function()
-
-		task.wait(1)
-
-		tweensv:Create(gate.Crucifix.Glow.Light, TweenInfo.new(2, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
-			Range = 15,
-			Brightness = 3
-		}):Play()
-	end)
-
-
-	tweensv:Create(pentagram.Circle, TweenInfo.new(3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
-		Position = pentagram.Circle.Position - Vector3.new(0, 10, 0),
-	}):Play()
-
-	camShake:ShakeOnce(10,15,4,5)
-
-	--tweensv:Create(spinrate_changed, TweenInfo.new(6, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-	--	Value = 5,
-	--}):Play()
-
-	--[[
-	
-	tweensv:Create(crucifix_spin, TweenInfo.new(6, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-			Value = 50,
-		}):Play()
-		
-	]]
-
-	local function move(part)
-		task.wait(2.5)
-		tweensv:Create(gate.Entity, TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
-			Position = gate.Entity.Position + Vector3.new(0,10,0),
-		}):Play()
-
-		--tweensv:Create(part, TweenInfo.new(3, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
-		--	Position = part.Position + Vector3.new(0,10,0),
-		--}):Play()
-
-		tweensv:Create(pentagram.Base.LightAttach.Light, TweenInfo.new(3, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
-			Range = 60,
-			Brightness = 5
-		}):Play()
-
-		task.wait(1.5)
-		
-		local tween = tweensv:Create(crucifix_spin, TweenInfo.new(1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-			Value = 0,
-		})
-		
-		tween:Play()
-		
-		
-		for i, COLORING in pairs(pentagram:GetDescendants()) do
-
-			if COLORING:IsA("Beam") then
-				COLORING.Color = ColorSequence.new(Color3.new(1, 0.509804, 0.509804))
-			elseif COLORING:IsA("PointLight") then
-				local TWEEN_PLIGHT = tweensv:Create(COLORING, TweenInfo.new(0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.In, 0, false, 0), {Color = Color3.new(1, 0.509804, 0.509804)})
-				TWEEN_PLIGHT:Play()
-			elseif COLORING:IsA("ParticleEmitter") then
-				COLORING.Color = ColorSequence.new(Color3.new(1, 0.509804, 0.509804))
-			end
-
-		end
-
-		for i, COLORING in pairs(gate.Crucifix.Glow:GetDescendants()) do
-
-			if COLORING:IsA("PointLight") then
-				local TWEEN_PLIGHT = tweensv:Create(COLORING, TweenInfo.new(0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.In, 0, false, 0), {Color = Color3.new(1, 0.509804, 0.509804)})
-				TWEEN_PLIGHT:Play()
-			elseif COLORING:IsA("ParticleEmitter") then
-				COLORING.Color = ColorSequence.new(Color3.new(1, 0.509804, 0.509804))
-			end
-
-		end
-
-		gate.Crucifix.Glow.Color = Color3.new(1, 0.509804, 0.509804)
-		tween.Completed:Wait()
-
-		--tweensv:Create(part, TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-		--	Position = part.Position - Vector3.new(0,50,0),
-		--}):Play()
-		
-		
-
-
-
-
-		--Sound fade
-
-		--for _,v in pairs(Entity:GetDescendants()) do
-		--	if v:IsA("Sound") then
-		--		tweensv:Create(v, TweenInfo.new(.5, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
-		--			Volume = 0,
-		--		}):Play()
-		--	elseif v:IsA("Light") then
-		--		tweensv:Create(v, TweenInfo.new(3, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
-		--			Range = 0,
-		--		}):Play()
-		--	end
-		--end
-
-
-
-	end
-
-	--Entity fix
-
-	for _,v in pairs(Entity:GetDescendants()) do
-		if v:IsA("BasePart") then
-			spawn(function()
-				move(v)
-			end)
-		end	
-	end
-
-
-
-
-
-	--Portal closing
-
-	spawn(function()
-		
-		task.wait(5)
-		
-		task.wait(2)
-
-		tweensv:Create(pentagram.Base.LightAttach.Light, TweenInfo.new(3, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
-			Range = 0,
-			Brightness = 2
-		}):Play()
-
-		--Gate
-
-		tweensv:Create(spinrate_changed, TweenInfo.new(3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-			Value = 0,
-		}):Play()
-
-		for _,v in pairs(pentagram:GetChildren()) do
-			if v.Name == "BeamFlat" then
-				spawn(function()
-					if v:GetAttribute("Delay") ~= 0 then
-						task.wait(v:GetAttribute("Delay"))
-					end
-
-					tweensv:Create(v, TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-						Brightness = 0,
-					}):Play()
-
-				end)
-			end
-		end
-		
-
-		for _,v in pairs(pentagram:GetChildren()) do
-			if v.Name == "BeamChain" then
-				spawn(function()
-					if v:GetAttribute("Delay") ~= 0 then
-						task.wait(v:GetAttribute("Delay"))
-					end
-
-					tweensv:Create(v, TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-						Brightness = 0,
-					}):Play()
-
-				end)
-			end
-		end
-		
-		
-
-		task.wait(2.5)
-
-		--Crucifix
-
-		tweensv:Create(gate.Crucifix.Glow.Light, TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-			Brightness = 0,
-			Range = 60,
-		}):Play()
-
-		gate.Crucifix.Glow.ExplodeParticle:Emit(50)
-		
-		camShake:ShakeOnce(3,10,0.7,0.5)
-
-		tweensv:Create(gate.Crucifix.Glow, TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-			Size = gate.Crucifix.Glow.Size * 4,
-		}):Play()
-
-		tweensv:Create(gate.Crucifix.Glow, TweenInfo.new(1.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-			Transparency = 1,
-		}):Play()
+		waitUntil(4)
+		TweenService:Create(crucifix.BodyAngularVelocity, TweenInfo.new(3, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), { AngularVelocity = Vector3.new() }):Play()
+		TweenService:Create(pentagram.Base.LightAttach.LightBright, TweenInfo.new(1.5, Enum.EasingStyle.Circular, Enum.EasingDirection.InOut), { Brightness = 0, Range = 0, Color = Color3.fromRGB(255, 116, 130) }):Play()
+		TweenService:Create(crucifix.Light, TweenInfo.new(1.5, Enum.EasingStyle.Circular, Enum.EasingDirection.InOut), { Brightness = 0, Range = 0, Color = Color3.fromRGB(255, 116, 130) }):Play()
+		shaker:StartFadeOut(3)
 		task.spawn(function()
-			if Entity:GetAttribute("Repent") == "Normal" then
-				primary:FindFirstChild("PlaySound"):Play()
-				primary:FindFirstChild("Footsteps"):Play()
-				local RepentParticle = primary.Attachment:FindFirstChild("RepentParticle")
-				local RepentSound = primary:FindFirstChild("Repent")
-				RepentSound:Stop()
-				RepentParticle.Enabled = false
-				primary.Attachment:FindFirstChild("BlackTrail").Enabled = true
-			elseif Entity:GetAttribute("Repent") == "Quick" then
-				primary:FindFirstChild("PlaySound"):Play()
-				primary:FindFirstChild("Footsteps"):Play()
-				local RepentParticle = primary.Attachment:FindFirstChild("RepentParticle")
-				local RepentParticle2 = primary.Attachment:FindFirstChild("RepentParticle2")
-				local RepentSound = primary:FindFirstChild("Repent")
-				RepentSound:Stop()
-				RepentParticle.Enabled = false
-				RepentParticle2.Enabled = false
-			elseif Entity:GetAttribute("Repent") == "Eyes" then
-				primary:FindFirstChild("Ambience"):Play()
-				local RepentParticle = primary.Attachment:FindFirstChild("RepentParticle")
-				local RepentSound = primary:FindFirstChild("Repent")
-				RepentSound:Stop()
-				RepentParticle.Enabled = false
-			elseif Entity:GetAttribute("Repent") == "Screech" then
-				primary:FindFirstChild("PSST"):Play()
-				entity:SetAttribute("Idled",true)
-				local RepentAnim = entity.Monster:LoadAnimation(entity:FindFirstChild("Crucifix_Config").Animation.Working.Animation)
-				local RepentSound = primary:FindFirstChild("Repent")
-				RepentSound:Stop()
-				RepentAnim:Stop()
-				entity.LoopIdle.Enabled = false
-				entity.LoopIdle.Enabled = true
-			else
-				--No Repent
+			local color = Instance.new("Color3Value")
+			color.Value = Color3.fromRGB(137, 207, 255)
+
+			local tween = TweenService:Create(color, TweenInfo.new(0.5, Enum.EasingStyle.Sine), { Value = Color3.fromRGB(255, 116, 130) })
+			tween:Play()
+
+			while tween.PlaybackState == Enum.PlaybackState.Playing do
+				for _, d in next, repentance:GetDescendants() do
+					if d.ClassName == "Beam" then
+						d.Color = ColorSequence.new{ColorSequenceKeypoint.new(0, color.Value), ColorSequenceKeypoint.new(1, color.Value)}
+
+					elseif d.Name == "Crucifix" then
+						d.Color = color.Value
+					end
+				end
+				task.wait()
 			end
 		end)
+		waitUntil(9.625)
+	end
 
-		task.wait(10)
+	-- Crucifix explode
+	TweenService:Create(repentance.Crucifix, TweenInfo.new(1), { Size = repentance.Crucifix.Size * 3, Transparency = 1 }):Play()
+	TweenService:Create(repentance.Pentagram.Base.LightAttach.LightBright, TweenInfo.new(1), { Brightness = 0, Range = 0 }):Play()
+	TweenService:Create(repentance.Crucifix.Light, TweenInfo.new(1), { Brightness = 0, Range = 0 }):Play()
 
-		gate:Destroy()
-
-		gate_spin:Disconnect()
-	end)
-	
-	task.wait(10)
-	Entity:SetAttribute("BeingBanished",false)
+	if not resist then
+		repentance.Crucifix.ExplodeParticle:Emit(math.random(20, 30))
+		camShaker:ShakeOnce(7.5, 7.5, 0.25, 1.5)
+	else
+		model:SetAttribute("BeingBanished", false)
+		model:SetAttribute("Paused", false)
+		fadeOut()
+	end
+	task.delay(5, repentance.Destroy, repentance)
 end
 
+function module:CrucifyEntityWithoutConfig(entity: Model, resist: boolean, tool: Tool)
+    local model = entity
+
+	local toolPivot = tool:GetPivot()
+	local entityPivot = model:GetPivot()
+
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	params.FilterDescendantsInstances = {Character, model}
+	local result = workspace:Raycast(entityPivot.Position, Vector3.new(0, -1000, 0), params)
+	if not result then return end
+
+	-- Setup
+	model:SetAttribute("BeingBanished", true)
+
+	local repentance = Assets.Repentance:Clone()
+	local crucifix = repentance.Crucifix
+	local pentagram = repentance.Pentagram
+	local entityPart = repentance.Entity
+	local sound = (config.Crucifixion.Resist and crucifix.SoundFail or crucifix.Sound)
+	local shaker = Modules.Main_Game.camShaker:StartShake(5, 20, 2, Vector3.new())
+
+	local function waitUntil(t: number)
+		repeat RunService.RenderStepped:Wait() until sound.TimePosition >= t
+	end
+	local function fadeOut()
+		for _, c in next, pentagram:GetChildren() do
+			if c.Name == "BeamFlat" then
+				task.delay(c:GetAttribute("Delay"), function()
+					TweenService:Create(c, TweenInfo.new(1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.In), {
+						Brightness = 0
+					}):Play()
+				end)
+			end
+		end
+	end
+
+	repentance:PivotTo(CFrame.new(result.Position))
+	crucifix.CFrame = toolPivot
+	repentance.Entity.CFrame = entityPivot
+    crucifix.BodyPosition.Position = (RootPart.CFrame * CFrame.new(0.5, 3, -6)).Position
+	repentance.Parent = workspace
+	sound:Play()
+
+	task.spawn(function()
+		while model.Parent and repentance.Parent do
+			model:PivotTo(entityPart.CFrame)
+			task.wait()
+		end
+		model:Destroy()
+	end)
+
+	-- Animation
+	TweenService:Create(pentagram.Circle, TweenInfo.new(2, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), { CFrame = pentagram.Circle.CFrame - Vector3.new(0, 25, 0) }):Play()
+	TweenService:Create(crucifix.BodyAngularVelocity, TweenInfo.new(4, Enum.EasingStyle.Sine, Enum.EasingDirection.In), { AngularVelocity = Vector3.new(0, 40, 0) }):Play()
+	task.delay(2, pentagram.Circle.Destroy, pentagram.Circle)
+
+	task.spawn(function()
+		waitUntil(2.625)
+		TweenService:Create(pentagram.Base.LightAttach.LightBright, TweenInfo.new(1.5, Enum.EasingStyle.Circular, Enum.EasingDirection.InOut), {
+			Brightness = 5,
+			Range = 40
+		}):Play()
+		TweenService:Create(crucifix.Light, TweenInfo.new(1.5, Enum.EasingStyle.Circular, Enum.EasingDirection.InOut), {
+			Brightness = 11.25,
+			Range = 30
+		}):Play()
+		task.wait(1.5)
+		TweenService:Create(pentagram.Base.LightAttach.LightBright, TweenInfo.new(1.5, Enum.EasingStyle.Circular, Enum.EasingDirection.InOut), {
+			Brightness = 0,
+			Range = 0
+		}):Play()
+		TweenService:Create(crucifix.Light, TweenInfo.new(1.5, Enum.EasingStyle.Circular, Enum.EasingDirection.InOut), {
+			Brightness = 0,
+			Range = 0
+		}):Play()
+
+		if resist == false then
+			TweenService:Create(crucifix.Light, TweenInfo.new(1, Enum.EasingStyle.Circular, Enum.EasingDirection.InOut), { Brightness = 15, Range = 40 }):Play()
+			shaker:StartFadeOut(3)
+			fadeOut()
+			TweenService:Create(crucifix.BodyAngularVelocity, TweenInfo.new(3, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), { AngularVelocity = Vector3.new() }):Play()
+		end
+	end)
+
+	-- Actions
+	if resist == false then
+		waitUntil(2)
+		TweenService:Create(entityPart, TweenInfo.new(3, Enum.EasingStyle.Back, Enum.EasingDirection.In), { CFrame = repentance.Entity.CFrame - Vector3.new(0, 25, 0) }):Play()
+		
+        for _, v in next, model:GetDescendants() do
+			if
+				v:IsA("Sound")
+				and not v:GetAttribute("VolumeIgnore")
+			then
+                TweenService:Create(v, TweenInfo.new(3, Enum.EasingStyle.Back, Enum.EasingDirection.In), { Volume = 0 }):Play()
+            end
+        end
+        
+        waitUntil(6.75)
+	else
+		waitUntil(4)
+		TweenService:Create(crucifix.BodyAngularVelocity, TweenInfo.new(3, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), { AngularVelocity = Vector3.new() }):Play()
+		TweenService:Create(pentagram.Base.LightAttach.LightBright, TweenInfo.new(1.5, Enum.EasingStyle.Circular, Enum.EasingDirection.InOut), { Brightness = 0, Range = 0, Color = Color3.fromRGB(255, 116, 130) }):Play()
+		TweenService:Create(crucifix.Light, TweenInfo.new(1.5, Enum.EasingStyle.Circular, Enum.EasingDirection.InOut), { Brightness = 0, Range = 0, Color = Color3.fromRGB(255, 116, 130) }):Play()
+		shaker:StartFadeOut(3)
+		task.spawn(function()
+			local color = Instance.new("Color3Value")
+			color.Value = Color3.fromRGB(137, 207, 255)
+
+			local tween = TweenService:Create(color, TweenInfo.new(0.5, Enum.EasingStyle.Sine), { Value = Color3.fromRGB(255, 116, 130) })
+			tween:Play()
+
+			while tween.PlaybackState == Enum.PlaybackState.Playing do
+				for _, d in next, repentance:GetDescendants() do
+					if d.ClassName == "Beam" then
+						d.Color = ColorSequence.new{ColorSequenceKeypoint.new(0, color.Value), ColorSequenceKeypoint.new(1, color.Value)}
+
+					elseif d.Name == "Crucifix" then
+						d.Color = color.Value
+					end
+				end
+				task.wait()
+			end
+		end)
+		waitUntil(9.625)
+	end
+
+	-- Crucifix explode
+	TweenService:Create(repentance.Crucifix, TweenInfo.new(1), { Size = repentance.Crucifix.Size * 3, Transparency = 1 }):Play()
+	TweenService:Create(repentance.Pentagram.Base.LightAttach.LightBright, TweenInfo.new(1), { Brightness = 0, Range = 0 }):Play()
+	TweenService:Create(repentance.Crucifix.Light, TweenInfo.new(1), { Brightness = 0, Range = 0 }):Play()
+
+	if not resist then
+		repentance.Crucifix.ExplodeParticle:Emit(math.random(20, 30))
+		camShaker:ShakeOnce(7.5, 7.5, 0.25, 1.5)
+	else
+		model:SetAttribute("BeingBanished", false)
+		model:SetAttribute("Paused", false)
+		fadeOut()
+	end
+	task.delay(5, repentance.Destroy, repentance)
+end
+
+getgenv().KiprovCrucifixFunctions = module
 return module
