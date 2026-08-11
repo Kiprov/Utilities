@@ -1,87 +1,98 @@
 # Entity Spawner
-This module allows u to create ur own entities with a lot of customization unlike the admin panel.
+It allows you to summon custom, fully configurable client-sided entities and experiment with your own mechanics or gamemodes for DOORS.
+The Entity Spawner is open source, completely free to use and it still offers more configurations and flexibility than the in-game DOORS admin panel.
+## Features
+
+* Custom entities
+* Fully configurable behavior
+* Movement settings (speed, delay, reversed)
+* Damage and death handling
+* Rebounding mechanics (ambush, blitz, rebound)
+* Light interaction (flicker, break, restore)
+* Environmental effects (earthquake, camera shake)
+* Crucifix support
+* Debug callbacks to control entity behavior and player/environment interactions
+
+## Limitations
+
+* Entities are client-sided only
+* Multiplayer experiences/game modes require manual client syncing
+* Health is managed client-sided, so any server-side health updates may break immersion
+
 Module forked from RegularVynixu and made better.
-If you wish to skip the tutorial, use this example:[Example](https://github.com/Kiprov/Utilities/blob/main/DOORS/Entity%20Spawner/Example.lua)
-# Setup of the Entity Spawner.
-Firstly you want to copy the raw link of the "Source.lua" file.
-Then you want to make a new blank txt or lua file.
-Now paste this code into your file.
-```lua
----====== Load spawner ======---
-local spawner = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kiprov/Utilities/main/DOORS/Entity%20Spawner/Source.lua"))()
-```
-After you `pasted` the code the next thing you want to do is get a template of your entity. Here is a template provided below!
-```lua
----====== Create entity ======---
+If you wish to skip the tutorial, use the examples:[Examples](https://github.com/Kiprov/Utilities/blob/main/DOORS/Entity%20Spawner/Examples)
+## Usage
 
-local entity = spawner.Create({
-	Entity = {
-		Name = "Template Entity",
-		Asset = "", --This can be a raw roblox rbxm file on github or a "rbxassetid://" model from the marketplace.
-		HeightOffset = 0,
-        SpawnOffset = 0,
-        SmoothSound = true,
-        CanSpawnWithoutClosets = true
-	},
-	Lights = {
-		Flicker = {
-			Enabled = true,
-			Duration = 1
-		},
-		Shatter = true,
-		Repair = false
-	},
-	CameraShake = {
-		Enabled = true,
-		Range = 100,
-		Values = {1.5, 20, 0.1, 1} -- Magnitude, Roughness, FadeIn, FadeOut
-	},
-	Movement = {
-		Speed = 100,
-		Delay = 2,
-		Reversed = false
-	},
-	Rebounding = {
-		Enabled = true,
-		Type = "Ambush", -- "Blitz"
-		Min = 1,
-		Max = 1,
-		Delay = 2
-	},
-	Damage = {
-		Enabled = true,
-		Range = 40,
-		Amount = 125
-	},
-	Crucifixion = {
-		Enabled = true,
-		Range = 40,
-		Resist = false,
-		Break = true,
-                Repent = "None"
-	},
-	Death = {
-		Type = "Guiding", -- "Curious"
-		Hints = {"Death", "Hints", "Go", "Here"},
-		Cause = ""
-	}
+### Creating an entity template:
+
+```lua
+local MyEntity = Spawner:Create({
+    Entity = {
+        Name = "Template Entity",
+        Asset = "https://github.com/Kiprov/Utilities/blob/main/DOORS/Entity%20Spawner/Assets/Entities/Rush.rbxm?raw=true",
+        HeightOffset = 0
+    },
+    Movement = {
+        Speed = 100,
+        Delay = 2,
+        Reversed = false
+    },
+    Damage = {
+        Enabled = true,
+		IgnoreHiding = false,
+        Range = 40,
+        Amount = 125
+    },
+    Rebounding = {
+        Enabled = true,
+        Type = "Ambush", -- "Blitz"
+        Min = 2,
+        Max = 4,
+        Delay = 2
+    },
+    Lights = {
+        Flicker = {
+            Enabled = true,
+            Duration = 1
+        },
+        Shatter = true,
+        Repair = false
+    },
+    Earthquake = {
+        Enabled = true
+    },
+    CameraShake = {
+        Enabled = true,
+        Values = {1.5, 20, 0.1, 1}, -- Magnitude, Roughness, FadeIn, FadeOut
+        Range = 100
+    },
+    Crucifixion = {
+        Type = "Curious", -- "Guiding"
+        Enabled = true,
+        Range = 40,
+        Resist = false,
+        Break = true
+    },
+    Death = {
+        Type = "Guiding", -- "Curious"
+        Hints = {"Death", "Hints", "Go", "Here"},
+        Cause = ""
+    }
 })
+```
 
----====== Debug entity ======---
+### Utilizing the debug callbacks:
 
-entity:SetCallback("OnSpawned", function()
+```lua
+MyEntity:SetCallback("OnSpawned", function()
     print("Entity has spawned")
 end)
 
-entity:SetCallback("OnStartMoving", function()
+MyEntity:SetCallback("OnStartMoving", function()
     print("Entity has started moving")
 end)
 
-entity:SetCallback("OnReachNode", function(node)
-	print("Entity has reached node:", node)
-end)
-
-entity:SetCallback("OnEnterRoom", function(room, firstTime)
+MyEntity:SetCallback("OnEnterRoom", function(room: Model, firstTime: boolean)
     if firstTime == true then
         print("Entity has entered room: ".. room.Name.. " for the first time")
     else
@@ -89,7 +100,7 @@ entity:SetCallback("OnEnterRoom", function(room, firstTime)
     end
 end)
 
-entity:SetCallback("OnLookAt", function(lineOfSight)
+MyEntity:SetCallback("OnLookAt", function(lineOfSight: boolean)
 	if lineOfSight == true then
 		print("Player is looking at entity")
 	else
@@ -97,7 +108,7 @@ entity:SetCallback("OnLookAt", function(lineOfSight)
 	end
 end)
 
-entity:SetCallback("OnRebounding", function(startOfRebound)
+MyEntity:SetCallback("OnRebounding", function(startOfRebound: boolean)
     if startOfRebound == true then
         print("Entity has started rebounding")
 	else
@@ -105,50 +116,36 @@ entity:SetCallback("OnRebounding", function(startOfRebound)
 	end
 end)
 
-entity:SetCallback("OnDespawning", function()
+MyEntity:SetCallback("OnDespawning", function()
     print("Entity is despawning")
 end)
 
-entity:SetCallback("OnDespawned", function()
+MyEntity:SetCallback("OnDespawned", function()
     print("Entity has despawned")
 end)
 
-entity:SetCallback("OnDamagePlayer", function(newHealth)
-	if newHealth == 0 then
+MyEntity:SetCallback("OnDamagePlayer", function(newHealth: number)
+	if newHealth <= 0 then
 		print("Entity has killed the player")
 	else
 		print("Entity has damaged the player")
 	end
 end)
-
---[[
-
-DEVELOPER NOTE:
-By overwriting 'CrucifixionOverwrite' the default crucifixion callback will be replaced with your custom callback.
-
-entity:SetCallback("CrucifixionOverwrite", function()
-    print("Custom crucifixion callback")
-end)
-
-]]--
-
----====== Run entity ======---
-
-entity:Run()
--- entity:Pause()
--- entity:IsPaused()
--- entity:Despawn()
 ```
-Now you may have noticed there are some functions associated with the entity u created("entity:Run()","entity:Pause()","entity:IsPaused" and "entity:Despawn")
-Let's go over what each function does!
-# Entity Functions
-# entity:Run()
-This function spawn the entity into the game.
-# entity:Pause(bool)
-This function allows u to pause or resume the entity via a boolean value.
-# entity:IsPaused()
-This function returns the state of the entity(paused or running).
-# entity:Despawn()
-This function completely removes the entity from the game.
+
+### Running your entity in-game:
+
+```lua
+MyEntity:Run(true) -- creates & runs a copy of your entity template
+-- MyEntity:Pause()
+-- MyEntity:IsPaused()
+-- MyEntity:Despawn()
+```
+## Entity Functions
+
+* entity:Run(cloneTemplate: boolean) -- Runs the created entity via template(or the cloned template if you set the cloneTemplate argument to true)
+* entity:Pause(paused: boolean) -- Pauses/Resumes the entity via the paused boolean argument.
+* entity:IsPaused() -- Returns a boolean value, telling if the entity is paused or not.
+* entity:Despawn() -- Despawns the entity, if spawned.
 # End of the setup
 Now that you know what each function does it's time for you to create awesome custom entities out there and use them for anything(ex:a mode, an entity spawner hub, etc.).
