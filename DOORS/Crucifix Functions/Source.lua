@@ -180,7 +180,7 @@ function module:CrucifyEntity(entity: any, tool: Tool)
 
 	if not resist then
 		repentance.Crucifix.ExplodeParticle:Emit(math.random(20, 30))
-		camShaker:ShakeOnce(7.5, 7.5, 0.25, 1.5)
+		Modules.Main_Game.camShaker:ShakeOnce(7.5, 7.5, 0.25, 1.5)
 	else
 		model:SetAttribute("BeingBanished", false)
 		model:SetAttribute("Paused", false)
@@ -324,7 +324,7 @@ function module:CrucifyEntityWithoutConfig(entity: Model, resist: boolean, tool:
 
 	if not resist then
 		repentance.Crucifix.ExplodeParticle:Emit(math.random(20, 30))
-		camShaker:ShakeOnce(7.5, 7.5, 0.25, 1.5)
+		Modules.Main_Game.camShaker:ShakeOnce(7.5, 7.5, 0.25, 1.5)
 	else
 		model:SetAttribute("BeingBanished", false)
 		model:SetAttribute("Paused", false)
