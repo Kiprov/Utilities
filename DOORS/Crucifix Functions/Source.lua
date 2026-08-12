@@ -200,7 +200,9 @@ function module:CrucifyEntity(entity: any, tool: Tool)
 	end
 	task.delay(5, function()
 	    repentance:Destroy()
-	    model:SetAttribute("Paused", false)
+	    if not resist then
+	        model:SetAttribute("Paused", false)
+	    end
 	end)
 end
 
@@ -359,7 +361,9 @@ function module:CrucifyEntityWithoutConfig(entity: Model, resist: boolean, tool:
 	end
 	task.delay(5, function()
 	    repentance:Destroy()
-	    model:SetAttribute("Paused", false)
+	    if not resist then
+	        model:SetAttribute("Paused", false)
+	    end
 	end)
 end
 
