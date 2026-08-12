@@ -60,6 +60,12 @@ function module:CrucifyEntity(entity: any, tool: Tool)
 	-- Setup
 	model:SetAttribute("BeingBanished", true)
 	model:SetAttribute("Paused", true)
+	if resist == false then
+	    model = model:Clone()
+	    model.Name = "Fake_"..model.Name
+        model.Parent = workspace
+	    entity:Despawn()
+	end
 
 	local repentance = Assets.Repentance:Clone()
 	local crucifix = repentance.Crucifix
@@ -95,7 +101,9 @@ function module:CrucifyEntity(entity: any, tool: Tool)
 			model:PivotTo(entityPart.CFrame)
 			task.wait()
 		end
-		entity:Despawn()
+		if resist == false then
+		    model:Destroy()
+		end
 	end)
 
 	-- Animation
@@ -205,6 +213,12 @@ function module:CrucifyEntityWithoutConfig(entity: Model, resist: boolean, tool:
 	-- Setup
 	model:SetAttribute("BeingBanished", true)
 	model:SetAttribute("Paused", true)
+	if resist == false then
+	    model = model:Clone()
+	    model.Name = "Fake_"..model.Name
+        model.Parent = workspace
+        entity:Destroy()
+	end
 
 	local repentance = Assets.Repentance:Clone()
 	local crucifix = repentance.Crucifix
@@ -240,7 +254,9 @@ function module:CrucifyEntityWithoutConfig(entity: Model, resist: boolean, tool:
 			model:PivotTo(entityPart.CFrame)
 			task.wait()
 		end
-		model:Destroy()
+		if resist == false then
+		    model:Destroy()
+		end
 	end)
 
 	-- Animation
