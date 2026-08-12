@@ -8,10 +8,11 @@
              __/ |                                                   __/ |        | |                                                   
             |___/                                                   |___/         |_|
 ]]--
-
+print("test 1")
 if getgenv().VynixuEntitySpawnerV2 then return getgenv().VynixuEntitySpawnerV2 end
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Functions.lua"))()
+print("test 2")
 -- \\ Preventing Nodes Destruction // --
 pcall(function()
     workspace.CurrentRooms["0"].PathfindNodes:Destroy()
@@ -51,12 +52,12 @@ local Humanoid = Character:WaitForChild("Humanoid")
 local RootPart = Humanoid.RootPart or Character.PrimaryPart
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 local Camera = workspace.CurrentCamera
-
+print("test 3")
 local Remotes = not isOld and ReplicatedStorage:WaitForChild("RemotesFolder") or ReplicatedStorage:WaitForChild("Bricks") :: Folder
 local GameStats = ReplicatedStorage:WaitForChild("GameStats") :: Folder
 local CurrentRooms = workspace:WaitForChild("CurrentRooms") :: Folder
 local ModulesClient = not isOld and ReplicatedStorage:WaitForChild("ModulesClient") or ReplicatedStorage:WaitForChild("ClientModules") :: Folder
-
+print("test 4")
 local Assets = {
 	Repentance = LoadCustomInstance(ROOT.."/Assets/Repentance.rbxm"),
 	Earthquake = LoadCustomInstance(ROOT.."/Assets/Earthquake.rbxm")
