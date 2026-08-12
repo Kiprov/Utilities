@@ -628,7 +628,7 @@ local function EntityMoveTo(model: Model, cframe: CFrame, entity: any)
     local pivot = model:GetPivot()
     local reached = false
     local config = entity.Config
-    local connection; connection = RunService.Stepped:Connect(function(_, step)
+    local connection; connection = RunService.RenderStepped:Connect(function(step)
         if not model:GetAttribute("Paused") then
             model:PivotTo(pivot:Lerp(cframe, alpha))
             alpha = alpha + step / (distance / config.Movement.Speed)
@@ -638,7 +638,7 @@ local function EntityMoveTo(model: Model, cframe: CFrame, entity: any)
             end
         end
     end)
-    repeat RunService.Stepped:Wait() until reached
+    repeat RunService.RenderStepped:Wait() until reached
     -- \\ Vynixu Entity Movement Logic Below! // --
 	--[[local reached = false
 	local connection; connection = RunService.Stepped:Connect(function(_, step)
