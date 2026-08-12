@@ -8,6 +8,7 @@
              __/ |                                                   __/ |        | |                                                   
             |___/                                                   |___/         |_|
 ]]--
+
 if getgenv().VynixuEntitySpawnerV2 then return getgenv().VynixuEntitySpawnerV2 end
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Functions.lua"))()
@@ -51,18 +52,18 @@ local RootPart = Humanoid.RootPart or Character.PrimaryPart
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 local Camera = workspace.CurrentCamera
 
-local Remotes = not isOld and ReplicatedStorage:WaitForChild("RemotesFolder") or ReplicatedStorage:WaitForChild("Bricks")
-local GameStats = ReplicatedStorage:WaitForChild("GameStats")
-local CurrentRooms = workspace:WaitForChild("CurrentRooms")
-local ModulesClient = not isOld and ReplicatedStorage:WaitForChild("ModulesClient") or ReplicatedStorage:WaitForChild("ClientModules")
+local Remotes = not isOld and ReplicatedStorage:WaitForChild("RemotesFolder") or ReplicatedStorage:WaitForChild("Bricks") :: Folder
+local GameStats = ReplicatedStorage:WaitForChild("GameStats") :: Folder
+local CurrentRooms = workspace:WaitForChild("CurrentRooms") :: Folder
+local ModulesClient = not isOld and ReplicatedStorage:WaitForChild("ModulesClient") or ReplicatedStorage:WaitForChild("ClientModules") :: Folder
 
 local Assets = {
 	Repentance = LoadCustomInstance(ROOT.."/Assets/Repentance.rbxm"),
 	Earthquake = LoadCustomInstance(ROOT.."/Assets/Earthquake.rbxm")
 }
 local Modules = {
-	Module_Events = require(ModulesClient.Module_Events),
-	Main_Game = require(PlayerGui.MainUI.Initiator.Main_Game)
+	Module_Events = require(ModulesClient.Module_Events :: ModuleScript),
+	Main_Game = require(PlayerGui.MainUI.Initiator.Main_Game :: ModuleScript)
 }
 local Storage = {
     Ambient = {},
@@ -167,7 +168,7 @@ local Module = {
 
 -- \\ Functions // --
 
-local function CloneTable(tbl)
+local function CloneTable(tbl: any): any
     local new = {}
     for key, value in next, tbl do
         if typeof(value) == "table" then
@@ -199,24 +200,24 @@ function ApplyConfigDefaults(tbl, defaults)
     return new
 end
 
-local function OnCharacterAdded(char)
+local function OnCharacterAdded(char: Model)
 	LastRespawn = tick()
 
 	Character = char
 	Humanoid = char:WaitForChild("Humanoid")
     RootPart = Humanoid.RootPart or char.PrimaryPart
 
-    Modules.Main_Game = require(PlayerGui:WaitForChild("MainUI").Initiator.Main_Game)
+    Modules.Main_Game = require(PlayerGui:WaitForChild("MainUI").Initiator.Main_Game :: ModuleScript)
 end
 
-local function GetCurrentRoom(latest)
+local function GetCurrentRoom(latest: boolean): Model?
     if latest then
         return CurrentRooms:GetChildren()[#CurrentRooms:GetChildren()]
     end
     return CurrentRooms:FindFirstChild(LocalPlayer:GetAttribute("CurrentRoom"))
 end
 
-local function GetRoomAtPoint(vector3, ignoreTable)
+local function GetRoomAtPoint(vector3: Vector3, ignoreTable: any): Model?
     local params = RaycastParams.new()
 	params.FilterType = Enum.RaycastFilterType.Exclude
 	params.FilterDescendantsInstances = ignoreTable
@@ -232,7 +233,7 @@ local function GetRoomAtPoint(vector3, ignoreTable)
 	return
 end
 
-local function FixRoomLights(room)
+local function FixRoomLights(room: Model)
     local roomEntrance = room:FindFirstChild("RoomEntrance") or room:FindFirstChild("RoomStart")
 	if not roomEntrance then return end
 
@@ -289,7 +290,7 @@ local function FixRoomLights(room)
     end
 end
 
-local function PlayerHasItemEquipped(name)
+local function PlayerHasItemEquipped(name: string): boolean
 	local tool = Character:FindFirstChildOfClass("Tool")
 	if tool and tool.Name == name then
 		return true, tool
@@ -297,7 +298,7 @@ local function PlayerHasItemEquipped(name)
 	return false
 end
 
-local function CrucifixEntity(entity, tool)
+local function CrucifixEntity(entity: any, tool: Tool)
 	local model = entity.Model
 	local config = entity.Config
 
@@ -322,7 +323,7 @@ local function CrucifixEntity(entity, tool)
 	local sound = (config.Crucifixion.Resist and crucifix.SoundFail or crucifix.Sound)
 	local shaker = Modules.Main_Game.camShaker:StartShake(5, 20, 2, Vector3.new())
 
-	local function waitUntil(t)
+	local function waitUntil(t: number)
 		repeat RunService.RenderStepped:Wait() until sound.TimePosition >= t
 	end
 	local function fadeOut()
@@ -444,11 +445,11 @@ local function CrucifixEntity(entity, tool)
 	task.delay(5, repentance.Destroy, repentance)
 end
 
-local function IsPlayerProtected()
+local function IsPlayerProtected(): boolean
 	return (tick() - LastRespawn) <= LocalPlayer:GetAttribute("SpawnProtection")
 end
 
-local function DamagePlayer(entity)
+local function DamagePlayer(entity: any)
     if PlayerHasItemEquipped("Crucifix") then return end
 	if Humanoid.Health <= 0 or IsPlayerProtected() then return end
 		
@@ -498,7 +499,7 @@ local function DamagePlayer(entity)
     end
 end
 
-local function GetNodesFromRoom(room, reversed)
+local function GetNodesFromRoom(room: Model, reversed: boolean): { BasePart }
 	local nodes = {}
 	local roomEntrance = not isOld and room:FindFirstChild("RoomEntrance") or room:FindFirstChild("RoomStart")
 	if roomEntrance then
@@ -537,7 +538,7 @@ local function GetNodesFromRoom(room, reversed)
 		nodes[index] = n
 	end
 
-	table.sort(nodes, function(a, b)
+	table.sort(nodes, function(a: BasePart, b: BasePart)
         if reversed then
             return tonumber(a.Name) > tonumber(b.Name)
         else
@@ -548,7 +549,7 @@ local function GetNodesFromRoom(room, reversed)
 	return nodes
 end
 
-local function GetPathfindNodesAmbush(config)
+local function GetPathfindNodesAmbush(config: any): { BasePart }
 	local pathfindNodes = {}
     local rooms = CurrentRooms:GetChildren()
     if config.Movement.Reversed == false then
@@ -571,7 +572,7 @@ local function GetPathfindNodesAmbush(config)
 	return pathfindNodes
 end
 
-local function GetPathfindNodesBlitz(config)
+local function GetPathfindNodesBlitz(config: any): ({BasePart}, {BasePart})
 	local nodesToCurrent, nodesToEnd = {}, {}
 	local currentRoomIndex = LocalPlayer:GetAttribute("CurrentRoom")
     local rooms = CurrentRooms:GetChildren()
@@ -608,7 +609,7 @@ local function GetPathfindNodesBlitz(config)
 	return nodesToCurrent, nodesToEnd
 end
 
-local function EntityMoveTo(model, cframe, entity)
+local function EntityMoveTo(model: Model, cframe: CFrame, entity: any)
     local alpha = 0
     local distance = (model.PrimaryPart.Position - cframe.Position).Magnitude
     local pivot = model:GetPivot()
@@ -616,7 +617,7 @@ local function EntityMoveTo(model, cframe, entity)
     local config = entity.Config
     local connection; connection = RunService.Stepped:Connect(function(_, step)
         if not model:GetAttribute("Paused") then
-            model:PivotTo(pivot:Lerp(cframe, alpha)
+            model:PivotTo(pivot:Lerp(cframe, alpha))
             alpha = alpha + step / (distance / config.Movement.Speed)
             if alpha >= 1 then
                 connection:Disconnect()
@@ -668,7 +669,7 @@ local function Earthquake()
     end
 end
 
-local function fadeSFX(model, entity, fadeIn)
+local function fadeSFX(model: Model, entity: any, fadeIn: boolean)
     local config = entity.Config
 	if fadeIn then
 		for i, v in next, model:GetDescendants() do
@@ -692,7 +693,7 @@ local function fadeSFX(model, entity, fadeIn)
 	end
 end
 
-local function GetSpotsInRoom()
+local function GetSpotsInRoom(): boolean
     local spots = {"HidePrompt"}
 	local spotFound = false
 	local latestRoom = CurrentRooms[gameData.LatestRoom.Value]
@@ -723,7 +724,7 @@ LocalPlayer.CharacterAdded:Connect(OnCharacterAdded)
 
 -- \\ Main // --
 
-Module.Create = function(self, config)
+Module.Create = function(self, config: any): any?
     local newConfig = ApplyConfigDefaults(config, CONST.DEFAULT.CONFIG)
     newConfig.Movement.Speed = CONST.BASE_ENTITY_SPEED / 100 * config.Movement.Speed
 
@@ -735,7 +736,7 @@ Module.Create = function(self, config)
         success, entityModel = true, asset
     elseif typeof(asset) == "string" then
         success, entityModel = pcall(function()
-			local instance = LoadCustomInstance(asset)
+			local instance: Instance? = LoadCustomInstance(asset)
 			if typeof(instance) == "Instance" then
                 if instance.ClassName ~= "Model" then
                     error(string.format(
@@ -784,14 +785,14 @@ Module.Create = function(self, config)
         Model = entityModel,
         Config = newConfig,
         Debug = CloneTable(CONST.DEFAULT.DEBUG),
-        SetCallback = function(self, key, callback)
+        SetCallback = function(self, key: string, callback: any)
             assert(typeof(key) == "string" and self.Debug[key], debug.traceback("Callback key is invalid."))
             assert(typeof(callback) == "function", debug.traceback("Callback must be a function."))
             if self.Debug[key] then
                 self.Debug[key] = callback
             end
         end,
-        RunCallback = function(self, key, ...)
+        RunCallback = function(self, key: string, ...: any?)
             local callback = self.Debug[key]
             if typeof(callback) == "function" then
                 local success, result = pcall(callback, ...)
@@ -807,15 +808,15 @@ Module.Create = function(self, config)
                 end
             end
         end,
-        IsAlive = function(self)
+        IsAlive = function(self): boolean
             return self.Model and self.Model.Parent
         end,
-        Pause = function(self, state)
+        Pause = function(self, state: boolean)
             if self:IsAlive() then
                 self.Model:SetAttribute("Paused", state)
             end
         end,
-        Run = function(self, copyEntity)
+        Run = function(self, copyEntity: boolean)
             Module:Run(self, copyEntity)
         end,
         Despawn = function(self)
@@ -831,7 +832,7 @@ Module.Create = function(self, config)
     }
 end
 
-Module.Run = function(self, entity, copyEntity)
+Module.Run = function(self, entity: any, copyEntity: boolean)
     if copyEntity == true then
         self:Run(CloneTable(entity), false)
         return
@@ -866,14 +867,14 @@ Module.Run = function(self, entity, copyEntity)
     local debug = entity.Debug
     
     if config.Entity.SmoothSound then
-        fadeSFX(model, config, true)
+        fadeSFX(entityModel, newConfig, true)
     end
 
     model:SetAttribute("Running", true)
     self.ActiveEntities[#self.ActiveEntities + 1] = entity
 
     -- Spawning
-    local spawnPoint = nil
+    local spawnPoint: BasePart? = nil
     do
         local rooms = CurrentRooms:GetChildren()
         if config.Movement.Reversed then
@@ -891,7 +892,7 @@ Module.Run = function(self, entity, copyEntity)
     end
     
     -- SpawnPoint Customization
-    local offset = nil
+    local offset: CFrame? = nil
     do
         local offsetNum = config.Entity.SpawnOffset
         if tonumber(offsetNum) == nil then
@@ -963,7 +964,7 @@ Module.Run = function(self, entity, copyEntity)
                     then
                         model:SetAttribute("LastEnteredRoom", index)
 
-                        local roomsEntered = model:FindFirstChild("RoomsEntered")
+                        local roomsEntered = model:FindFirstChild("RoomsEntered") :: Folder
                         if roomsEntered then
                             local firstTime = roomsEntered:GetAttribute(room.Name) == nil
                             
@@ -1057,14 +1058,14 @@ Module.Run = function(self, entity, copyEntity)
 
     -- Pathfinding
     task.spawn(function()
-        local nodeConnection = nil
+        local nodeConnection;
         local reboundType = config.Rebounding.Type:upper()
         if reboundType == "AMBUSH" then
             local pathfindNodes = GetPathfindNodesAmbush(config)
-            nodeConnection = CurrentRooms.ChildAdded:Connect(function(room)
+            nodeConnection = CurrentRooms.ChildAdded:Connect(function(room: Model)
                 room:WaitForChild(not isOld and "PathfindNodes" or "Nodes")
                 if not config.Movement.Reversed then
-                    local roomNodes = GetNodesFromRoom(room, false)
+                    local roomNodes: { BasePart } = GetNodesFromRoom(room, false)
                     for _, n in next, roomNodes do
                         pathfindNodes[#pathfindNodes + 1] = n
                     end
@@ -1119,10 +1120,10 @@ Module.Run = function(self, entity, copyEntity)
             end
         elseif reboundType == "REBOUND" then
             local pathfindNodes = GetPathfindNodesAmbush(config)
-            nodeConnection = CurrentRooms.ChildAdded:Connect(function(room)
+            nodeConnection = CurrentRooms.ChildAdded:Connect(function(room: Model)
                 room:WaitForChild(not isOld and "PathfindNodes" or "Nodes")
                 if not config.Movement.Reversed then
-                    local roomNodes = GetNodesFromRoom(room, false)
+                    local roomNodes: { BasePart } = GetNodesFromRoom(room, false)
                     for _, n in next, roomNodes do
                         pathfindNodes[#pathfindNodes + 1] = n
                     end
@@ -1256,7 +1257,7 @@ Module.Run = function(self, entity, copyEntity)
                     return
                 end
 
-                local randomNode = nil
+                local randomNode: BasePart? = nil;
                 if config.Movement.Reversed == false then
                     randomNode = roomNodes[math.random(1, #roomNodes - 1)]
                 else
@@ -1317,10 +1318,10 @@ end
 if not getgenv()._internal_vynixu_entity_spawner then
 	getgenv()._internal_vynixu_entity_spawner = true
 
-	local function GetAmbient(room)
+	local function GetAmbient(room: Model): Color3
 		return
-            room:GetAttribute("AmbientOriginal")
-            or room:GetAttribute("Ambient")
+            room:GetAttribute("AmbientOriginal") :: Color3
+            or room:GetAttribute("Ambient") :: Color3
             or Color3.fromRGB(67, 51, 56)
 	end
 
@@ -1328,11 +1329,11 @@ if not getgenv()._internal_vynixu_entity_spawner then
 		Storage.Ambient[room] = GetAmbient(room)
 	end
 
-	CurrentRooms.ChildAdded:Connect(function(room)
+	CurrentRooms.ChildAdded:Connect(function(room: Model)
 		Storage.Ambient[room] = GetAmbient(room)
 	end)
 	
-	workspace.DescendantRemoving:Connect(function(instance)
+	workspace.DescendantRemoving:Connect(function(instance: Instance)
 		if instance.Name == "PathfindNodes" then
             local latestRoom = GetCurrentRoom(true)
             if latestRoom then
