@@ -157,7 +157,7 @@ local CONST = {
 			OnDespawned = function() end,
 			OnDamagePlayer = function() end,
 			OnEndRush = function() end,
-			CrucifixionOverwrite = nil
+			CrucifixionOverwrite = "null"
 		}
 	}
 }
