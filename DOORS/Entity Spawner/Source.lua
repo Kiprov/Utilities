@@ -355,7 +355,6 @@ local function CrucifixEntity(entity: any, tool: Tool)
 
 	task.spawn(function()
 		while model.Parent and repentance.Parent do
-			model:PivotTo(entityPart.CFrame)
 			task.wait()
 		end
 		if resist == false then
