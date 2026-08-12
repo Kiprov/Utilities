@@ -524,7 +524,7 @@ local function GetNodesFromRoom(room: Model, reversed: boolean): { BasePart }
 
 	local nodesFolder = not isOld and room:FindFirstChild("PathfindNodes") or room:FindFirstChild("Nodes")
 	if nodesFolder then
-		for _, n in next, nodesFolder:GetChildren() do
+		for i, n in next, nodesFolder:GetChildren() do
 		    if string.find(n.Name, "MinecartNode") then
 		        n.Name = i
 		    end
@@ -534,7 +534,7 @@ local function GetNodesFromRoom(room: Model, reversed: boolean): { BasePart }
 	
 	local runnerNodes = room:FindFirstChild("RunnerNodes", true)
 	if runnerNodes then
-	    for _, n in next, runnerNodes:GetChildren() do
+	    for i, n in next, runnerNodes:GetChildren() do
 	        if string.find(n.Name, "MinecartNode") then
 	            n.Name = i
 	        end
