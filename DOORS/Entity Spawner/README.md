@@ -20,6 +20,19 @@ The Entity Spawner is open source, completely free to use and it still offers mo
 * Health is managed client-sided, so any server-side health updates may break immersion
 
 Module forked from RegularVynixu and made better.
+
+## Why use this one instead of RegularVynixu one?
+
+Because this entity spawner has more features than RegularVynixu one.
+## Extra Features
+
+* Smooth Sound(only works if u enabled smooth sound property inside the Entity category, uses movement delay as seconds for the fade in effect)
+* Spot Checking(the entity wont spawn if there are no hiding spots inside the latest room or the room behind the latest room)
+* Node Updating(only works for Ambush and Rebound rebounding types)
+* Spawn Offset(the offset that will apply when the entity spawns)
+* New Callback OnEndRush(fires when the entity is done rushing and moves to rebounding if enabled)
+* Hotel- Support
+
 If you wish to skip the tutorial, use the examples:[Examples](https://github.com/Kiprov/Utilities/blob/main/DOORS/Entity%20Spawner/Examples)
 ## Usage
 
