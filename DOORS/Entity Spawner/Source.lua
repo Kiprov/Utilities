@@ -354,7 +354,8 @@ local function CrucifixEntity(entity: any, tool: Tool)
 	sound:Play()
 
 	task.spawn(function()
-		while model.Parent and repentance.Parent do
+		while model:GetAttribute("Paused") do
+		    model:PivotTo(entityPart.CFrame)
 			task.wait()
 		end
 		if resist == false then
@@ -451,7 +452,10 @@ local function CrucifixEntity(entity: any, tool: Tool)
 		model:SetAttribute("Paused", false)
 		fadeOut()
 	end
-	task.delay(5, repentance.Destroy, repentance)
+	task.delay(5, function()
+	    repentance:Destroy()
+	    model:SetAttribute("Paused", false)
+	end)
 end
 
 local function IsPlayerProtected(): boolean
