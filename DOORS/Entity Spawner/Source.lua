@@ -1310,7 +1310,7 @@ Module.Run = function(self, entity: any, copyEntity: boolean)
             if nodeConnection then
                 nodeConnection:Disconnect()
             end
-            EntityMoveTo(model, (config.Rebounding.Max > 1 and model:GetPivot() + Vector3.new(0, 300, 0) or model:GetPivot() - Vector3.new(0, 300, 0)), config.Movement.Speed)
+            EntityMoveTo(model, (config.Rebounding.Max > 1 and model:GetPivot() + Vector3.new(0, 300, 0) or model:GetPivot() - Vector3.new(0, 300, 0)), entity)
             entity:Despawn()
         end
     end)
