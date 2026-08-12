@@ -54,6 +54,7 @@ local Camera = workspace.CurrentCamera
 
 local Remotes = not isOld and ReplicatedStorage:WaitForChild("RemotesFolder") or ReplicatedStorage:WaitForChild("Bricks") :: Folder
 local GameStats = ReplicatedStorage:WaitForChild("GameStats") :: Folder
+local GameData = ReplicatedStorage:WaitForChild("GameData") :: Folder
 local CurrentRooms = workspace:WaitForChild("CurrentRooms") :: Folder
 local ModulesClient = not isOld and ReplicatedStorage:WaitForChild("ModulesClient") or ReplicatedStorage:WaitForChild("ClientModules") :: Folder
 
@@ -696,8 +697,8 @@ end
 local function GetSpotsInRoom(): boolean
     local spots = {"HidePrompt"}
 	local spotFound = false
-	local latestRoom = CurrentRooms[gameData.LatestRoom.Value]
-	local prevRoom = CurrentRooms[gameData.LatestRoom.Value-1]
+	local latestRoom = CurrentRooms[GameData.LatestRoom.Value]
+	local prevRoom = CurrentRooms[GameData.LatestRoom.Value-1]
 	-- \\ Spot Recursive Attack // --
 	for i,v in next, spots do
 	    if latestRoom:FindFirstChild(v,true) then
