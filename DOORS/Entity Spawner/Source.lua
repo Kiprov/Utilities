@@ -309,8 +309,7 @@ local function IsPlayerProtected(): boolean
 end
 
 local function DamagePlayer(entity: any)
-    if PlayerHasItemEquipped("Crucifix") then return end
-	if Humanoid.Health <= 0 or IsPlayerProtected() then return end
+    if Humanoid.Health <= 0 or IsPlayerProtected() then return end
 		
     local config = entity.Config
     local newHealth = math.clamp(Humanoid.Health - config.Damage.Amount, 0, Humanoid.MaxHealth)
