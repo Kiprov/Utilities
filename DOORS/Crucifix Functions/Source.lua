@@ -7,7 +7,7 @@ end
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Functions.lua"))()
 
-local ROOT = "https://github.com/Kiprov/Utilities/raw/main/DOORS/Entity%20Spawner/raw/main"
+local ROOT = "https://github.com/Kiprov/Utilities/raw/main/DOORS/Entity%20Spawner"
 local Assets = {
 	Repentance = LoadCustomInstance(ROOT.."/Assets/Repentance.rbxm"),
 	Earthquake = LoadCustomInstance(ROOT.."/Assets/Earthquake.rbxm")
