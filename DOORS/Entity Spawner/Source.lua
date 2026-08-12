@@ -309,7 +309,7 @@ local function IsPlayerProtected(): boolean
 end
 
 local function DamagePlayer(entity: any)
-    if Humanoid.Health <= 0 or IsPlayerProtected() then return end
+	if Humanoid.Health <= 0 or IsPlayerProtected() then return end
 		
     local config = entity.Config
     local newHealth = math.clamp(Humanoid.Health - config.Damage.Amount, 0, Humanoid.MaxHealth)
@@ -922,10 +922,14 @@ Module.Run = function(self, entity: any, copyEntity: boolean)
             local pathfindNodes = GetPathfindNodesAmbush(config)
             nodeConnection = CurrentRooms.ChildAdded:Connect(function(room: Model)
                 room:WaitForChild(not isOld and "PathfindNodes" or "Nodes")
+                local roomNodes: { BasePart } = GetNodesFromRoom(room, config.Movement.Reversed)
                 if not config.Movement.Reversed then
-                    local roomNodes: { BasePart } = GetNodesFromRoom(room, false)
                     for _, n in next, roomNodes do
                         pathfindNodes[#pathfindNodes + 1] = n
+                    end
+                else
+                    for i, n in next, roomNodes do
+                        table.insert(pathfindNodes, i, n)
                     end
                 end
             end)
@@ -980,10 +984,14 @@ Module.Run = function(self, entity: any, copyEntity: boolean)
             local pathfindNodes = GetPathfindNodesAmbush(config)
             nodeConnection = CurrentRooms.ChildAdded:Connect(function(room: Model)
                 room:WaitForChild(not isOld and "PathfindNodes" or "Nodes")
+                local roomNodes: { BasePart } = GetNodesFromRoom(room, config.Movement.Reversed)
                 if not config.Movement.Reversed then
-                    local roomNodes: { BasePart } = GetNodesFromRoom(room, false)
                     for _, n in next, roomNodes do
                         pathfindNodes[#pathfindNodes + 1] = n
+                    end
+                else
+                    for i, n in next, roomNodes do
+                        table.insert(pathfindNodes, i, n)
                     end
                 end
             end)
