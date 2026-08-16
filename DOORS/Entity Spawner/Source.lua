@@ -371,9 +371,12 @@ local function GetNodesFromRoom(room: Model, reversed: boolean): { BasePart }
 	if nodesFolder then
 		for i, n in next, nodesFolder:GetChildren() do
 		    if string.find(n.Name, "MinecartNode") then
+		        n = n:Clone()
 		        n.Name = i
+		        nodes[#nodes + 1] = n
+		    else
+		        nodes[#nodes + 1] = n
 		    end
-			nodes[#nodes + 1] = n
 		end
 	end
 	
@@ -381,9 +384,12 @@ local function GetNodesFromRoom(room: Model, reversed: boolean): { BasePart }
 	if runnerNodes then
 	    for i, n in next, runnerNodes:GetChildren() do
 	        if string.find(n.Name, "MinecartNode") then
+	            n = n:Clone()
 	            n.Name = i
+	            nodes[#nodes + 1] = n
+	        else
+	            nodes[#nodes + 1] = n
 	        end
-	        nodes[#nodes + 1] = n
 	    end
 	end
 	
