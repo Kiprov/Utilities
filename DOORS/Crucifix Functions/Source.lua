@@ -101,7 +101,7 @@ function module:CrucifyEntity(entity: any, tool: Tool)
 	sound:Play()
 
 	task.spawn(function()
-		while model:GetAttribute("Paused") do
+		while model:GetAttribute("Paused") and not resist do
 		    model:PivotTo(entityPart.CFrame)
 			task.wait()
 		end
@@ -145,8 +145,8 @@ function module:CrucifyEntity(entity: any, tool: Tool)
 
 	-- Actions
 	if resist == false then
-		waitUntil(1)
-		TweenService:Create(entityPart, TweenInfo.new(1.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { CFrame = repentance.Entity.CFrame - Vector3.new(0, 1, 0) }):Play()
+		waitUntil(1.5)
+		TweenService:Create(entityPart, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.In), { CFrame = repentance.Entity.CFrame - Vector3.new(0, 0.5, 0) }):Play()
 		waitUntil(2)
 		TweenService:Create(entityPart, TweenInfo.new(3, Enum.EasingStyle.Back, Enum.EasingDirection.In), { CFrame = repentance.Entity.CFrame - Vector3.new(0, 25, 0) }):Play()
 		
@@ -161,6 +161,14 @@ function module:CrucifyEntity(entity: any, tool: Tool)
         
         waitUntil(6.75)
 	else
+	    waitUntil(1.5)
+		TweenService:Create(entityPart, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.In), { CFrame = repentance.Entity.CFrame - Vector3.new(0, 0.5, 0) }):Play()
+		waitUntil(2)
+		local tween = TweenService:Create(entityPart, TweenInfo.new(3, Enum.EasingStyle.Back, Enum.EasingDirection.In), { CFrame = repentance.Entity.CFrame - Vector3.new(0, 25, 0) })
+        tween:Play()
+        task.delay(1.5, function()
+            tween:Pause()
+        end)
 		waitUntil(4)
 		TweenService:Create(crucifix.BodyAngularVelocity, TweenInfo.new(3, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), { AngularVelocity = Vector3.new() }):Play()
 		TweenService:Create(pentagram.Base.LightAttach.LightBright, TweenInfo.new(1.5, Enum.EasingStyle.Circular, Enum.EasingDirection.InOut), { Brightness = 0, Range = 0, Color = Color3.fromRGB(255, 116, 130) }):Play()
@@ -264,7 +272,7 @@ function module:CrucifyEntityWithoutConfig(entity: Model, resist: boolean, tool:
 	sound:Play()
 
 	task.spawn(function()
-		while model:GetAttribute("Paused") do
+		while model:GetAttribute("Paused") and not resist do
 		    model:PivotTo(entityPart.CFrame)
 			task.wait()
 		end
@@ -308,8 +316,8 @@ function module:CrucifyEntityWithoutConfig(entity: Model, resist: boolean, tool:
 
 	-- Actions
 	if resist == false then
-		waitUntil(1)
-		TweenService:Create(entityPart, TweenInfo.new(1.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { CFrame = repentance.Entity.CFrame - Vector3.new(0, 1, 0) }):Play()
+		waitUntil(1.5)
+		TweenService:Create(entityPart, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.In), { CFrame = repentance.Entity.CFrame - Vector3.new(0, 0.5, 0) }):Play()
 		waitUntil(2)
 		TweenService:Create(entityPart, TweenInfo.new(3, Enum.EasingStyle.Back, Enum.EasingDirection.In), { CFrame = repentance.Entity.CFrame - Vector3.new(0, 25, 0) }):Play()
 		
@@ -324,6 +332,14 @@ function module:CrucifyEntityWithoutConfig(entity: Model, resist: boolean, tool:
         
         waitUntil(6.75)
 	else
+	    waitUntil(1.5)
+		TweenService:Create(entityPart, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.In), { CFrame = repentance.Entity.CFrame - Vector3.new(0, 0.5, 0) }):Play()
+		waitUntil(2)
+		local tween = TweenService:Create(entityPart, TweenInfo.new(3, Enum.EasingStyle.Back, Enum.EasingDirection.In), { CFrame = repentance.Entity.CFrame - Vector3.new(0, 25, 0) })
+        tween:Play()
+        task.delay(1.5, function()
+            tween:Pause()
+        end)
 		waitUntil(4)
 		TweenService:Create(crucifix.BodyAngularVelocity, TweenInfo.new(3, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), { AngularVelocity = Vector3.new() }):Play()
 		TweenService:Create(pentagram.Base.LightAttach.LightBright, TweenInfo.new(1.5, Enum.EasingStyle.Circular, Enum.EasingDirection.InOut), { Brightness = 0, Range = 0, Color = Color3.fromRGB(255, 116, 130) }):Play()
