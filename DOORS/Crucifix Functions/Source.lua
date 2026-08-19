@@ -190,13 +190,13 @@ function module:CrucifyEntity(entity: any, tool: Tool)
 	TweenService:Create(repentance.Crucifix, TweenInfo.new(1), { Size = repentance.Crucifix.Size * 3, Transparency = 1 }):Play()
 	TweenService:Create(repentance.Pentagram.Base.LightAttach.LightBright, TweenInfo.new(1), { Brightness = 0, Range = 0 }):Play()
 	TweenService:Create(repentance.Crucifix.Light, TweenInfo.new(1), { Brightness = 0, Range = 0 }):Play()
-	fadeOut()
 	if not resist then
 		repentance.Crucifix.ExplodeParticle:Emit(math.random(20, 30))
 		Modules.Main_Game.camShaker:ShakeOnce(7.5, 7.5, 0.25, 1.5)
 	else
 		model:SetAttribute("BeingBanished", false)
 		model:SetAttribute("Paused", false)
+		fadeOut()
 	end
 	task.delay(5, function()
 	    repentance:Destroy()
@@ -351,13 +351,13 @@ function module:CrucifyEntityWithoutConfig(entity: Model, resist: boolean, tool:
 	TweenService:Create(repentance.Crucifix, TweenInfo.new(1), { Size = repentance.Crucifix.Size * 3, Transparency = 1 }):Play()
 	TweenService:Create(repentance.Pentagram.Base.LightAttach.LightBright, TweenInfo.new(1), { Brightness = 0, Range = 0 }):Play()
 	TweenService:Create(repentance.Crucifix.Light, TweenInfo.new(1), { Brightness = 0, Range = 0 }):Play()
-	fadeOut()
 	if not resist then
 		repentance.Crucifix.ExplodeParticle:Emit(math.random(20, 30))
 		Modules.Main_Game.camShaker:ShakeOnce(7.5, 7.5, 0.25, 1.5)
 	else
 		model:SetAttribute("BeingBanished", false)
 		model:SetAttribute("Paused", false)
+		fadeOut()
 	end
 	task.delay(5, function()
 	    repentance:Destroy()
