@@ -803,7 +803,7 @@ Module.Run = function(self, entity: any, copyEntity: boolean)
             if (charOrigin - origin).Magnitude <= config.Damage.Range then
                 local params = RaycastParams.new()
                 params.FilterType = Enum.RaycastFilterType.Exclude
-                params.FilterDescendantsInstances = {Character, model, CollectionService:GetTagged("HidingSpot")}
+                params.FilterDescendantsInstances = {Character, model}
 
                 inSight = workspace:Raycast(origin, charOrigin - origin, params) == nil
             end
