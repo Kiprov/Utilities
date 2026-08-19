@@ -145,12 +145,10 @@ function module:CrucifyEntity(entity: any, tool: Tool)
 
 	-- Actions
 	if resist == false then
+		waitUntil(1)
+		TweenService:Create(entityPart, TweenInfo.new(1.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { CFrame = repentance.Entity.CFrame - Vector3.new(0, 1, 0) }):Play()
 		waitUntil(2)
-		task.spawn(function()
-		    TweenService:Create(entityPart, TweenInfo.new(1.5, Enum.EasingStyle.Back, Enum.EasingDirection.In), { CFrame = repentance.Entity.CFrame - Vector3.new(0, 1, 0) }):Play()
-		    task.wait(1.5)
-		    TweenService:Create(entityPart, TweenInfo.new(1.5, Enum.EasingStyle.Back, Enum.EasingDirection.In), { CFrame = repentance.Entity.CFrame - Vector3.new(0, 25, 0) }):Play()
-		end)
+		TweenService:Create(entityPart, TweenInfo.new(3, Enum.EasingStyle.Back, Enum.EasingDirection.In), { CFrame = repentance.Entity.CFrame - Vector3.new(0, 25, 0) }):Play()
 		
         for _, v in next, model:GetDescendants() do
 			if
@@ -310,12 +308,10 @@ function module:CrucifyEntityWithoutConfig(entity: Model, resist: boolean, tool:
 
 	-- Actions
 	if resist == false then
+		waitUntil(1)
+		TweenService:Create(entityPart, TweenInfo.new(1.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { CFrame = repentance.Entity.CFrame - Vector3.new(0, 1, 0) }):Play()
 		waitUntil(2)
-		task.spawn(function()
-		    TweenService:Create(entityPart, TweenInfo.new(1.5, Enum.EasingStyle.Back, Enum.EasingDirection.In), { CFrame = repentance.Entity.CFrame - Vector3.new(0, 1, 0) }):Play()
-		    task.wait(1.5)
-		    TweenService:Create(entityPart, TweenInfo.new(1.5, Enum.EasingStyle.Back, Enum.EasingDirection.In), { CFrame = repentance.Entity.CFrame - Vector3.new(0, 25, 0) }):Play()
-		end)
+		TweenService:Create(entityPart, TweenInfo.new(3, Enum.EasingStyle.Back, Enum.EasingDirection.In), { CFrame = repentance.Entity.CFrame - Vector3.new(0, 25, 0) }):Play()
 		
         for _, v in next, model:GetDescendants() do
 			if
