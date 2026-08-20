@@ -104,7 +104,8 @@ local CONST = {
 			Movement = {
 				Speed = 100,
 				Delay = 2,
-				Reversed = false
+				Reversed = false,
+				CalculateSpeed = true
 			},
 			Damage = {
 				Enabled = true,
@@ -590,7 +591,9 @@ LocalPlayer.CharacterAdded:Connect(OnCharacterAdded)
 
 Module.Create = function(self, config: any): any?
     local newConfig = ApplyConfigDefaults(config, CONST.DEFAULT.CONFIG)
-    newConfig.Movement.Speed = CONST.BASE_ENTITY_SPEED / 100 * config.Movement.Speed
+    if newConfig.Movement.CalculateSpeed then
+        newConfig.Movement.Speed = CONST.BASE_ENTITY_SPEED / 100 * config.Movement.Speed
+    end
 
     -- Fetch entity model
     local asset = newConfig.Entity.Asset
