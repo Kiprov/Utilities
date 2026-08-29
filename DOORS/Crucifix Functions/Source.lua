@@ -319,7 +319,7 @@ function module:CrucifyEntityWithoutConfig(entity: Model, resist: boolean)
 	    model = model:Clone()
 	    model.Name = "Fake_"..model.Name
         model.Parent = workspace
-	    entity:Despawn()
+	    entity:Destroy()
 	end
 
     -- \\ Variables
