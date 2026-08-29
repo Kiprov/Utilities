@@ -15,7 +15,7 @@ end
 
 local Modules = {
     AchievementUnlock = require(PlayerGui:FindFirstChild("AchievementUnlock", true) :: ModuleScript),
-    Achievements = require(isOld == false and ReplicatedStorage.ModulesShared.Achievements or ReplicatedStorage.Achievements)
+    Achievements = require(isOld == false and ReplicatedStorage.ModulesClient.AchievementInfo or ReplicatedStorage.Achievements)
 }
 local DefaultAchievement = {
     Identifier = "TestAchievement",
@@ -122,7 +122,7 @@ Module.Grant = function(self, achievementConfig: AchievementConfig, options: Opt
     task.defer(function()
         local name = "CustomAchievement_"..tick()
         Modules.Achievements[name] = achievement
-        Modules:AchievementUnlock(name)
+        Modules:AchievementUnlock(isOld == false and achievement or name)
         Modules.Achievements[name] = nil
     end)
 
