@@ -59,7 +59,6 @@ local CurrentRooms = workspace:WaitForChild("CurrentRooms") :: Folder
 local ModulesClient = not isOld and ReplicatedStorage:WaitForChild("ModulesClient") or ReplicatedStorage:WaitForChild("ClientModules") :: Folder
 
 local Assets = {
-	Repentance = LoadCustomInstance(ROOT.."/Assets/Repentance.rbxm"),
 	Earthquake = LoadCustomInstance(ROOT.."/Assets/Earthquake.rbxm")
 }
 local Modules = {
@@ -301,8 +300,8 @@ local function PlayerHasItemEquipped(name: string): boolean
 	return false
 end
 
-local function CrucifixEntity(entity: any, tool: Tool)
-    Modules.CrucifixFunctions:CrucifyEntity(entity, tool)
+local function CrucifixEntity(entity: any)
+    Modules.CrucifixFunctions:CrucifyEntity(entity)
 end
 
 local function IsPlayerProtected(): boolean
@@ -875,7 +874,7 @@ Module.Run = function(self, entity: any, copyEntity: boolean)
                             entity:RunCallback("CrucifixionOverwrite")
                         else
                             model:SetAttribute("Paused", true)
-                            CrucifixEntity(entity, tool)
+                            CrucifixEntity(entity)
                         end
                         usedCrucifix = true
                     end
