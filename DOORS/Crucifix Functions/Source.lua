@@ -221,7 +221,18 @@ function module:CrucifyEntity(entity: any)
 
         WaitUntil(Sound, 6.75)
 	else
-		WaitUntil(Sound, 4)
+		WaitUntil(Sound, 2.5)
+		-- \\ Lower entity and then cancel the tween.
+        local raiseTween = TweenService:Create(
+            EntityPart,
+            TweenInfo.new(3, Enum.EasingStyle.Back, Enum.EasingDirection.In),
+            { CFrame = EntityPart.CFrame - Vector3.new(0, 50, 0) }
+        )
+        raiseTween:Play()
+        task.delay(1.5, function()
+            raiseTween:Pause()
+        end)
+        WaitUntil(Sound, 4)
 
 		TweenService:Create(
             Handle.BodyAngularVelocity,
@@ -455,6 +466,17 @@ function module:CrucifyEntityWithoutConfig(entity: Model, resist: boolean)
 
         WaitUntil(Sound, 6.75)
 	else
+	    WaitUntil(Sound, 2.5)
+		-- \\ Lower entity and then cancel the tween.
+        local raiseTween = TweenService:Create(
+            EntityPart,
+            TweenInfo.new(3, Enum.EasingStyle.Back, Enum.EasingDirection.In),
+            { CFrame = EntityPart.CFrame - Vector3.new(0, 50, 0) }
+        )
+        raiseTween:Play()
+        task.delay(1.5, function()
+            raiseTween:Pause()
+        end)
 		WaitUntil(Sound, 4)
 
 		TweenService:Create(
